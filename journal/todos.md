@@ -1,0 +1,5 @@
+- [ ] (8/30/2025)
+    - [ ] Read through all current settings and make sure you understand what each one does
+    - [ ] Try and trim down any that are not needed
+    - [ ] Go through packages and update any that are not needed
+    - [ ] Scan repo for any unused files and remove them

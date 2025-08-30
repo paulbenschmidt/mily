@@ -1,0 +1,24 @@
+# Django Settings
+SECRET_KEY=your-secret-key-here
+DEBUG=True
+
+# Neon Database Configuration
+DATABASE_NAME=your-database-name
+DATABASE_USER=your-database-user
+DATABASE_PASSWORD=your-database-password
+DATABASE_HOST=your-neon-host.neon.tech
+DATABASE_PORT=5432
+
+# Users
+SUPERUSER_USERNAME=
+SUPERUSER_EMAIL=
+SUPERUSER_PASSWORD=
+
+# Clerk Authentication
+NEXT_PUBLIC_API_URL=http://127.0.0.1:8000/api
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your-clerk-publishable-key
+CLERK_SECRET_KEY=your-clerk-secret-key
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/dashboard
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/dashboard
