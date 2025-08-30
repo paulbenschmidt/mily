@@ -13,7 +13,7 @@ class UserAdmin(BaseUserAdmin):
 
     fieldsets = BaseUserAdmin.fieldsets + (
         ('Mily Profile', {
-            'fields': ('username', 'bio', 'profile_picture', 'birth_date', 'location')
+            'fields': ('clerk_user_id', 'bio', 'profile_picture', 'birth_date', 'location')
         }),
         ('Timestamps', {
             'fields': ('created_at', 'updated_at'),

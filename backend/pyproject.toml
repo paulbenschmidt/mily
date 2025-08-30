@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "mily-backend"
+version = "0.1.0"
+description = "Personal timeline app backend - Django REST API"
+authors = ["Paul Schmidt <paulbenschmidt@gmail.com>"]
+readme = "README.md"
+packages = [{include = "mily"}, {include = "config"}]
+
+[tool.poetry.dependencies]
+python = "^3.12.11"
+django = "^5.2.5"
+djangorestframework = "^3.16.1"
+django-cors-headers = "^4.7.0"
+psycopg2-binary = "^2.9.10"
+python-dotenv = "^1.1.1"
+pillow = "^11.3.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.4.1"
+pytest-django = "^4.11.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+

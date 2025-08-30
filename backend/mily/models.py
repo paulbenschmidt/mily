@@ -26,6 +26,9 @@ class User(AbstractUser):
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
 
+    class Meta:
+        db_table = 'users'
+
     def __str__(self):
         return self.username
 
@@ -70,6 +73,7 @@ class EventCategory(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+        db_table = 'event_categories'
         verbose_name_plural = "Event Categories"
         ordering = ['category_type', 'name']
 
@@ -117,6 +121,7 @@ class Event(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+        db_table = 'events'
         ordering = ['-event_date', '-created_at']
         indexes = [
             models.Index(fields=['user', 'event_date']),
@@ -157,6 +162,7 @@ class Friendship(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+        db_table = 'friendships'
         constraints = [
             models.UniqueConstraint(fields=['requester', 'addressee'], name='uniq_friendship_requester_addressee'),
             models.CheckConstraint(check=~models.Q(requester=models.F('addressee')), name='prevent_self_friendship'),
@@ -197,6 +203,7 @@ class SharedTimeline(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+        db_table = 'shared_timelines'
         constraints = [
             models.UniqueConstraint(fields=['owner', 'shared_with'], name='uniq_shared_timeline_owner_with'),
             models.CheckConstraint(check=~models.Q(owner=models.F('shared_with')), name='prevent_self_share'),
