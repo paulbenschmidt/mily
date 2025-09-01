@@ -1,9 +1,7 @@
 # Mily Database Schema
 
-TODO: Update this document to reflect the actual database schema.
-
 ## Overview
-This document describes the database schema for the Mily personal timeline application. The schema supports core features including timeline creation, event categorization, friend relationships, and timeline sharing.
+This document describes the database schema for the Mily personal timeline application MVP. The schema focuses on core features: user profiles, timeline events, and friend relationships.
 
 ## Models
 
@@ -11,38 +9,62 @@ This document describes the database schema for the Mily personal timeline appli
 Extended Django user model with Clerk integration for authentication.
 
 **Key Fields:**
-- `clerk_user_id`: Integration with Clerk authentication
-- `bio`: User biography (max 500 chars)
+- `id`: UUID primary key
+- `clerk_user_id`: Integration with Clerk authentication (optional for admin users)
+- `username`: Unique username (inherited from AbstractUser)
+- `email`: Unique email address (primary identifier)
+- `first_name`: User's first name
+- `last_name`: User's last name
 - `profile_picture`: URL to profile image
 - `birth_date`: User's birth date
-- `is_profile_public`: Privacy setting for profile visibility
+- `location`: User's location
+- `is_active`: Account status
+- `created_at`: Account creation timestamp
+- `updated_at`: Last update timestamp
 
-### EventCategory
-Categorizes life events into Major, Minor, and Other types.
-
-**Key Fields:**
-- `name`: Category name (unique)
-- `category_type`: One of 'major', 'minor', 'other'
-- `color_hex`: Display color for UI
-- `icon`: Icon class name for visual representation
+**Authentication:**
+- Uses Clerk for authentication in production
+- Supports admin users without Clerk integration
+- Email serves as primary identifier
 
 ### Event
 Individual life events on a user's timeline.
 
-**Key Features:**
-- Flexible date precision (day/month/year)
-- Privacy levels (private/friends/public)
-- Rich content support (notes, photos)
-- Location tracking
-- Category association
+**Key Fields:**
+- `id`: UUID primary key
+- `user`: Foreign key to User (owner)
+- `event_date`: Date of the event
+- `is_date_approximate`: Whether the date is approximate
+- `category`: Event category ('major', 'minor', 'memory')
+- `title`: Event title
+- `description`: Event description (optional)
+- `notes`: Personal reflection notes (optional)
+- `location`: Event location (optional)
+- `privacy_level`: Privacy setting ('private', 'friends', 'public')
+- `photos`: JSON field for photo URLs/metadata
+- `created_at`: Creation timestamp
+- `updated_at`: Last update timestamp
 
 **Privacy Levels:**
 - `private`: Only visible to event owner
-- `friends`: Visible to friends
+- `friends`: Visible to accepted friends
 - `public`: Visible to everyone
+
+**Categories:**
+- `major`: Major Life Event
+- `minor`: Minor Life Event
+- `memory`: Memory
 
 ### Friendship
 Manages friend relationships between users.
+
+**Key Fields:**
+- `id`: UUID primary key
+- `requester`: Foreign key to User (who sent the request)
+- `addressee`: Foreign key to User (who received the request)
+- `status`: Friendship status ('pending', 'accepted', 'declined', 'blocked')
+- `created_at`: Request creation timestamp
+- `updated_at`: Last status update timestamp
 
 **Status Flow:**
 1. `pending`: Friend request sent
@@ -51,29 +73,11 @@ Manages friend relationships between users.
 4. `blocked`: User blocked
 
 **Key Methods:**
-- `are_friends()`: Class method to check friendship status
+- `are_friends()`: Class method to check if two users are friends
 
-### SharedTimeline
-Controls timeline sharing between users with granular permissions.
-
-**Features:**
-- Date range filtering
-- Category filtering
-- Permission levels (view/comment)
-- Expiration dates
-- Active/inactive status
-
-**Permission Levels:**
-- `view`: Read-only access
-- `comment`: Can view and add comments
-
-### TimelineComment
-Comments on shared timeline events (future feature).
-
-**Key Fields:**
-- Links to SharedTimeline and specific Event
-- Content with 500 character limit
-- Commenter tracking
+**Database Constraints:**
+- Unique constraint on (requester, addressee) pairs
+- Check constraint preventing self-friendship
 
 ## Relationships
 
@@ -81,36 +85,16 @@ Comments on shared timeline events (future feature).
 User (1) ----< (M) Event
 User (1) ----< (M) Friendship (as requester)
 User (1) ----< (M) Friendship (as addressee)
-User (1) ----< (M) SharedTimeline (as owner)
-User (1) ----< (M) SharedTimeline (as shared_with)
-User (1) ----< (M) TimelineComment
-
-EventCategory (1) ----< (M) Event
-EventCategory (M) ----< (M) SharedTimeline (included_categories)
-
-Event (1) ----< (M) TimelineComment
-SharedTimeline (1) ----< (M) TimelineComment
 ```
 
 ## Indexes
 
 Performance indexes are created on:
-- `Event`: user + event_date, user + privacy_level, category
+- `Event`: user + event_date, user + privacy_level, user + category
 - `Friendship`: requester + status, addressee + status
-- `SharedTimeline`: owner + is_active, shared_with + is_active
-- `TimelineComment`: shared_timeline + event, commenter
 
-## Security Considerations
+## API Permissions
 
-1. **Privacy Levels**: Events respect privacy settings in sharing
-2. **Friend Verification**: SharedTimeline should verify friendship before sharing
-3. **UUID Primary Keys**: All models use UUID for security
-4. **Clerk Integration**: Authentication handled by Clerk service
-
-## Future Enhancements
-
-1. **Event Reactions**: Like/react to shared events
-2. **Timeline Templates**: Predefined event categories
-3. **Media Management**: Enhanced photo/video support
-4. **Notifications**: Friend requests, timeline shares, comments
-5. **Event Collaboration**: Multiple users contributing to events
+- **Users**: Read-only access (profile editing via Clerk)
+- **Events**: Public read for public events, authenticated users can CRUD their own events
+- **Friendships**: Authenticated users can manage their own friendship requests

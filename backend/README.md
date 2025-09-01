@@ -1,6 +1,6 @@
 # Mily Backend
 
-Personal timeline app backend built with Django REST Framework and Poetry.
+Backend built with Django REST Framework and Poetry.
 
 ## Prerequisites
 
@@ -13,11 +13,7 @@ Personal timeline app backend built with Django REST Framework and Poetry.
 ### 1. Install Poetry
 
 ```bash
-# macOS/Linux
 curl -sSL https://install.python-poetry.org | python3 -
-
-# Or via pip
-pip install poetry
 ```
 
 ### 2. Install Dependencies
@@ -27,21 +23,12 @@ cd backend
 poetry install
 ```
 
-### 3. Configure Environment
+### 3. Configure Environment Variables
 
-1. Copy the environment template:
-   ```bash
-   cp ../.env/.envtemplate ../.env/.env.development
-   ```
-
-2. Edit `../.env/.env.development` with your Neon database credentials:
-   ```
-   DATABASE_NAME=your_database_name
-   DATABASE_USER=your_username
-   DATABASE_PASSWORD=your_password
-   DATABASE_HOST=your-host.neon.tech
-   DATABASE_PORT=5432
-   ```
+Copy the environment template and update database credentials:
+```bash
+cp ../.env/.envtemplate ../.env/.env.development
+```
 
 ### 4. Setup Database
 
@@ -67,8 +54,6 @@ poetry run python manage.py createsuperuser
 poetry run python manage.py runserver
 ```
 
-The API will be available at `http://localhost:8000/api/`
-
 ## Development
 
 ### Running Commands
@@ -85,16 +70,19 @@ poetry run python manage.py makemigrations
 # Start shell
 poetry run python manage.py shell
 
-# Run tests
-poetry run pytest
+# Run tests (using local SQLite DB)
+poetry run python manage.py test
 ```
 
 ## Project Structure
 
 ```
 backend/
-├── config/          # Django project configuration
+├── config/         # Django project configuration
 ├── mily/           # Main application logic
 ├── pyproject.toml  # Poetry dependencies and configuration
 └── manage.py       # Django management script
 ```
+
+## Database
+See [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md) for detailed model specifications and relationships.

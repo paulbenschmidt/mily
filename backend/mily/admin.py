@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User, Event, EventCategory, Friendship, SharedTimeline
+
+from .models import User, Event, Friendship
 
 
 @admin.register(User)
@@ -13,29 +14,10 @@ class UserAdmin(BaseUserAdmin):
 
     fieldsets = BaseUserAdmin.fieldsets + (
         ('Mily Profile', {
-            'fields': ('clerk_user_id', 'bio', 'profile_picture', 'birth_date', 'location')
+            'fields': ('clerk_user_id', 'profile_picture', 'birth_date', 'location')
         }),
         ('Timestamps', {
             'fields': ('created_at', 'updated_at'),
-            'classes': ('collapse',)
-        }),
-    )
-
-
-@admin.register(EventCategory)
-class EventCategoryAdmin(admin.ModelAdmin):
-    """Admin interface for EventCategory model"""
-    list_display = ('name', 'category_type', 'created_at', 'updated_at')
-    list_filter = ('category_type', 'created_at', 'updated_at')
-    search_fields = ('name', 'description')
-    readonly_fields = ('id', 'created_at', 'updated_at')
-
-    fieldsets = (
-        (None, {
-            'fields': ('name', 'category_type', 'description')
-        }),
-        ('Metadata', {
-            'fields': ('id', 'created_at', 'updated_at'),
             'classes': ('collapse',)
         }),
     )
@@ -45,7 +27,7 @@ class EventCategoryAdmin(admin.ModelAdmin):
 class EventAdmin(admin.ModelAdmin):
     """Admin interface for Event model"""
     list_display = ('title', 'user', 'category', 'event_date', 'created_at')
-    list_filter = ('category', 'created_at')
+    list_filter = ('category', 'privacy_level', 'created_at')
     search_fields = ('title', 'description', 'user__username', 'location')
     readonly_fields = ('id', 'created_at', 'updated_at')
     date_hierarchy = 'event_date'
@@ -78,25 +60,6 @@ class FriendshipAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {
             'fields': ('requester', 'addressee', 'status')
-        }),
-        ('Metadata', {
-            'fields': ('id', 'created_at', 'updated_at'),
-            'classes': ('collapse',)
-        }),
-    )
-
-
-@admin.register(SharedTimeline)
-class SharedTimelineAdmin(admin.ModelAdmin):
-    """Admin interface for SharedTimeline model"""
-    list_display = ('owner', 'shared_with', 'created_at', 'updated_at')
-    list_filter = ('created_at', 'updated_at')
-    search_fields = ('owner__username', 'shared_with__username')
-    readonly_fields = ('id', 'created_at', 'updated_at')
-
-    fieldsets = (
-        (None, {
-            'fields': ('owner', 'shared_with')
         }),
         ('Metadata', {
             'fields': ('id', 'created_at', 'updated_at'),

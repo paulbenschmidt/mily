@@ -1,1 +1,5 @@
-# If you’d like Cascade to ignore files, you can add your files to .codeiumignore at the root of your workspace. This will prevent Cascade from viewing, editing or creating files inside of the paths designated. You can declare the file paths in a format similar to .gitignore.
+# If you’d like Cascade to ignore files, you can add your files to .codeiumignore at the root of your workspace.
+# This will prevent Cascade from viewing, editing or creating files inside of the paths designated.
+# You can declare the file paths in a format similar to .gitignore.
+
+
