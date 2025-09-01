@@ -4,58 +4,55 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from .models import (
-    EventCategory,
     Event,
     Friendship,
-    SharedTimeline,
     EventPrivacyLevel,
-    EventDatePrecision,
     FriendshipStatus,
 )
 
 User = get_user_model()
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserPublicSerializer(serializers.ModelSerializer):
+    """Public user info for user discovery and friend requests."""
     class Meta:
         model = User
-        # Expose a minimal, safe subset
+        fields = [
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "profile_picture",
+            "location",
+        ]
+        read_only_fields = ["id", "username"]
+
+
+class UserPrivateSerializer(serializers.ModelSerializer):
+    """Private user info for own profile access."""
+    class Meta:
+        model = User
         fields = [
             "id",
             "username",
             "email",
             "first_name",
             "last_name",
-            "bio",
             "profile_picture",
             "birth_date",
             "location",
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "created_at", "updated_at", "email", "username"]
+        read_only_fields = ["id", "created_at", "updated_at", "email", "username"] # email/username editable via Clerk
 
 
-class EventCategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = EventCategory
-        fields = [
-            "id",
-            "name",
-            "category_type",
-            "description",
-            "is_active",
-            "created_at",
-            "updated_at",
-        ]
-        read_only_fields = ["id", "created_at", "updated_at"]
+# Alias for backward compatibility
+UserSerializer = UserPrivateSerializer
 
 
 class EventSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(read_only=True)
-    category = serializers.PrimaryKeyRelatedField(
-        queryset=EventCategory.objects.filter(is_active=True), allow_null=True
-    )
 
     class Meta:
         model = Event
@@ -68,7 +65,6 @@ class EventSerializer(serializers.ModelSerializer):
             "notes",
             "event_date",
             "is_date_approximate",
-            "date_precision",
             "location",
             "privacy_level",
             "photos",
@@ -77,12 +73,6 @@ class EventSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
 
-    def validate_date_precision(self, value: str) -> str:
-        # Ensure value is one of the enum options
-        if value not in EventDatePrecision.values:
-            raise serializers.ValidationError("Invalid date precision.")
-        return value
-
     def validate_privacy_level(self, value: str) -> str:
         if value not in EventPrivacyLevel.values:
             raise serializers.ValidationError("Invalid privacy level.")
@@ -90,8 +80,8 @@ class EventSerializer(serializers.ModelSerializer):
 
 
 class FriendshipSerializer(serializers.ModelSerializer):
-    requester = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-    addressee = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    requester = serializers.PrimaryKeyRelatedField(queryset=User.objects.filter(is_active=True))
+    addressee = serializers.PrimaryKeyRelatedField(queryset=User.objects.filter(is_active=True))
 
     class Meta:
         model = Friendship
@@ -117,19 +107,3 @@ class FriendshipSerializer(serializers.ModelSerializer):
         if requester and addressee and requester == addressee:
             raise serializers.ValidationError("Requester and addressee must be different users.")
         return attrs
-
-
-class SharedTimelineSerializer(serializers.ModelSerializer):
-    owner = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-    shared_with = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-
-    class Meta:
-        model = SharedTimeline
-        fields = [
-            "id",
-            "owner",
-            "shared_with",
-            "created_at",
-            "updated_at",
-        ]
-        read_only_fields = ["id", "created_at", "updated_at"]

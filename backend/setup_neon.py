@@ -8,12 +8,12 @@ Usage:
 """
 
 import os
+from pathlib import Path
 import sys
 import django
-from pathlib import Path
-from dotenv import load_dotenv
 from django.core.management import execute_from_command_line
 from django.db import connection
+from dotenv import load_dotenv
 
 def check_environment():
     """Check if all required environment variables are set."""
@@ -49,7 +49,7 @@ def test_database_connection():
     try:
         # Setup Django
         os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
-        django.setup()
+        django.setup() # required for standalone scripts outside of manage.py
 
         # Test connection
         cursor = connection.cursor()
@@ -71,7 +71,7 @@ def run_migrations():
     """Run Django migrations."""
     try:
         print("🔄 Running migrations...")
-        execute_from_command_line(['manage.py', 'makemigrations', 'mily'])
+        execute_from_command_line(['manage.py', 'makemigrations', 'mily']) # if there are multiple apps, include them
         execute_from_command_line(['manage.py', 'migrate'])
         print("✅ Migrations completed successfully!")
         return True
