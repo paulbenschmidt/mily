@@ -14,9 +14,9 @@ const isPublicRoute = createRouteMatcher([
 export default clerkMiddleware(async (auth, req) => {
   const { userId } = await auth();
   
-  // If user is authenticated and on home page, redirect to dashboard
+  // If user is authenticated and on home page, redirect to app
   if (userId && req.nextUrl.pathname === '/') {
-    return NextResponse.redirect(new URL('/app/dashboard', req.url));
+    return NextResponse.redirect(new URL('/app', req.url));
   }
   
   // Protect app routes

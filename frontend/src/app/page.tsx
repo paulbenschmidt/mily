@@ -14,7 +14,7 @@ export default function Home() {
 
         <div className="flex items-center space-x-4">
           <SignedOut>
-            <SignInButton mode="modal" forceRedirectUrl="/app/dashboard">
+            <SignInButton mode="modal" forceRedirectUrl="/app">
               <button className="text-indigo-600 hover:text-indigo-700 font-medium">
                 Sign In
               </button>
@@ -62,7 +62,7 @@ export default function Home() {
             </div>
 
             <div className="mt-12">
-              <SignInButton mode="modal" forceRedirectUrl="/app/dashboard">
+              <SignInButton mode="modal" forceRedirectUrl="/app">
                 <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-lg font-medium text-lg transition-colors">
                   Start Your Timeline
                 </button>
