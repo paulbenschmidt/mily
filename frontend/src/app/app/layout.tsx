@@ -20,7 +20,7 @@ export default function AppLayout({
             <div className="flex items-center space-x-4">
               <button className="text-gray-600 hover:text-gray-900">Profile</button>
               <button className="text-gray-600 hover:text-gray-900">Settings</button>
-              <UserButton afterSignOutUrl="/" />
+              <UserButton />
             </div>
           </div>
         </div>
