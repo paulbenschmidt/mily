@@ -1,10 +1,5 @@
 ## Now
-- [ ] 9/1/2025 Build tests for all view functions
-- [ ] 9/1/2025 Ensure all pytest tests pass
-- [ ] Read through all current settings and make sure you understand what each one does
-- [ ] Try and trim down any that are not needed
 - [ ] Go through packages and update any that are not needed
-- [ ] Scan repo for any unused files and remove them
 - [ ] Update readmes/windsurfrules/roadmaps/comments/etc
 - [ ] Set up MCP for Context7
 - [ ] Create front-end test to make sure that authenticated users get redirected to dashboard
