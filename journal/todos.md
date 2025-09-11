@@ -7,6 +7,7 @@
 - [ ] Scan repo for any unused files and remove them
 - [ ] Update readmes/windsurfrules/roadmaps/comments/etc
 - [ ] Set up MCP for Context7
+- [ ] Create front-end test to make sure that authenticated users get redirected to dashboard
 
 ## Fundamentals
 ### Pre-production

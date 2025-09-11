@@ -6,13 +6,9 @@ First, run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
+
+If you get an error about Node.js version, run `nvm ls` and then choose an available version with `nvm use xx`.
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
