@@ -80,7 +80,7 @@ class EventSerializer(serializers.ModelSerializer):
 
 
 class FriendshipSerializer(serializers.ModelSerializer):
-    requester = serializers.PrimaryKeyRelatedField(queryset=User.objects.filter(is_active=True))
+    requester = serializers.PrimaryKeyRelatedField(read_only=True)
     addressee = serializers.PrimaryKeyRelatedField(queryset=User.objects.filter(is_active=True))
 
     class Meta:
