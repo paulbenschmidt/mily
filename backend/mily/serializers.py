@@ -68,6 +68,7 @@ class EventSerializer(serializers.ModelSerializer):
             "location",
             "privacy_level",
             "photos",
+            "tags",
             "created_at",
             "updated_at",
         ]

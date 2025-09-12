@@ -68,6 +68,7 @@ class Event(models.Model):
     location = models.CharField(max_length=200, blank=True)
     privacy_level = models.CharField(max_length=10, choices=EventPrivacyLevel.choices, default=EventPrivacyLevel.PRIVATE)
     photos = models.JSONField(default=list, blank=True)  # Store photo URLs/metadata
+    tags = models.JSONField(default=list, blank=True)  # Store event tags as array of strings
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

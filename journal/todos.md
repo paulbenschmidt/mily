@@ -4,6 +4,7 @@
 - [ ] Set up MCP for Context7
 - [ ] Create front-end test to make sure that authenticated users get redirected to dashboard
 - [ ] Verify that you have 100% test coverage for backend views
+- [ ] Verify that users cannot see the years associated with any events (for privacy reasons)
 
 ## Fundamentals
 ### Pre-production
