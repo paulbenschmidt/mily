@@ -1,4 +1,18 @@
-## Now
+# Now
+- [x] Create basic timeline page
+- [ ] Update authentication to use Django's built-in authentication system
+- [ ] Ensure that any update to the birthdate also update the user's event for their birthday
+- [ ] On timeline page, dynamically grab user's events and display them
+- [ ] On timeline page, enable creation of new events
+- [ ] On timeline page, enable editing of existing events
+- [ ] On timeline page, enable deletion of events
+
+## Later
+- [ ] JWT tokens using djangorestframework-simplejwt
+- [ ] Password reset via Django's built-in email system
+- [ ] Email verification using Django's activation tokens
+- [ ] Rate limiting with django-ratelimit
+
 - [ ] Go through packages and update any that are not needed
 - [ ] Update readmes/windsurfrules/roadmaps/comments/etc
 - [ ] Set up MCP for Context7
