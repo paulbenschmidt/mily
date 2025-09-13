@@ -14,12 +14,14 @@ User = get_user_model()
 
 
 class UserPublicSerializer(serializers.ModelSerializer):
-    """Public user info for user discovery and friend requests."""
+    """Serializer for public user data (for user discovery)."""
+
     class Meta:
         model = User
         fields = [
             "id",
             "username",
+            "handle",
             "first_name",
             "last_name",
             "profile_picture",
@@ -30,11 +32,13 @@ class UserPublicSerializer(serializers.ModelSerializer):
 
 class UserPrivateSerializer(serializers.ModelSerializer):
     """Private user info for own profile access."""
+
     class Meta:
         model = User
         fields = [
             "id",
             "username",
+            "handle",
             "email",
             "first_name",
             "last_name",
@@ -44,7 +48,7 @@ class UserPrivateSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "created_at", "updated_at", "email", "username"] # email/username editable via Clerk
+        read_only_fields = ["id", "created_at", "updated_at", "email", "username"]
 
 
 # Alias for backward compatibility

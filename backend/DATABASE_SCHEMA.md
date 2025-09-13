@@ -6,11 +6,10 @@ This document describes the database schema for the Mily personal timeline appli
 ## Models
 
 ### User
-Extended Django user model with Clerk integration for authentication.
+Extended Django user model with built-in authentication.
 
 **Key Fields:**
 - `id`: UUID primary key
-- `clerk_user_id`: Integration with Clerk authentication (optional for admin users)
 - `username`: Unique username (inherited from AbstractUser)
 - `email`: Unique email address (primary identifier)
 - `first_name`: User's first name
@@ -23,8 +22,7 @@ Extended Django user model with Clerk integration for authentication.
 - `updated_at`: Last update timestamp
 
 **Authentication:**
-- Uses Clerk for authentication in production
-- Supports admin users without Clerk integration
+- Uses built-in authentication
 - Email serves as primary identifier
 
 ### Event
@@ -95,6 +93,6 @@ Performance indexes are created on:
 
 ## API Permissions
 
-- **Users**: Read-only access (profile editing via Clerk)
+- **Users**: Read-only access
 - **Events**: Public read for public events, authenticated users can CRUD their own events
 - **Friendships**: Authenticated users can manage their own friendship requests

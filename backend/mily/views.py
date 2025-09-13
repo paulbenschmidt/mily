@@ -52,6 +52,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(detail=False, methods=["get"], url_path="me")
     def me(self, request, *args, **kwargs):
+        """Get current authenticated user's profile."""
         serializer = UserPrivateSerializer(request.user)
         return Response(serializer.data)
 

@@ -1,29 +1,11 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-const isProtectedRoute = createRouteMatcher([
-  '/app(.*)',
-]);
-
-const isPublicRoute = createRouteMatcher([
-  '/',
-  '/sign-in(.*)',
-  '/sign-up(.*)',
-]);
-
-export default clerkMiddleware(async (auth, req) => {
-  const { userId } = await auth();
-  
-  // If user is authenticated and on home page, redirect to app
-  if (userId && req.nextUrl.pathname === '/') {
-    return NextResponse.redirect(new URL('/app', req.url));
-  }
-  
-  // Protect app routes
-  if (isProtectedRoute(req)) {
-    await auth.protect();
-  }
-});
+export function middleware(request: NextRequest) {
+  // For now, we'll handle authentication checks in the individual pages
+  // This middleware just passes through all requests
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: [
