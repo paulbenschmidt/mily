@@ -1,14 +1,46 @@
+'use client';
+
+import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
+
 export default function Dashboard() {
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+  };
+
+  if (!user) {
+    return null; // ProtectedRoute should handle this, but adding for safety
+  }
+
   return (
     <div className="min-h-screen bg-white">
-      {/* Header Banner */}
-      {/* TODO: Add conditional header banner when no events exist */}
-      {/* <div className="border-b border-gray-100 px-8 py-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Welcome to Your Timeline</h1>
-          <p className="text-gray-600 mt-2">Ready to start recording your life events?</p>
+      {/* Header */}
+      <div className="border-b border-gray-100 px-8 py-4">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Welcome back, {user.first_name}!
+            </h1>
+            <p className="text-gray-600 mt-1">Your personal timeline</p>
+          </div>
+          <div className="flex items-center space-x-4">
+            <Link
+              href="/app/profile"
+              className="text-gray-600 hover:text-gray-900 font-medium"
+            >
+              Profile
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            >
+              Logout
+            </button>
+          </div>
         </div>
-      </div> */}
+      </div>
 
       {/* Main Timeline Content */}
       <div className="flex min-h-[calc(100vh-120px)]">

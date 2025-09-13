@@ -7,22 +7,22 @@ from django.db import models
 class User(AbstractUser):
     """
     Extended user model for Mily timeline app.
-    Uses Clerk for authentication, so we extend Django's AbstractUser.
+    Uses Django's built-in authentication system.
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    clerk_user_id = models.CharField(max_length=255, unique=True, null=True, blank=True)
-    username = models.CharField(max_length=150, unique=True)
     email = models.EmailField(unique=True)
+    handle = models.CharField(max_length=50, unique=True, help_text="URL-friendly username handle")
     first_name = models.CharField(max_length=150, blank=True)
     last_name = models.CharField(max_length=150, blank=True)
     profile_picture = models.URLField(blank=True)
-    birth_date = models.DateField(null=True, blank=True)
+    birth_date = models.DateField()
     location = models.CharField(max_length=100, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    is_staff = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
+    # Use email as the username field for login
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', 'birth_date']
 
     class Meta:
         db_table = 'users'

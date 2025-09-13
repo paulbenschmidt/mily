@@ -26,5 +26,4 @@ Mily is a personal timeline app that helps users record and reflect on their lif
 Frontend: Next.js 15 + TypeScript + Tailwind CSS
 Backend: Django REST Framework + PostgreSQL
 Database: Neon
-Authentication: Clerk
 Hosting: Vercel (frontend and backend)
