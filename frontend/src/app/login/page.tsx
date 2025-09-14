@@ -17,13 +17,13 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       setLoading(true);
       setError(null);
-      
+
       await login(formData.email, formData.password);
-      
+
       // Redirect to app after successful login
       router.push('/app');
     } catch (err) {
@@ -52,7 +52,7 @@ export default function LoginPage() {
             Welcome back to your personal timeline
           </p>
         </div>
-        
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>
@@ -70,7 +70,7 @@ export default function LoginPage() {
                 placeholder="Enter your email"
               />
             </div>
-            
+
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Password
@@ -110,7 +110,7 @@ export default function LoginPage() {
               )}
             </button>
           </div>
-          
+
           <div className="text-center space-y-2">
             <Link
               href="/forgot-password"

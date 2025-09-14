@@ -1,7 +1,4 @@
 # Now
-- [x] Create basic timeline page
-- [ ] Update authentication to use Django's built-in authentication system
-
 - [ ] On timeline page, dynamically grab user's events and display them
 - [ ] On timeline page, enable creation of new events
 - [ ] On timeline page, enable editing of existing events

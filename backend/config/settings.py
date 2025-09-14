@@ -179,15 +179,18 @@ FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000')
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Next.js development server
     "http://127.0.0.1:3000",
+    "http://localhost:8000",  # Django backend
+    "http://127.0.0.1:8000",
 ]
 CORS_ALLOW_CREDENTIALS = True
 
 # Session configuration
 SESSION_COOKIE_AGE = 86400  # 24 hours
-SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_HTTPONLY = False  # Allow JavaScript access for debugging
 SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
-SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'  # More permissive for localhost
 SESSION_SAVE_EVERY_REQUEST = True
+SESSION_COOKIE_NAME = 'sessionid'  # Explicit cookie name
 
 # CSRF configuration
 CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to read CSRF token
@@ -196,4 +199,6 @@ CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
 ]

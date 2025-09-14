@@ -51,8 +51,9 @@ poetry run python manage.py createsuperuser
 ### 6. Start Development Server
 
 ```bash
-poetry run python manage.py runserver
+poetry run python manage.py runserver localhost:8000
 ```
+The development server will run at http://localhost:8000 so that it is run on the same root port as the front-end (so that cookies are shared for authentication).
 
 ## Development
 
