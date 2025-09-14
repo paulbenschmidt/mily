@@ -37,9 +37,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const router = useRouter();
 
   const checkAuth = async () => {
+    // TODO: Implement caching for auth status so that you're not making a request every time
     try {
-      const userData = await authApiClient.getUserProfile();
-      setUser(userData);
+      const authStatus = await authApiClient.getAuthStatus();
+      if (authStatus.authenticated && authStatus.user) {
+        setUser(authStatus.user);
+      } else {
+        setUser(null);
+      }
     } catch (error) {
       setUser(null);
     } finally {

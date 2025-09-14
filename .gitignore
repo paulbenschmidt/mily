@@ -2,7 +2,6 @@
 .env/.env.*
 
 # Poetry
-poetry.lock
 .venv/
 
 # Python
