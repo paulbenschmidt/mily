@@ -1,3 +1,5 @@
+# Temporarily moved these views here since I wasn't ready to work on Friendship logic
+
 class FriendshipViewSet(viewsets.ModelViewSet):
     serializer_class = FriendshipSerializer
     permission_classes = [permissions.IsAuthenticated]

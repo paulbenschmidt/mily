@@ -121,10 +121,10 @@ def login_view(request):
             response.set_cookie(
                 'sessionid',
                 request.session.session_key,
-                max_age=settings.SESSION_COOKIE_AGE,  # 24 hours
-                httponly=settings.SESSION_COOKIE_HTTPONLY,  # Allow JS access for debugging
-                secure=settings.SESSION_COOKIE_SECURE,    # HTTP for localhost
-                samesite=settings.SESSION_COOKIE_SAMESITE
+                max_age=SESSION_COOKIE_AGE,  # 24 hours
+                httponly=SESSION_COOKIE_HTTPONLY,  # Allow JS access for debugging
+                secure=SESSION_COOKIE_SECURE,    # HTTP for localhost
+                samesite=SESSION_COOKIE_SAMESITE
             )
 
             return response
