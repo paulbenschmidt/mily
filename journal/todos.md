@@ -1,4 +1,5 @@
 # Now
+- [ ] Figure out white screen of death on frontend
 - [ ] On timeline page, dynamically grab user's events and display them
 - [ ] On timeline page, enable creation of new events
 - [ ] On timeline page, enable editing of existing events
@@ -22,6 +23,7 @@
 - [ ] Go through repo and clear out all todos
 - [ ] Run through some test for any vulnerabilities?
 - [ ] Lock down Django API views so that users can't access each other's data
+- [ ] Remove all console.log steps (or toggle them to not run in production)
 ### Optimizations
 - [ ] Change static/media to use S3
 - [ ] Allow user blocking as first action (currently a post request to friendship is required as the primary action)

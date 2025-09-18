@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -24,11 +26,14 @@ from config.settings import (
 User = get_user_model()
 
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@csrf_exempt
 def signup_view(request):
     """Create a new user account."""
+    # TODO: Account for instances where user is already signed in? Basically, there is a weird behavior if I'm already
+    # logged in via Admin and I try and submit a new user via the front-end. It gives me a 403 error. Should I add more
+    # graceful error handling?
     data = request.data
 
     # Validate required fields
@@ -62,6 +67,9 @@ def signup_view(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
     try:
+        # Parse birth_date string to date object
+        birth_date_obj = datetime.strptime(birth_date, '%Y-%m-%d').date()
+
         # Create user
         user = User.objects.create_user(
             username=email,  # Use email as username
@@ -70,7 +78,7 @@ def signup_view(request):
             first_name=first_name,
             last_name=last_name,
             handle=handle,
-            birth_date=birth_date,
+            birth_date=birth_date_obj,
             location=data.get('location', ''),
         )
 
@@ -107,9 +115,15 @@ def login_view(request):
 
     if user is not None:
         if user.is_active:
+            login(request, user) # Critical for cookies to be set as part of the session data
 
             # Force session save to ensure session key is created
             request.session.save()
+
+            # Debug logging
+            print(f"auth_views.py: Login successful for user {user.email}")
+            print(f"auth_views.py: Session key: {request.session.session_key}")
+            print(f"auth_views.py: Session data: {dict(request.session)}")
 
             serializer = UserPrivateSerializer(user)
             response = Response({
@@ -140,6 +154,7 @@ def login_view(request):
 
 @csrf_exempt
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def logout_view(request):
     """Logout user and destroy session."""
     logout(request)
@@ -250,18 +265,48 @@ def password_reset_confirm_view(request):
 
 
 @csrf_exempt
+@api_view(['GET'])
+@permission_classes([AllowAny])
 def auth_status_view(request):
     """Check if user is authenticated."""
-    if request.method == 'GET':
-        if request.user.is_authenticated:
-            serializer = UserPrivateSerializer(request.user)
-            return JsonResponse({
-                'authenticated': True,
-                'user': serializer.data
-            })
-        else:
-            return JsonResponse({
-                'authenticated': False
-            })
+
+    # # Comprehensive debug logging (9/18/2025: helpful for diagnosing the cookie issue)
+    # print("=" * 50)
+    # print("AUTH STATUS CHECK - DETAILED LOGGING")
+    # print(f"Request method: {request.method}")
+    # print(f"Request path: {request.path}")
+    # print(f"Request headers: {dict(request.headers)}")
+    # print(f"Request cookies: {request.COOKIES}")
+    # print(f"Session key: {request.session.session_key}")
+    # print(f"Session data: {dict(request.session)}")
+    # print(f"User: {request.user}")
+    # print(f"User type: {type(request.user)}")
+    # print(f"Is authenticated: {request.user.is_authenticated}")
+    # print(f"Is anonymous: {request.user.is_anonymous}")
+    # if hasattr(request.user, 'id'):
+    #     print(f"User ID: {request.user.id}")
+    # print("=" * 50)
+
+    if request.user.is_authenticated:
+        serializer = UserPrivateSerializer(request.user)
+        response = Response({
+            'authenticated': True,
+            'user': serializer.data
+        })
+
+        return response
     else:
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
+        return Response({
+            'authenticated': False
+        })
+
+# TODO: Implement session refresh
+# @require_http_methods(["POST"])
+# def refresh_session(request):
+#     """Extend session expiry"""
+#     if request.user.is_authenticated:
+#         # Extend session by updating it
+#         request.session.set_expiry(86400)  # 24 hours from now
+#         return JsonResponse({'success': True})
+
+#     return JsonResponse({'authenticated': False}, status=401)

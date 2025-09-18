@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    'mily',
+    'mily.apps.MilyConfig',
 ]
 
 MIDDLEWARE = [
@@ -183,14 +183,19 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8000",
 ]
 CORS_ALLOW_CREDENTIALS = True
+CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
 
 # Session configuration
-SESSION_COOKIE_AGE = 86400  # 24 hours
-SESSION_COOKIE_HTTPONLY = False  # Allow JavaScript access for debugging
-SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
-SESSION_COOKIE_SAMESITE = 'Lax'  # More permissive for localhost
-SESSION_SAVE_EVERY_REQUEST = True
+SESSION_ENGINE = 'django.contrib.sessions.backends.db' # Slower but more reliable/simpler
+# SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'  # POTENTIAL TODO Best performance
 SESSION_COOKIE_NAME = 'sessionid'  # Explicit cookie name
+SESSION_COOKIE_AGE = 86400  # 24 hours
+SESSION_COOKIE_HTTPONLY = False  # Allow JavaScript access for debugging TODO: Set to True in production
+SESSION_COOKIE_SECURE = False  # TODO Set to True in production with HTTPS
+SESSION_COOKIE_SAMESITE = 'Lax'  # Required for cross-origin requests (localhost:3000 to localhost:8000)
+SESSION_COOKIE_DOMAIN = None  # TODO: Set to production domain in production
+SESSION_SAVE_EVERY_REQUEST = False # Only save when modified
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Persist sessions
 
 # CSRF configuration
 CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to read CSRF token

@@ -69,6 +69,7 @@ class AuthApiClient {
     email: string;
     password: string;
   }): Promise<AuthResponse> {
+    console.log("Login called", credentials);
     return this.request<AuthResponse>('/auth/login/', {
       method: 'POST',
       body: JSON.stringify(credentials),
