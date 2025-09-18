@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    'mily.apps.MilyConfig',
+    'mily.apps.MilyConfig', # importing Mily app config to enable signals for user creation
 ]
 
 MIDDLEWARE = [
@@ -187,9 +187,9 @@ CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
 
 # Session configuration
 SESSION_ENGINE = 'django.contrib.sessions.backends.db' # Slower but more reliable/simpler
-# SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'  # POTENTIAL TODO Best performance
-SESSION_COOKIE_NAME = 'sessionid'  # Explicit cookie name
-SESSION_COOKIE_AGE = 86400  # 24 hours
+# SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'  # POTENTIAL TODO: Best performance
+SESSION_COOKIE_NAME = 'sessionid'
+SESSION_COOKIE_AGE = 86400  # 24 hours # TODO: Change to something longer?
 SESSION_COOKIE_HTTPONLY = False  # Allow JavaScript access for debugging TODO: Set to True in production
 SESSION_COOKIE_SECURE = False  # TODO Set to True in production with HTTPS
 SESSION_COOKIE_SAMESITE = 'Lax'  # Required for cross-origin requests (localhost:3000 to localhost:8000)
@@ -207,3 +207,41 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
 ]
+
+# Logging configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'mily': {
+            'handlers': ['console'],
+            'level': os.getenv('LOGGER_LOG_LEVEL', 'ERROR'),
+            'propagate': False,
+        },
+    },
+}

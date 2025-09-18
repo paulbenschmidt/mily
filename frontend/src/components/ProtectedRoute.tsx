@@ -17,15 +17,13 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const router = useRouter();
 
   useEffect(() => {
-    console.log("ProtectedRoute: useEffect. Loading:", loading, "User:", user);
     if (!loading && !user) {
-      console.log("ProtectedRoute: Redirecting to:", redirectTo);
+      // TODO: I'm not sure that this redirect actually happens if the user is not authenticated
       router.push(redirectTo);
     }
   }, [user, loading, router, redirectTo]);
 
   if (loading) {
-    console.log("ProtectedRoute: Loading! Showing loading spinner...");
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
@@ -34,11 +32,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   if (!user) {
-    console.log("ProtectedRoute: No user! Returning blank page...");
-    // return <>{children}</>; // If you want to temporarily bypass auth for testing
-    return null; // Will return a blank page
+    // return <>{children}</>; // Uncomment if you want to temporarily bypass auth for testing
+    return null; // Return blank page
   }
 
-  console.log("ProtectedRoute: Successful user check! User:", user);
   return <>{children}</>;
 };
