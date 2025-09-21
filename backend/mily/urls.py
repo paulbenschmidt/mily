@@ -12,6 +12,7 @@ from .auth_views import (
     password_reset_request_view,
     password_reset_confirm_view,
     auth_status_view,
+    csrf_token_view,
 )
 
 router = DefaultRouter()
@@ -27,4 +28,5 @@ urlpatterns = [
     path("auth/password-reset-request/", password_reset_request_view, name="password_reset_request"),
     path("auth/password-reset-confirm/", password_reset_confirm_view, name="password_reset_confirm"),
     path("auth/status/", auth_status_view, name="auth_status"),
+    path("auth/csrf-token/", csrf_token_view, name="csrf_token"),
 ]

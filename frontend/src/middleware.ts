@@ -6,11 +6,8 @@ export async function middleware(request: NextRequest) {
 
   // Check if user is authenticated by looking for session cookie
   const sessionCookie = request.cookies.get('sessionid');
+  // Actual cookie authenticated as part of ProtectedRoute component
   const isAuthenticated = !!sessionCookie?.value;
-
-  // Define public routes that don't require authentication
-  const publicRoutes = ['/', '/login', '/signup', '/forgot-password'];
-  const isPublicRoute = publicRoutes.includes(pathname);
 
   // Redirect authenticated users away from auth pages
   if (isAuthenticated && (pathname === '/login' || pathname === '/signup')) {

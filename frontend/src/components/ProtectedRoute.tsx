@@ -9,15 +9,16 @@ interface ProtectedRouteProps {
   redirectTo?: string;
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
-  children, 
-  redirectTo = '/login' 
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  redirectTo = '/login'
 }) => {
   const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (!loading && !user) {
+      // TODO: I'm not sure that this redirect actually happens if the user is not authenticated
       router.push(redirectTo);
     }
   }, [user, loading, router, redirectTo]);
@@ -31,7 +32,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   if (!user) {
-    return null; // Will redirect
+    // return <>{children}</>; // Uncomment if you want to temporarily bypass auth for testing
+    return null; // Return blank page
   }
 
   return <>{children}</>;

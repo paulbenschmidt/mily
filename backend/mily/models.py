@@ -16,7 +16,6 @@ class User(AbstractUser):
     last_name = models.CharField(max_length=150, blank=True)
     profile_picture = models.URLField(blank=True)
     birth_date = models.DateField()
-    location = models.CharField(max_length=100, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -37,6 +36,11 @@ class EventPrivacyLevel(models.TextChoices):
     FRIENDS = "friends", "Friends Only"
     PUBLIC = "public", "Public"
     # TODO: optional add "close friends" privacy level
+
+
+class EventType(models.TextChoices):
+    USER = "user", "User Created"
+    SYSTEM_BIRTHDAY = "system_birthday", "System Birthday"
 
 
 class FriendshipStatus(models.TextChoices):
@@ -65,10 +69,11 @@ class Event(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     notes = models.TextField(blank=True) # Personal reflection notes
-    location = models.CharField(max_length=200, blank=True)
     privacy_level = models.CharField(max_length=10, choices=EventPrivacyLevel.choices, default=EventPrivacyLevel.PRIVATE)
     photos = models.JSONField(default=list, blank=True)  # Store photo URLs/metadata
     tags = models.JSONField(default=list, blank=True)  # Store event tags as array of strings
+    is_editable = models.BooleanField(default=False, help_text="Whether this event can be edited by the user. False for system-generated events.")
+    type = models.CharField(max_length=20, choices=EventType.choices, default=EventType.USER)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

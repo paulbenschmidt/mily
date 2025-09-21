@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from .models import (
     Event,
     EventPrivacyLevel,
+    FriendshipStatus,
 )
 from .serializers import (
     UserPublicSerializer,
@@ -80,3 +81,13 @@ class EventViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer: EventSerializer) -> None:
         """Only allow current user to create events for themselves."""
         serializer.save(user=self.request.user)
+
+    @action(detail=False, methods=["get"], url_path="self")
+    def self_events(self, request):
+        """Get current user's timeline events ordered by date."""
+        if not request.user.is_authenticated:
+            return Response({"error": "Authentication required"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        events = Event.objects.filter(user=request.user).order_by('date')
+        serializer = self.get_serializer(events, many=True)
+        return Response(serializer.data)
