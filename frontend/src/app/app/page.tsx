@@ -1,17 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { authApiClient } from '@/utils/auth-api';
+import { TimelineEvent } from '@/types/api';
 
-interface Event {
-  id: number;
-  title: string;
-  description: string;
-  date: string;
-  event_type: string;
-}
 
 export default function Timeline() {
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<TimelineEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,73 +16,13 @@ export default function Timeline() {
 
   const fetchEvents = async () => {
     try {
-      // Mock data for testing - replace with actual API call later
-      const mockData: Event[] = [
-        {
-          id: 1,
-          title: "Born",
-          description: "The beginning of my journey",
-          date: "1990-05-15",
-          event_type: "MAJOR"
-        },
-        {
-          id: 2,
-          title: "Started School",
-          description: "First day of elementary school",
-          date: "1996-09-01",
-          event_type: "MAJOR"
-        },
-        {
-          id: 3,
-          title: "Learned to Ride a Bike",
-          description: "Finally mastered riding without training wheels",
-          date: "1997-07-20",
-          event_type: "MINOR"
-        },
-        {
-          id: 4,
-          title: "High School Graduation",
-          description: "Graduated with honors from high school",
-          date: "2008-06-15",
-          event_type: "MAJOR"
-        },
-        {
-          id: 5,
-          title: "First Job",
-          description: "Started working at a local coffee shop",
-          date: "2008-07-01",
-          event_type: "MINOR"
-        },
-        {
-          id: 6,
-          title: "College Graduation",
-          description: "Earned my Bachelor's degree in Computer Science",
-          date: "2012-05-20",
-          event_type: "MAJOR"
-        },
-        {
-          id: 7,
-          title: "Got Married",
-          description: "Married my best friend and soulmate",
-          date: "2015-08-12",
-          event_type: "MAJOR"
-        },
-        {
-          id: 8,
-          title: "Bought First House",
-          description: "Purchased our first home together",
-          date: "2017-03-10",
-          event_type: "MINOR"
-        }
-      ];
-
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const response = await authApiClient.getEvents();
 
       // Sort events by date (oldest first)
-      const sortedEvents = mockData.sort((a, b) =>
-        new Date(a.date).getTime() - new Date(b.date).getTime()
+      const sortedEvents = response.sort((a, b) =>
+        new Date(a.event_date).getTime() - new Date(b.event_date).getTime()
       );
+
       setEvents(sortedEvents);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load events');
@@ -132,8 +67,8 @@ export default function Timeline() {
               <div
                 key={event.id}
                 className={`absolute -left-2 w-4 h-4 rounded-full border-2 border-white shadow-sm ${
-                  event.event_type === 'MAJOR' ? 'bg-indigo-600' :
-                  event.event_type === 'MINOR' ? 'bg-blue-500' :
+                  event.category === 'major' ? 'bg-indigo-600' :
+                  event.category === 'minor' ? 'bg-blue-500' :
                   'bg-gray-400'
                 }`}
                 style={{ top: `${index * 200}px` }}
@@ -154,13 +89,13 @@ export default function Timeline() {
                 <div className="bg-gray-50 rounded-lg p-4 max-w-sm">
                   <h3 className="font-medium text-gray-900">{event.title}</h3>
                   <p className="text-sm text-gray-600 mt-1">{event.description}</p>
-                  <p className="text-xs text-gray-500 mt-2">{formatDate(event.date)}</p>
+                  <p className="text-xs text-gray-500 mt-2">{formatDate(event.event_date)}</p>
                   <span className={`inline-block px-2 py-1 rounded-full text-xs mt-2 ${
-                    event.event_type === 'MAJOR' ? 'bg-indigo-100 text-indigo-800' :
-                    event.event_type === 'MINOR' ? 'bg-blue-100 text-blue-800' :
+                    event.category === 'major' ? 'bg-indigo-100 text-indigo-800' :
+                    event.category === 'minor' ? 'bg-blue-100 text-blue-800' :
                     'bg-gray-100 text-gray-800'
                   }`}>
-                    {event.event_type}
+                    {event.category.toUpperCase()}
                   </span>
                 </div>
               </div>

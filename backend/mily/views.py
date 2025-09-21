@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from rest_framework import viewsets, permissions, status
@@ -14,6 +16,8 @@ from .serializers import (
     UserPrivateSerializer,
     EventSerializer,
 )
+
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
@@ -85,9 +89,10 @@ class EventViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"], url_path="self")
     def self_events(self, request):
         """Get current user's timeline events ordered by date."""
+        logger.info("Self events requested by user: %s", request.user)
         if not request.user.is_authenticated:
             return Response({"error": "Authentication required"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        events = Event.objects.filter(user=request.user).order_by('date')
+        events = Event.objects.filter(user=request.user).order_by('event_date')
         serializer = self.get_serializer(events, many=True)
         return Response(serializer.data)

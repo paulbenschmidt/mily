@@ -1,8 +1,8 @@
 # Now
-- [ ] On timeline page, dynamically grab user's events and display them
 - [ ] On timeline page, enable creation of new events
 - [ ] On timeline page, enable editing of existing events
 - [ ] On timeline page, enable deletion of events
+- [ ] On timeline page, make it pretty
 
 ## Later
 - [ ] JWT tokens using djangorestframework-simplejwt
@@ -31,6 +31,7 @@
 - [ ] Security: Implement API Security Headers
 - [ ] Security: Regular Security Updates via Dependabot or something similar
 ### Optimizations
+- [ ] Implement OpenAPI schema generation so that frontend inherits data models from backend (DRY)
 - [ ] Change static/media to use S3
 - [ ] Allow user blocking as first action (currently a post request to friendship is required as the primary action)
 - [ ] Implement Data Encryption at Rest to protect database in case of breach

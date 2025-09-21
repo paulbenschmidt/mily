@@ -69,6 +69,7 @@ class Event(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     notes = models.TextField(blank=True) # Personal reflection notes
+    location = models.CharField(max_length=200, blank=True)
     privacy_level = models.CharField(max_length=10, choices=EventPrivacyLevel.choices, default=EventPrivacyLevel.PRIVATE)
     photos = models.JSONField(default=list, blank=True)  # Store photo URLs/metadata
     tags = models.JSONField(default=list, blank=True)  # Store event tags as array of strings

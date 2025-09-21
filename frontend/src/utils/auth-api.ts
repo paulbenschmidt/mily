@@ -1,22 +1,7 @@
+import { User, TimelineEvent, AuthResponse } from '@/types/api';
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
-export interface User {
-  id: string;
-  username: string;
-  handle: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  profile_picture?: string;
-  birth_date: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface AuthResponse {
-  message: string;
-  user?: User;
-}
 
 class AuthApiClient {
   private baseUrl: string;
@@ -141,6 +126,11 @@ class AuthApiClient {
       method: 'PATCH',
       body: JSON.stringify(userData),
     });
+  }
+
+  // Events endpoints
+  async getEvents(): Promise<TimelineEvent[]> {
+    return this.request<TimelineEvent[]>('/events/self/');
   }
 }
 
