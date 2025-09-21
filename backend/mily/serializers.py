@@ -25,7 +25,6 @@ class UserPublicSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "profile_picture",
-            "location",
         ]
         read_only_fields = ["id", "username"]
 
@@ -44,7 +43,6 @@ class UserPrivateSerializer(serializers.ModelSerializer):
             "last_name",
             "profile_picture",
             "birth_date",
-            "location",
             "created_at",
             "updated_at",
         ]

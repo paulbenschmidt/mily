@@ -16,7 +16,6 @@ interface AuthContextType {
     last_name: string;
     handle: string;
     birth_date: string;
-    location?: string;
   }) => Promise<void>;
   checkAuth: () => Promise<void>;
 }
@@ -78,7 +77,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     last_name: string;
     handle: string;
     birth_date: string;
-    location?: string;
   }) => {
     try {
       const response = await authApiClient.signup(userData);

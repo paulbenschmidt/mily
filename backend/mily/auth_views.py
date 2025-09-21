@@ -25,6 +25,7 @@ from config.settings import (
 
 User = get_user_model()
 
+@ensure_csrf_cookie
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def signup_view(request):
@@ -77,7 +78,6 @@ def signup_view(request):
             last_name=last_name,
             handle=handle,
             birth_date=birth_date_obj,
-            location=data.get('location', ''),
         )
 
         # Log the user in
@@ -145,6 +145,7 @@ def login_view(request):
         }, status=status.HTTP_401_UNAUTHORIZED)
 
 
+@ensure_csrf_cookie
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def logout_view(request):
@@ -166,6 +167,7 @@ def logout_view(request):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@ensure_csrf_cookie
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def password_reset_request_view(request):
@@ -222,6 +224,7 @@ def password_reset_request_view(request):
         })
 
 
+@ensure_csrf_cookie
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def password_reset_confirm_view(request):
@@ -265,6 +268,7 @@ def password_reset_confirm_view(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
 
+@ensure_csrf_cookie
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def auth_status_view(request):

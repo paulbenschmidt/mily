@@ -33,7 +33,7 @@ export default function ProfilePage() {
           Logout
         </button>
       </div>
-      
+
       <div className="bg-white shadow rounded-lg p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
@@ -55,12 +55,6 @@ export default function ProfilePage() {
                 <dt className="text-sm font-medium text-gray-500">Birth Date</dt>
                 <dd className="text-sm text-gray-900">{user.birth_date}</dd>
               </div>
-              {user.location && (
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">Location</dt>
-                  <dd className="text-sm text-gray-900">{user.location}</dd>
-                </div>
-              )}
               <div>
                 <dt className="text-sm font-medium text-gray-500">Member Since</dt>
                 <dd className="text-sm text-gray-900">
@@ -69,7 +63,7 @@ export default function ProfilePage() {
               </div>
             </dl>
           </div>
-          
+
           <div>
             <h3 className="text-lg font-medium text-gray-900 mb-4">Profile Picture</h3>
             {user.profile_picture ? (

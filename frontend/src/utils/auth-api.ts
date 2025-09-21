@@ -9,7 +9,6 @@ export interface User {
   last_name: string;
   profile_picture?: string;
   birth_date: string;
-  location?: string;
   created_at: string;
   updated_at: string;
 }
@@ -78,7 +77,6 @@ class AuthApiClient {
     last_name: string;
     handle: string;
     birth_date: string;
-    location?: string;
   }): Promise<AuthResponse> {
     return this.request<AuthResponse>('/auth/signup/', {
       method: 'POST',
