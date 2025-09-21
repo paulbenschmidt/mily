@@ -26,18 +26,39 @@ class AuthApiClient {
     this.baseUrl = baseUrl;
   }
 
+  private getCSRFToken(): string | null {
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+      const [name, value] = cookie.trim().split('=');
+      if (name === 'csrftoken') {
+        return decodeURIComponent(value);
+      }
+    }
+    return null;
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
 
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...options.headers as Record<string, string>,
+    };
+
+    // Add CSRF token for state-changing requests
+    if (options.method && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(options.method)) {
+      const csrfToken = this.getCSRFToken();
+      if (csrfToken) {
+        headers['X-CSRFToken'] = csrfToken;
+      }
+    }
+
     const response = await fetch(url, {
       ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
+      headers,
       credentials: 'include', // Include cookies for session auth
     });
 
@@ -102,6 +123,10 @@ class AuthApiClient {
       method: 'POST',
       body: JSON.stringify({ uid, token, new_password }),
     });
+  }
+
+  async getCSRFTokenFromServer(): Promise<{ message: string }> {
+    return this.request<{ message: string }>('/auth/csrf-token/');
   }
 
   // User endpoints

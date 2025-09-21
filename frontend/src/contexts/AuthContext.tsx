@@ -39,31 +39,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const checkAuth = async () => {
     // Check if we have a session cookie before making the API call
     const hasSessionCookie = document.cookie.includes('sessionid=');
-    console.log("AuthContext: Starting checkAuth, session cookie exists:", hasSessionCookie);
 
     try {
       // Only make the API call if we have a session cookie
       if (hasSessionCookie) {
-        console.log("AuthContext: Checking auth status with backend");
         const authStatus = await authApiClient.getAuthStatus();
-        console.log("AuthContext: Auth status received:", authStatus);
 
         if (authStatus.authenticated && authStatus.user) {
-          console.log("AuthContext: Setting user:", authStatus.user);
           setUser(authStatus.user);
         } else {
-          console.log("AuthContext: Backend says not authenticated despite cookie");
           setUser(null);
         }
       } else {
-        console.log("AuthContext: No session cookie found, skipping auth check");
         setUser(null);
       }
     } catch (error) {
-      console.log("AuthContext: Error during auth check:", error);
       setUser(null);
     } finally {
-      console.log("AuthContext: Setting loading to false");
       setLoading(false);
     }
   };
@@ -100,13 +92,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
+      // Ensure we have a CSRF token before making the POST request
+      await authApiClient.getCSRFTokenFromServer();
       await authApiClient.logout();
     } catch (error) {
       // Even if logout fails on server, clear local state
       console.error('AuthContext: Logout error:', error);
     } finally {
-      // Clear the session cookie on client side
+      // Clear the session and CSRF cookies on client side
       document.cookie = 'sessionid=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax';
+      document.cookie = 'csrftoken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax';
       setUser(null);
       router.push('/login');
     }

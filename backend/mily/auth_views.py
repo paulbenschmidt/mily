@@ -1,13 +1,13 @@
-from datetime import datetime
+import datetime as dt
+import logging
 
+from django.conf import settings
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.tokens import default_token_generator
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str
 from django.core.mail import send_mail
-from django.conf import settings
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
@@ -18,22 +18,20 @@ from .serializers import UserPrivateSerializer
 from config.settings import (
     SESSION_COOKIE_AGE,
     SESSION_COOKIE_HTTPONLY,
-    SESSION_COOKIE_SECURE,
     SESSION_COOKIE_SAMESITE,
+    SESSION_COOKIE_SECURE,
 )
 
 
 User = get_user_model()
 
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
-@csrf_exempt
 def signup_view(request):
     """Create a new user account."""
     # TODO: Account for instances where user is already signed in? Basically, there is a weird behavior if I'm already
     # logged in via Admin and I try and submit a new user via the front-end. It gives me a 403 error. Should I add more
-    # graceful error handling?
+    # graceful error handling? Maybe I could just redirect to the dashboard if the user is already logged in?
     data = request.data
 
     # Validate required fields
@@ -68,7 +66,7 @@ def signup_view(request):
 
     try:
         # Parse birth_date string to date object
-        birth_date_obj = datetime.strptime(birth_date, '%Y-%m-%d').date()
+        birth_date_obj = dt.datetime.strptime(birth_date, '%Y-%m-%d').date()
 
         # Create user
         user = User.objects.create_user(
@@ -97,7 +95,7 @@ def signup_view(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
 
-@csrf_exempt
+@ensure_csrf_cookie
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_view(request):
@@ -119,11 +117,6 @@ def login_view(request):
 
             # Force session save to ensure session key is created
             request.session.save()
-
-            # Debug logging
-            print(f"auth_views.py: Login successful for user {user.email}")
-            print(f"auth_views.py: Session key: {request.session.session_key}")
-            print(f"auth_views.py: Session data: {dict(request.session)}")
 
             serializer = UserPrivateSerializer(user)
             response = Response({
@@ -152,18 +145,27 @@ def login_view(request):
         }, status=status.HTTP_401_UNAUTHORIZED)
 
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def logout_view(request):
     """Logout user and destroy session."""
-    logout(request)
-    return Response({
-        'message': 'Logout successful'
-    })
+    try:
+        logout(request)
+
+        # Ensure session is completely destroyed
+        if hasattr(request, 'session'):
+            request.session.flush()  # More thorough than just logout()
+
+        return Response({
+            'message': 'Logout successful'
+        })
+    except Exception as e:
+        logging.error(f"Logout failed: {str(e)}")
+        return Response({
+            'error': 'Logout failed on server'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def password_reset_request_view(request):
@@ -220,7 +222,6 @@ def password_reset_request_view(request):
         })
 
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def password_reset_confirm_view(request):
@@ -264,7 +265,6 @@ def password_reset_confirm_view(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
 
-@csrf_exempt
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def auth_status_view(request):
@@ -293,12 +293,28 @@ def auth_status_view(request):
             'authenticated': True,
             'user': serializer.data
         })
-
+        logging.info("User authenticated successfully")
         return response
     else:
+        logging.info("User not authenticated")
         return Response({
             'authenticated': False
         })
+
+
+@ensure_csrf_cookie
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def csrf_token_view(request):
+    """
+    Using the @ensure_csrf_cookie decorator, this view forces Django to set the CSRF cookie in
+    the response. This can be useful prior to making a POST request to ensure the user is
+    authenticated or that the request isn't being made by a malicious user who initiates the
+    request from an untrusted source.
+    """
+    return Response({
+        'message': 'CSRF token set in cookie'
+    })
 
 # TODO: Implement session refresh
 # @require_http_methods(["POST"])
