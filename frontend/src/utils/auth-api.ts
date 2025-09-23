@@ -1,4 +1,4 @@
-import { User, TimelineEvent, AuthResponse } from '@/types/api';
+import { UserType, TimelineEventType, AuthResponse } from '@/types/api';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -20,17 +20,17 @@ class AuthApiClient {
     }
     return null;
   }
-  
+
   private getCSRFHeader(): Record<string, string> {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
-    
+
     const csrfToken = this.getCSRFToken();
     if (csrfToken) {
       headers['X-CSRFToken'] = csrfToken;
     }
-    
+
     return headers;
   }
 
@@ -99,8 +99,8 @@ class AuthApiClient {
     });
   }
 
-  async getAuthStatus(): Promise<{ authenticated: boolean; user?: User }> {
-    return this.request<{ authenticated: boolean; user?: User }>('/auth/status/');
+  async getAuthStatus(): Promise<{ authenticated: boolean; user?: UserType }> {
+    return this.request<{ authenticated: boolean; user?: UserType }>('/auth/status/');
   }
 
   async requestPasswordReset(email: string): Promise<{ message: string }> {
@@ -126,42 +126,42 @@ class AuthApiClient {
   }
 
   // User endpoints
-  async getCurrentUser(): Promise<User> {
-    return this.request<User>('/users/me/');
+  async getCurrentUser(): Promise<UserType> {
+    return this.request<UserType>('/users/me/');
   }
 
-  async getUserProfile(): Promise<User> {
+  async getUserProfile(): Promise<UserType> {
     return this.getCurrentUser();
   }
 
-  async updateUser(userData: Partial<User>): Promise<User> {
-    return this.request<User>('/users/me/', {
+  async updateUser(userData: Partial<UserType>): Promise<UserType> {
+    return this.request<UserType>('/users/me/', {
       method: 'PATCH',
       body: JSON.stringify(userData),
     });
   }
 
   // Events endpoints
-  async getEvents(): Promise<TimelineEvent[]> {
-    return this.request<TimelineEvent[]>('/events/self/');
+  async getEvents(): Promise<TimelineEventType[]> {
+    return this.request<TimelineEventType[]>('/events/self/');
   }
 
   // Use Omit to create a type that excludes server-generated fields
-  async createEvent(eventData: Omit<TimelineEvent, 'id' | 'user' | 'created_at' | 'updated_at'>): Promise<TimelineEvent> {
-    return this.request<TimelineEvent>('/events/', {
+  async createEvent(eventData: Omit<TimelineEventType, 'id' | 'user' | 'created_at' | 'updated_at'>): Promise<TimelineEventType> {
+    return this.request<TimelineEventType>('/events/', {
       method: 'POST',
       body: JSON.stringify(eventData),
     });
   }
-  
+
   // Update an existing event using PATCH to allow partial updates
-  async updateEvent(eventId: string, eventData: Partial<Omit<TimelineEvent, 'id' | 'user' | 'created_at' | 'updated_at'>>): Promise<TimelineEvent> {
-    return this.request<TimelineEvent>(`/events/${eventId}/`, {
+  async updateEvent(eventId: string, eventData: Partial<Omit<TimelineEventType, 'id' | 'user' | 'created_at' | 'updated_at'>>): Promise<TimelineEventType> {
+    return this.request<TimelineEventType>(`/events/${eventId}/`, {
       method: 'PATCH',
       body: JSON.stringify(eventData),
     });
   }
-  
+
   // Delete an existing event
   async deleteEvent(eventId: string): Promise<void> {
     const url = `${this.baseUrl}/events/${eventId}/`;
@@ -170,9 +170,9 @@ class AuthApiClient {
       headers: this.getCSRFHeader(),
       credentials: 'include' as RequestCredentials,
     };
-    
+
     const response = await fetch(url, options);
-    
+
     if (!response.ok) {
       throw new Error(`Delete failed: ${response.status} ${response.statusText}`);
     }

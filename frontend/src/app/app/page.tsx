@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { authApiClient } from '@/utils/auth-api';
-import { TimelineEvent as TimelineEventType } from '@/types/api';
+import { TimelineEventType } from '@/types/api';
 import { TimelineHeader } from '@/components/TimelineHeader';
 import { TimelineEvent } from '@/components/TimelineEvent';
 import { AddEventModal } from '@/components/AddEventModal';
@@ -52,17 +52,17 @@ export default function Timeline() {
     );
     setEvents(updatedEvents);
   };
-  
+
   const handleEventUpdated = (updatedEvent: TimelineEventType) => {
     // Replace the updated event in the timeline and re-sort
-    const updatedEvents = events.map(event => 
+    const updatedEvents = events.map(event =>
       event.id === updatedEvent.id ? updatedEvent : event
     ).sort((a, b) =>
       new Date(b.event_date).getTime() - new Date(a.event_date).getTime()
     );
     setEvents(updatedEvents);
   };
-  
+
   const handleEventDeleted = (eventId: string) => {
     // Remove the deleted event from the timeline
     const updatedEvents = events.filter(event => event.id !== eventId);

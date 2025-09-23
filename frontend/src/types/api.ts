@@ -1,11 +1,11 @@
 /**
  * API Types
- * 
+ *
  * This file contains TypeScript interfaces for API data structures.
  * These will be candidates for DRY optimization with OpenAPI schema generation.
  */
 
-export interface User {
+export interface UserType {
   id: string;
   username: string;
   handle: string;
@@ -18,7 +18,7 @@ export interface User {
   updated_at: string;
 }
 
-export interface TimelineEvent {
+export interface TimelineEventType {
   id: string;
   user: string;
   title: string;
@@ -35,5 +35,5 @@ export interface TimelineEvent {
 
 export interface AuthResponse {
   message: string;
-  user?: User;
+  user?: UserType;
 }
