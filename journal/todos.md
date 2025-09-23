@@ -2,6 +2,8 @@
 - [ ] Review the code so far
 - [ ] Enable photos on events
 - [ ] Straighten the lines on the timeline (left of the card)
+- [ ] Add timeline event filter logic
+- [ ] Add timeline event share logic
 
 ## Upcoming
 - [ ] JWT tokens using djangorestframework-simplejwt

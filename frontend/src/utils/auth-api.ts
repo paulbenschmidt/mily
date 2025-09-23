@@ -21,19 +21,6 @@ class AuthApiClient {
     return null;
   }
 
-  private getCSRFHeader(): Record<string, string> {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-
-    const csrfToken = this.getCSRFToken();
-    if (csrfToken) {
-      headers['X-CSRFToken'] = csrfToken;
-    }
-
-    return headers;
-  }
-
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
@@ -164,18 +151,9 @@ class AuthApiClient {
 
   // Delete an existing event
   async deleteEvent(eventId: string): Promise<void> {
-    const url = `${this.baseUrl}/events/${eventId}/`;
-    const options = {
+    await this.request<void>(`/events/${eventId}/`, {
       method: 'DELETE',
-      headers: this.getCSRFHeader(),
-      credentials: 'include' as RequestCredentials,
-    };
-
-    const response = await fetch(url, options);
-
-    if (!response.ok) {
-      throw new Error(`Delete failed: ${response.status} ${response.statusText}`);
-    }
+    });
   }
 }
 
