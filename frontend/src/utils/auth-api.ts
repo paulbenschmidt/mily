@@ -1,22 +1,7 @@
+import { UserType, TimelineEventType, AuthResponse } from '@/types/api';
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
-export interface User {
-  id: string;
-  username: string;
-  handle: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  profile_picture?: string;
-  birth_date: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface AuthResponse {
-  message: string;
-  user?: User;
-}
 
 class AuthApiClient {
   private baseUrl: string;
@@ -101,8 +86,8 @@ class AuthApiClient {
     });
   }
 
-  async getAuthStatus(): Promise<{ authenticated: boolean; user?: User }> {
-    return this.request<{ authenticated: boolean; user?: User }>('/auth/status/');
+  async getAuthStatus(): Promise<{ authenticated: boolean; user?: UserType }> {
+    return this.request<{ authenticated: boolean; user?: UserType }>('/auth/status/');
   }
 
   async requestPasswordReset(email: string): Promise<{ message: string }> {
@@ -128,18 +113,46 @@ class AuthApiClient {
   }
 
   // User endpoints
-  async getCurrentUser(): Promise<User> {
-    return this.request<User>('/users/me/');
+  async getCurrentUser(): Promise<UserType> {
+    return this.request<UserType>('/users/me/');
   }
 
-  async getUserProfile(): Promise<User> {
+  async getUserProfile(): Promise<UserType> {
     return this.getCurrentUser();
   }
 
-  async updateUser(userData: Partial<User>): Promise<User> {
-    return this.request<User>('/users/me/', {
+  async updateUser(userData: Partial<UserType>): Promise<UserType> {
+    return this.request<UserType>('/users/me/', {
       method: 'PATCH',
       body: JSON.stringify(userData),
+    });
+  }
+
+  // Events endpoints
+  async getEvents(): Promise<TimelineEventType[]> {
+    return this.request<TimelineEventType[]>('/events/self/');
+  }
+
+  // Use Omit to create a type that excludes server-generated fields
+  async createEvent(eventData: Omit<TimelineEventType, 'id' | 'user' | 'created_at' | 'updated_at'>): Promise<TimelineEventType> {
+    return this.request<TimelineEventType>('/events/', {
+      method: 'POST',
+      body: JSON.stringify(eventData),
+    });
+  }
+
+  // Update an existing event using PATCH to allow partial updates
+  async updateEvent(eventId: string, eventData: Partial<Omit<TimelineEventType, 'id' | 'user' | 'created_at' | 'updated_at'>>): Promise<TimelineEventType> {
+    return this.request<TimelineEventType>(`/events/${eventId}/`, {
+      method: 'PATCH',
+      body: JSON.stringify(eventData),
+    });
+  }
+
+  // Delete an existing event
+  async deleteEvent(eventId: string): Promise<void> {
+    await this.request<void>(`/events/${eventId}/`, {
+      method: 'DELETE',
     });
   }
 }

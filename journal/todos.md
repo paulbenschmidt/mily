@@ -1,10 +1,11 @@
 # Now
-- [ ] On timeline page, dynamically grab user's events and display them
-- [ ] On timeline page, enable creation of new events
-- [ ] On timeline page, enable editing of existing events
-- [ ] On timeline page, enable deletion of events
+- [ ] Review the code so far
+- [ ] Enable photos on events
+- [ ] Straighten the lines on the timeline (left of the card)
+- [ ] Add timeline event filter logic
+- [ ] Add timeline event share logic
 
-## Later
+## Upcoming
 - [ ] JWT tokens using djangorestframework-simplejwt
 - [ ] Password reset via Django's built-in email system
 - [ ] Email verification using Django's activation tokens (to make sure a bot doesn't sign up)
@@ -31,6 +32,7 @@
 - [ ] Security: Implement API Security Headers
 - [ ] Security: Regular Security Updates via Dependabot or something similar
 ### Optimizations
+- [ ] Implement OpenAPI schema generation so that frontend inherits data models from backend (DRY)
 - [ ] Change static/media to use S3
 - [ ] Allow user blocking as first action (currently a post request to friendship is required as the primary action)
 - [ ] Implement Data Encryption at Rest to protect database in case of breach
