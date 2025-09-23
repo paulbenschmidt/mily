@@ -55,7 +55,6 @@ def manage_birthday_event(sender, instance, created, **kwargs):
                     'privacy_level': EventPrivacyLevel.PRIVATE,
                     'is_editable': False,
                     'description': f"Born on {instance.birth_date.strftime('%B %d, %Y')}",
-                    'is_date_approximate': False,
                 }
             )
 

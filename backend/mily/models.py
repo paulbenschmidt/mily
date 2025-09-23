@@ -64,7 +64,6 @@ class Event(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='events')
     event_date = models.DateField()
-    is_date_approximate = models.BooleanField(default=False)
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='memory')
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)

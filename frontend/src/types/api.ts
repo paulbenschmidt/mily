@@ -25,7 +25,6 @@ export interface TimelineEvent {
   description: string;
   notes?: string;
   event_date: string;
-  is_date_approximate: boolean;
   category: 'major' | 'minor' | 'memory';
   privacy_level: string;
   photos?: string[];

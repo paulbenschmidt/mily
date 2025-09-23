@@ -1,10 +1,9 @@
 # Now
-- [ ] On timeline page, enable creation of new events
-- [ ] On timeline page, enable editing of existing events
-- [ ] On timeline page, enable deletion of events
-- [ ] On timeline page, make it pretty
+- [ ] Review the code so far
+- [ ] Enable photos on events
+- [ ] Straighten the lines on the timeline (left of the card)
 
-## Later
+## Upcoming
 - [ ] JWT tokens using djangorestframework-simplejwt
 - [ ] Password reset via Django's built-in email system
 - [ ] Email verification using Django's activation tokens (to make sure a bot doesn't sign up)

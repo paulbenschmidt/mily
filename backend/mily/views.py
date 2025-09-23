@@ -60,6 +60,13 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class EventViewSet(viewsets.ModelViewSet):
+    """API endpoint for managing timeline events.
+    
+    Supports CRUD operations with appropriate permissions:
+    - List: Authenticated users see their own events plus public/friend events
+    - Create: Authenticated users can create their own events
+    - Retrieve/Update/Delete: Event owners can modify their own events
+    """
     serializer_class = EventSerializer
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
@@ -84,7 +91,14 @@ class EventViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer: EventSerializer) -> None:
         """Only allow current user to create events for themselves."""
-        serializer.save(user=self.request.user)
+        logger.info("Creating new event for user: %s", self.request.user)
+        try:
+            event = serializer.save(user=self.request.user)
+            logger.info("Event created successfully: %s", event.id)
+            return event
+        except Exception as e:
+            logger.error("Error creating event: %s", str(e))
+            raise
 
     @action(detail=False, methods=["get"], url_path="self")
     def self_events(self, request):
@@ -96,3 +110,53 @@ class EventViewSet(viewsets.ModelViewSet):
         events = Event.objects.filter(user=request.user).order_by('event_date')
         serializer = self.get_serializer(events, many=True)
         return Response(serializer.data)
+        
+    def create(self, request, *args, **kwargs):
+        """Create a new event with enhanced validation and error handling."""
+        logger.info("Event creation request received from user: %s", request.user)
+        
+        serializer = self.get_serializer(data=request.data)
+        
+        if not serializer.is_valid():
+            logger.warning("Invalid event data: %s", serializer.errors)
+            return Response(
+                {"error": "Invalid event data", "details": serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        try:
+            event = self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(
+                serializer.data, 
+                status=status.HTTP_201_CREATED, 
+                headers=headers
+            )
+        except Exception as e:
+            logger.error("Error during event creation: %s", str(e))
+            return Response(
+                {"error": "Failed to create event", "details": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+            
+    def destroy(self, request, *args, **kwargs):
+        """Delete an event with proper logging and response handling."""
+        instance = self.get_object()
+        event_id = instance.id
+        user_id = instance.user_id
+        
+        logger.info("Deleting event %s for user %s", event_id, user_id)
+        
+        try:
+            self.perform_destroy(instance)
+            logger.info("Event %s successfully deleted", event_id)
+            return Response(
+                {"success": True, "message": "Event deleted successfully"},
+                status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            logger.error("Error deleting event %s: %s", event_id, str(e))
+            return Response(
+                {"error": "Failed to delete event", "details": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

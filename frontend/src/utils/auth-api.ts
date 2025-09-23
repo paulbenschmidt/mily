@@ -20,6 +20,19 @@ class AuthApiClient {
     }
     return null;
   }
+  
+  private getCSRFHeader(): Record<string, string> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    
+    const csrfToken = this.getCSRFToken();
+    if (csrfToken) {
+      headers['X-CSRFToken'] = csrfToken;
+    }
+    
+    return headers;
+  }
 
   private async request<T>(
     endpoint: string,
@@ -131,6 +144,38 @@ class AuthApiClient {
   // Events endpoints
   async getEvents(): Promise<TimelineEvent[]> {
     return this.request<TimelineEvent[]>('/events/self/');
+  }
+
+  // Use Omit to create a type that excludes server-generated fields
+  async createEvent(eventData: Omit<TimelineEvent, 'id' | 'user' | 'created_at' | 'updated_at'>): Promise<TimelineEvent> {
+    return this.request<TimelineEvent>('/events/', {
+      method: 'POST',
+      body: JSON.stringify(eventData),
+    });
+  }
+  
+  // Update an existing event using PATCH to allow partial updates
+  async updateEvent(eventId: string, eventData: Partial<Omit<TimelineEvent, 'id' | 'user' | 'created_at' | 'updated_at'>>): Promise<TimelineEvent> {
+    return this.request<TimelineEvent>(`/events/${eventId}/`, {
+      method: 'PATCH',
+      body: JSON.stringify(eventData),
+    });
+  }
+  
+  // Delete an existing event
+  async deleteEvent(eventId: string): Promise<void> {
+    const url = `${this.baseUrl}/events/${eventId}/`;
+    const options = {
+      method: 'DELETE',
+      headers: this.getCSRFHeader(),
+      credentials: 'include' as RequestCredentials,
+    };
+    
+    const response = await fetch(url, options);
+    
+    if (!response.ok) {
+      throw new Error(`Delete failed: ${response.status} ${response.statusText}`);
+    }
   }
 }
 

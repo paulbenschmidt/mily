@@ -31,7 +31,6 @@ Individual life events on a user's timeline.
 - `id`: UUID primary key
 - `user`: Foreign key to User (owner)
 - `event_date`: Date of the event
-- `is_date_approximate`: Whether the date is approximate
 - `category`: Event category ('major', 'minor', 'memory')
 - `title`: Event title
 - `description`: Event description (optional)

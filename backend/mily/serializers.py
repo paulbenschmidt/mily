@@ -66,7 +66,6 @@ class EventSerializer(serializers.ModelSerializer):
             "description",
             "notes",
             "event_date",
-            "is_date_approximate",
             "location",
             "privacy_level",
             "photos",
