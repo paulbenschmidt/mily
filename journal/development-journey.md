@@ -1,5 +1,6 @@
 # Development Journey
 
+- 2025-09-27: Big day! I deployed the backend to Railway. I'm glad that I have Django Admin because I was able to verify that that the backend was working as expected. The first few hours were spent trying to figure out the ideal MVP deployment infrastructure. In the end, I landed on Railway for the backend and Vercel for the frontend. I might migrate the database from Neon onto Railway, but I'm not sure yet.
 - 2025-09-21: Learned about sessions
     - Django sessions are created when calling the `login()` function. The backend database then stores the `_auth_user_id`, `_auth_user_backend`, and `_auth_user_hash` in the database and passes along the `sessionid` cookie to the frontend, which is a look-up key for the session in the database. This way credentials are never sent to the frontend, and browser only needs to send the `sessionid` cookie to the backend.
 - 2025-09-19: Learned about CSRF and cookies
