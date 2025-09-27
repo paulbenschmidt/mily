@@ -14,7 +14,7 @@ class UserAdmin(BaseUserAdmin):
 
     fieldsets = BaseUserAdmin.fieldsets + (
         ('Additional Info', {
-            'fields': ('handle', 'profile_picture', 'birth_date')
+            'fields': ('handle', 'profile_picture')
         }),
         ('Timestamps', {
             'fields': ('created_at', 'updated_at'),

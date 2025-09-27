@@ -15,7 +15,6 @@ export default function SignupPage() {
     first_name: '',
     last_name: '',
     handle: '',
-    birth_date: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -170,20 +169,6 @@ export default function SignupPage() {
               />
             </div>
 
-            <div>
-              <label htmlFor="birth_date" className="block text-sm font-medium text-gray-700">
-                Birth Date *
-              </label>
-              <input
-                id="birth_date"
-                name="birth_date"
-                type="date"
-                required
-                value={formData.birth_date}
-                onChange={handleChange}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-              />
-            </div>
           </div>
 
           {error && (

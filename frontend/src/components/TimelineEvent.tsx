@@ -52,8 +52,8 @@ export function TimelineEvent({ event, isLast = false, onEditEvent }: TimelineEv
   };
 
   return (
-    <div 
-      className="relative flex gap-6 pb-8" 
+    <div
+      className="relative flex gap-6 pb-8"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

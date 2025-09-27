@@ -42,7 +42,6 @@ class UserPrivateSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "profile_picture",
-            "birth_date",
             "created_at",
             "updated_at",
         ]

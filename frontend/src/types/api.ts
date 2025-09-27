@@ -13,7 +13,6 @@ export interface UserType {
   first_name: string;
   last_name: string;
   profile_picture?: string;
-  birth_date: string;
   created_at: string;
   updated_at: string;
 }

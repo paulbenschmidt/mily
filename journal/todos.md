@@ -1,24 +1,20 @@
-# Now
-- [ ] Review the code so far
-- [ ] Enable photos on events
-- [ ] Straighten the lines on the timeline (left of the card)
+## Now
 - [ ] Add timeline event filter logic
-- [ ] Add timeline event share logic
+- [ ] Deploy to Vercel
 
 ## Upcoming
 - [ ] JWT tokens using djangorestframework-simplejwt
 - [ ] Password reset via Django's built-in email system
 - [ ] Email verification using Django's activation tokens (to make sure a bot doesn't sign up)
 - [ ] Rate limiting with django-ratelimit
-
 - [ ] Go through packages and update any that are not needed
 - [ ] Update readmes/windsurfrules/roadmaps/comments/etc
-- [ ] Set up MCP for Context7
 - [ ] Create front-end test to make sure that authenticated users get redirected to dashboard
 - [ ] Verify that you have 100% test coverage for backend views
 - [ ] Verify that users cannot see the years associated with any events (for privacy reasons)
+- [ ] Create side "scrollbar" that shows years as well as events in their chronological order with appropriate spacing
+- [ ] Create scrolling feature that "snaps" to the nearest event
 
-## Fundamentals
 ### Pre-production
 - [ ] Validate all user inputs (names, dates, event descriptions)
 - [ ] Go through repo and clear out all todos
@@ -31,8 +27,15 @@
 - [ ] Security: Implement 2FA?
 - [ ] Security: Implement API Security Headers
 - [ ] Security: Regular Security Updates via Dependabot or something similar
+
+### Features
+- [ ] Create a feature requests page so that users can suggest and upvote features
+- [ ] Enable photos on events
+- [ ] Add timeline event share logic
+
 ### Optimizations
 - [ ] Implement OpenAPI schema generation so that frontend inherits data models from backend (DRY)
 - [ ] Change static/media to use S3
 - [ ] Allow user blocking as first action (currently a post request to friendship is required as the primary action)
 - [ ] Implement Data Encryption at Rest to protect database in case of breach
+- [ ] Set up MCP for Context7
