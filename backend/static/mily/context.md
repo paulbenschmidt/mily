@@ -1,0 +1,1 @@
+Having a `static` directory in the root of the project ensures that static files are collected in the correct location for deployment. This placeholder file ensures that it's version-controlled and included in the deployment process.
