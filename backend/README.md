@@ -89,10 +89,12 @@ backend/
 See [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md) for detailed model specifications and relationships.
 
 ## Deployment
-The backend is deployed on Railway. In order to configure:
+The backend is automatically deployed to Railway when you push to the `main` branch. Railway files required for deployment are:
+- `railway.json`
+- `requirements.txt`
+
+The deployment script includes `python manage.py collectstatic --noinput` and `python manage.py migrate` to ensure that the database is up to date and static files are collected (which are required for the admin interface).
+
+Once deployed, you will need to:
 1. ensure to set the `Root Directory` in the deployment's settings to `backend`
 2. upload the `.env.production` file to the deployment's environment variables
-
-After deployment, update the env variable `NEXT_PUBLIC_API_URL` to the deployment's URL.
-
-Note: Railway will automatically begin a deployment when you push to the `main` branch.

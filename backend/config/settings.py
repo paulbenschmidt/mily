@@ -33,11 +33,11 @@ load_dotenv(dotenv_path=env_path, override=False)
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True # os.getenv('DEBUG', 'False').lower() == 'true'
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 # TODO: Modify allowed hosts for production
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.railway.app', '.up.railway.app']
-
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') if os.getenv('ALLOWED_HOSTS') \
+    else ['.railway.app', '.up.railway.app']
 
 # Application definition
 
@@ -196,20 +196,8 @@ FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000')
 
 # CORS settings for frontend integration
 # TODO: Update for production
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # Next.js development server
-    "http://127.0.0.1:3000",
-    "http://localhost:8000",  # Django backend
-    "http://127.0.0.1:8000",
-]
-
-# Add production origins from environment variables
-FRONTEND_DOMAIN = os.getenv('FRONTEND_DOMAIN')
-if FRONTEND_DOMAIN:
-    CORS_ALLOWED_ORIGINS.extend([
-        f"https://{FRONTEND_DOMAIN}",
-        f"https://*.{FRONTEND_DOMAIN}",  # For Vercel preview deployments
-    ])
+CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '').split(',') if os.getenv('CORS_ALLOWED_ORIGINS') \
+    else ["TBD"]
 CORS_ALLOW_CREDENTIALS = True
 CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
 
@@ -229,14 +217,8 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Persist sessions
 CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to read CSRF token
 CSRF_COOKIE_SECURE = False  # Set to True in production with HTTPS
 CSRF_COOKIE_SAMESITE = 'Lax'
-CSRF_TRUSTED_ORIGINS = [
-    # "http://localhost:3000",
-    # "http://127.0.0.1:3000",
-    # "http://localhost:8000",
-    # "http://127.0.0.1:8000",
-    'https://milyv2-production.up.railway.app',
-    'https://*.railway.app',
-]
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if os.getenv('CSRF_TRUSTED_ORIGINS') \
+    else ["https://milyv2-production.up.railway.app"]
 
 # Logging configuration
 LOGGING = {
