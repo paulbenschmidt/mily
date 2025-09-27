@@ -36,7 +36,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 # TODO: Modify allowed hosts for production
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.vercel.app']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.railway.app', '.up.railway.app']
 
 
 # Application definition
@@ -183,6 +183,14 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",  # Django backend
     "http://127.0.0.1:8000",
 ]
+
+# Add production origins from environment variables
+FRONTEND_DOMAIN = os.getenv('FRONTEND_DOMAIN')
+if FRONTEND_DOMAIN:
+    CORS_ALLOWED_ORIGINS.extend([
+        f"https://{FRONTEND_DOMAIN}",
+        f"https://*.{FRONTEND_DOMAIN}",  # For Vercel preview deployments
+    ])
 CORS_ALLOW_CREDENTIALS = True
 CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
 
