@@ -1,15 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { TimelineEvent } from '@/types/api';
+import { TimelineEventType } from '@/types/api';
 import { authApiClient } from '@/utils/auth-api';
 
 interface AddEventModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onEventAdded: (event: TimelineEvent) => void;
-  eventToEdit?: TimelineEvent;
-  onEventUpdated?: (event: TimelineEvent) => void;
+  onEventAdded: (event: TimelineEventType) => void;
+  eventToEdit?: TimelineEventType;
+  onEventUpdated?: (event: TimelineEventType) => void;
   onEventDeleted?: (eventId: string) => void;
 }
 

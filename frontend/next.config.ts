@@ -4,7 +4,7 @@ import { resolve } from 'path';
 
 // Load environment variables from root .env/.env.development
 // TODO: Parameterize this to allow for different environments
-config({ path: resolve(__dirname, '../.env/.env.development') });
+config({ path: resolve(__dirname, '../.env/.env.production') });
 
 const nextConfig: NextConfig = {
   env: {
