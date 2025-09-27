@@ -1,5 +1,6 @@
 ## Now
 - [ ] Deploy to Vercel
+- [ ] Get rid of System Created Events as well as Is Editable field
 
 ## Upcoming
 - [ ] JWT tokens using djangorestframework-simplejwt
