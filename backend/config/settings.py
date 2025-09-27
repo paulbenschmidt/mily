@@ -22,7 +22,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Load environment variables from .env file
 # Look for .env files in the .env/ directory at project root
 env_path = BASE_DIR.parent / '.env' / '.env.development'
-load_dotenv(dotenv_path=env_path)
+# Load dotenv but don't override existing environment variables
+load_dotenv(dotenv_path=env_path, override=False)
 
 
 # Quick-start development settings - unsuitable for production
@@ -32,7 +33,7 @@ load_dotenv(dotenv_path=env_path)
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 # TODO: Modify allowed hosts for production
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.vercel.app']
@@ -230,17 +231,17 @@ LOGGING = {
     },
     'root': {
         'handlers': ['console'],
-        'level': 'INFO',
+        'level': os.getenv('LOGGER_LOG_LEVEL', 'ERROR') if 'test' not in sys.argv else 'CRITICAL',
     },
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'INFO',
+            'level': os.getenv('LOGGER_LOG_LEVEL', 'ERROR') if 'test' not in sys.argv else 'CRITICAL',
             'propagate': False,
         },
         'mily': {
             'handlers': ['console'],
-            'level': os.getenv('LOGGER_LOG_LEVEL', 'ERROR'),
+            'level': os.getenv('LOGGER_LOG_LEVEL', 'ERROR') if 'test' not in sys.argv else 'CRITICAL',
             'propagate': False,
         },
     },
