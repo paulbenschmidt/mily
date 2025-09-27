@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { TimelineEvent as TimelineEventType } from '@/types/api';
+import { TimelineEventType } from '@/types/api';
 
 interface TimelineEventProps {
   event: TimelineEventType;
