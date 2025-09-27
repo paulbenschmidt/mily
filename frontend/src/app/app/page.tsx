@@ -112,7 +112,7 @@ export default function Timeline() {
               onClick={handleAddEvent}
               className="px-10 py-4 bg-gradient-to-r from-gray-700 to-gray-800 text-white text-lg font-medium rounded-lg shadow-lg hover:from-gray-800 hover:to-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700 transition-all transform hover:scale-105 duration-200"
             >
-              Begin Your Journey
+              Begin
             </button>
           </div>
         ) : (

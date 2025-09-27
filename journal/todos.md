@@ -1,4 +1,5 @@
 ## Now
+- [ ] Add timeline event filter logic
 - [ ] Deploy to Vercel
 
 ## Upcoming
@@ -30,7 +31,6 @@
 ### Features
 - [ ] Create a feature requests page so that users can suggest and upvote features
 - [ ] Enable photos on events
-- [ ] Add timeline event filter logic
 - [ ] Add timeline event share logic
 
 ### Optimizations
