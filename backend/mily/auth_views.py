@@ -28,7 +28,7 @@ User = get_user_model()
 @ensure_csrf_cookie
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def signup_view(request):
+def register_view(request):
     """Create a new user account."""
     # TODO: Account for instances where user is already signed in? Basically, there is a weird behavior if I'm already
     # logged in via Admin and I try and submit a new user via the front-end. It gives me a 403 error. Should I add more

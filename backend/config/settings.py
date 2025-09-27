@@ -239,12 +239,12 @@ LOGGING = {
     },
     'root': {
         'handlers': ['console'],
-        'level': os.getenv('LOGGER_LOG_LEVEL', 'ERROR') if 'test' not in sys.argv else 'CRITICAL',
+        'level': 'ERROR',
     },
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': os.getenv('LOGGER_LOG_LEVEL', 'ERROR') if 'test' not in sys.argv else 'CRITICAL',
+            'level': 'ERROR',
             'propagate': False,
         },
         'mily': {
