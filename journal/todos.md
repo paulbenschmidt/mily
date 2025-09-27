@@ -26,6 +26,7 @@
 - [ ] Security: Implement 2FA?
 - [ ] Security: Implement API Security Headers
 - [ ] Security: Regular Security Updates via Dependabot or something similar
+- [ ] Backend: Move on from Nixpacks to current best practices (I'm getting a deprecation warning)
 
 ### Features
 - [ ] Create a feature requests page so that users can suggest and upvote features

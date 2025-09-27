@@ -3,6 +3,7 @@ import { config } from 'dotenv';
 import { resolve } from 'path';
 
 // Load environment variables from root .env/.env.development
+// TODO: Parameterize this to allow for different environments
 config({ path: resolve(__dirname, '../.env/.env.development') });
 
 const nextConfig: NextConfig = {
