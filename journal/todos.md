@@ -1,5 +1,4 @@
 ## Now
-- [ ] Add timeline event filter logic
 - [ ] Deploy to Vercel
 
 ## Upcoming

@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { authApiClient } from '@/utils/auth-api';
 import { TimelineEventType } from '@/types/api';
+import { FilterOptions } from '@/components/FilterDropdown';
 import { TimelineHeader } from '@/components/TimelineHeader';
 import { TimelineEvent } from '@/components/TimelineEvent';
 import { AddEventModal } from '@/components/AddEventModal';
@@ -13,6 +14,13 @@ export default function Timeline() {
   const [error, setError] = useState<string | null>(null);
   const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
   const [eventToEdit, setEventToEdit] = useState<TimelineEventType | undefined>(undefined);
+
+  // Filter state
+  const [filters, setFilters] = useState<FilterOptions>({
+    startDate: null,
+    endDate: null,
+    category: 'all'
+  });
 
   useEffect(() => {
     fetchEvents();
@@ -69,9 +77,8 @@ export default function Timeline() {
     setEvents(updatedEvents);
   };
 
-  const handleFilter = () => {
-    // TODO: Implement filter functionality
-    console.log('Filter clicked');
+  const handleFilter = (newFilters: FilterOptions) => {
+    setFilters(newFilters);
   };
 
   const handleShare = () => {
@@ -79,10 +86,39 @@ export default function Timeline() {
     console.log('Share clicked');
   };
 
+  // Apply filters to events
+  const filteredEvents = useMemo(() => {
+    return events.filter(event => {
+      const eventDate = new Date(event.event_date);
+
+      // Filter by date range
+      if (filters.startDate && new Date(filters.startDate) > eventDate) {
+        return false;
+      }
+
+      if (filters.endDate && new Date(filters.endDate) < eventDate) {
+        return false;
+      }
+
+      // Filter by category
+      if (filters.category !== 'all' && event.category !== filters.category) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [events, filters]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <TimelineHeader onAddEvent={handleAddEvent} onFilter={handleFilter} onShare={handleShare} hasEvents={false} />
+        <TimelineHeader
+          onAddEvent={handleAddEvent}
+          onFilter={handleFilter}
+          onShare={handleShare}
+          hasEvents={false}
+          currentFilters={filters}
+        />
         <div className="flex justify-center items-center min-h-[calc(100vh-120px)]">
           <div className="text-gray-600">Loading your timeline...</div>
         </div>
@@ -93,7 +129,13 @@ export default function Timeline() {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <TimelineHeader onAddEvent={handleAddEvent} onFilter={handleFilter} onShare={handleShare} hasEvents={false} />
+        <TimelineHeader
+          onAddEvent={handleAddEvent}
+          onFilter={handleFilter}
+          onShare={handleShare}
+          hasEvents={false}
+          currentFilters={filters}
+        />
         <div className="flex justify-center items-center min-h-[calc(100vh-120px)]">
           <div className="text-red-600">Error: {error}</div>
         </div>
@@ -103,7 +145,13 @@ export default function Timeline() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <TimelineHeader onAddEvent={handleAddEvent} onFilter={handleFilter} onShare={handleShare} hasEvents={events.length > 0} />
+      <TimelineHeader
+        onAddEvent={handleAddEvent}
+        onFilter={handleFilter}
+        onShare={handleShare}
+        hasEvents={events.length > 0}
+        currentFilters={filters}
+      />
 
       <main className="max-w-4xl mx-auto px-6 py-8">
         {events.length === 0 ? (
@@ -117,14 +165,40 @@ export default function Timeline() {
           </div>
         ) : (
           <div className="space-y-0">
-            {events.map((event, index) => (
+            {filteredEvents.length === 0 ? (
+              <div className="text-center py-10">
+                <p className="text-gray-600">No events match your filters</p>
+                <button
+                  onClick={() => setFilters({ startDate: null, endDate: null, category: 'all' })}
+                  className="mt-4 px-4 py-2 text-sm font-medium text-indigo-600 bg-white border border-indigo-300 rounded-md hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            ) : (
+              filteredEvents.map((event, index) => (
               <TimelineEvent
                 key={event.id}
                 event={event}
-                isLast={index === events.length - 1}
+                isLast={index === filteredEvents.length - 1}
                 onEditEvent={handleEditEvent}
               />
-            ))}
+            )))}
+          </div>
+        )}
+
+        {/* Filter status indicator */}
+        {(filters.startDate || filters.endDate || filters.category !== 'all') && events.length > 0 && (
+          <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white px-4 py-2 rounded-full shadow-lg border border-gray-200 flex items-center space-x-2">
+            <span className="text-sm text-gray-600">
+              Showing {filteredEvents.length} of {events.length} events
+            </span>
+            <button
+              onClick={() => setFilters({ startDate: null, endDate: null, category: 'all' })}
+              className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+            >
+              Clear
+            </button>
           </div>
         )}
 
