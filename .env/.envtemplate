@@ -2,6 +2,9 @@
 SECRET_KEY=your-secret-key-here
 DEBUG=True
 
+# Logging
+LOGGER_LOG_LEVEL="DEBUG"
+
 # Neon Database Configuration
 DATABASE_NAME=your-database-name
 DATABASE_USER=your-database-user
@@ -9,11 +12,12 @@ DATABASE_PASSWORD=your-database-password
 DATABASE_HOST=your-neon-host.neon.tech
 DATABASE_PORT=5432
 
+# API URLs
+NEXT_PUBLIC_API_URL=http://localhost:8000/api
+RAILWAY_BACKEND_URL=https://your-railway-app.up.railway.app
+FRONTEND_DOMAIN=your-vercel-app.vercel.app
+FRONTEND_URL=https://your-vercel-app.vercel.app
+
 # Users
-SUPERUSER_USERNAME=
 SUPERUSER_EMAIL=
 SUPERUSER_PASSWORD=
-
-# API
-NEXT_PUBLIC_API_URL=http://localhost:8000/api
-
