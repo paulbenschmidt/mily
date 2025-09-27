@@ -94,3 +94,5 @@ The backend is deployed on Railway. In order to configure:
 2. upload the `.env.production` file to the deployment's environment variables
 
 After deployment, update the env variable `NEXT_PUBLIC_API_URL` to the deployment's URL.
+
+Note: Railway will automatically begin a deployment when you push to the `main` branch.
