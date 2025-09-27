@@ -89,4 +89,8 @@ backend/
 See [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md) for detailed model specifications and relationships.
 
 ## Deployment
-The backend is deployed on Railway. In order to configure, ensure to set the `Root Directory` in the deployment's settings to `backend`.
+The backend is deployed on Railway. In order to configure:
+1. ensure to set the `Root Directory` in the deployment's settings to `backend`
+2. upload the `.env.production` file to the deployment's environment variables
+
+After deployment, update the env variable `NEXT_PUBLIC_API_URL` to the deployment's URL.

@@ -33,7 +33,7 @@ load_dotenv(dotenv_path=env_path, override=False)
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
+DEBUG = True # os.getenv('DEBUG', 'False').lower() == 'true'
 
 # TODO: Modify allowed hosts for production
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.railway.app', '.up.railway.app']
@@ -211,10 +211,12 @@ CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to read CSRF token
 CSRF_COOKIE_SECURE = False  # Set to True in production with HTTPS
 CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
+    # "http://localhost:3000",
+    # "http://127.0.0.1:3000",
+    # "http://localhost:8000",
+    # "http://127.0.0.1:8000",
+    'https://milyv2-production.up.railway.app',
+    'https://*.railway.app',
 ]
 
 # Logging configuration
