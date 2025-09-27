@@ -3,10 +3,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { authApiClient } from '@/utils/auth-api';
-import { User } from '@/types/api';
+import { UserType } from '@/types/api';
 
 interface AuthContextType {
-  user: User | null;
+  user: UserType | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -16,7 +16,6 @@ interface AuthContextType {
     first_name: string;
     last_name: string;
     handle: string;
-    birth_date: string;
   }) => Promise<void>;
   checkAuth: () => Promise<void>;
 }
@@ -32,7 +31,7 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -77,7 +76,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     first_name: string;
     last_name: string;
     handle: string;
-    birth_date: string;
   }) => {
     try {
       const response = await authApiClient.signup(userData);

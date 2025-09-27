@@ -15,13 +15,12 @@ class User(AbstractUser):
     first_name = models.CharField(max_length=150, blank=True)
     last_name = models.CharField(max_length=150, blank=True)
     profile_picture = models.URLField(blank=True)
-    birth_date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     # Use email as the username field for login
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'birth_date']
+    REQUIRED_FIELDS = ['username']
 
     class Meta:
         db_table = 'users'

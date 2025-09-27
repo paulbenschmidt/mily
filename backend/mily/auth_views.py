@@ -41,9 +41,8 @@ def signup_view(request):
     first_name = data.get('first_name', '').strip()
     last_name = data.get('last_name', '').strip()
     handle = data.get('handle', '').strip().lower()
-    birth_date = data.get('birth_date', '')
 
-    if not all([email, password, first_name, last_name, handle, birth_date]):
+    if not all([email, password, first_name, last_name, handle]):
         return Response({
             'error': 'Email, password, first name, last name, handle, and birth date are required'
         }, status=status.HTTP_400_BAD_REQUEST)
@@ -66,8 +65,6 @@ def signup_view(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        # Parse birth_date string to date object
-        birth_date_obj = dt.datetime.strptime(birth_date, '%Y-%m-%d').date()
 
         # Create user
         user = User.objects.create_user(
@@ -77,7 +74,6 @@ def signup_view(request):
             first_name=first_name,
             last_name=last_name,
             handle=handle,
-            birth_date=birth_date_obj,
         )
 
         # Log the user in

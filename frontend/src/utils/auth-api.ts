@@ -61,7 +61,6 @@ class AuthApiClient {
     first_name: string;
     last_name: string;
     handle: string;
-    birth_date: string;
   }): Promise<AuthResponse> {
     return this.request<AuthResponse>('/auth/signup/', {
       method: 'POST',

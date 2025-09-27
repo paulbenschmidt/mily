@@ -15,7 +15,6 @@ Extended Django user model with built-in authentication.
 - `first_name`: User's first name
 - `last_name`: User's last name
 - `profile_picture`: URL to profile image
-- `birth_date`: User's birth date
 - `is_active`: Account status
 - `created_at`: Account creation timestamp
 - `updated_at`: Last update timestamp

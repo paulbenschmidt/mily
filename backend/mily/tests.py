@@ -54,7 +54,6 @@ class UserViewSetTestCase(APITestCase):
 
             # Ensure private fields are not exposed
             self.assertNotIn('email', user_data)
-            self.assertNotIn('birth_date', user_data)
 
     def test_retrieve_user_public_fields(self):
         """Retrieving specific user returns only public fields"""
@@ -64,7 +63,6 @@ class UserViewSetTestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertNotIn('email', response.data)
-        self.assertNotIn('birth_date', response.data)
 
     def test_me_endpoint_returns_private_fields(self):
         """The /me/ endpoint returns full user data including private fields"""

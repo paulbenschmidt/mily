@@ -82,7 +82,7 @@ export default function Timeline() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <TimelineHeader onAddEvent={handleAddEvent} onFilter={handleFilter} onShare={handleShare} />
+        <TimelineHeader onAddEvent={handleAddEvent} onFilter={handleFilter} onShare={handleShare} hasEvents={false} />
         <div className="flex justify-center items-center min-h-[calc(100vh-120px)]">
           <div className="text-gray-600">Loading your timeline...</div>
         </div>
@@ -93,7 +93,7 @@ export default function Timeline() {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <TimelineHeader onAddEvent={handleAddEvent} onFilter={handleFilter} onShare={handleShare} />
+        <TimelineHeader onAddEvent={handleAddEvent} onFilter={handleFilter} onShare={handleShare} hasEvents={false} />
         <div className="flex justify-center items-center min-h-[calc(100vh-120px)]">
           <div className="text-red-600">Error: {error}</div>
         </div>
@@ -103,12 +103,17 @@ export default function Timeline() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <TimelineHeader onAddEvent={handleAddEvent} onFilter={handleFilter} onShare={handleShare} />
+      <TimelineHeader onAddEvent={handleAddEvent} onFilter={handleFilter} onShare={handleShare} hasEvents={events.length > 0} />
 
       <main className="max-w-4xl mx-auto px-6 py-8">
         {events.length === 0 ? (
-          <div className="text-center text-gray-600 mt-20">
-            <p>No events yet. Start building your timeline!</p>
+          <div className="text-center mt-20 flex flex-col items-center">
+            <button
+              onClick={handleAddEvent}
+              className="px-10 py-4 bg-gradient-to-r from-gray-700 to-gray-800 text-white text-lg font-medium rounded-lg shadow-lg hover:from-gray-800 hover:to-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700 transition-all transform hover:scale-105 duration-200"
+            >
+              Begin Your Journey
+            </button>
           </div>
         ) : (
           <div className="space-y-0">

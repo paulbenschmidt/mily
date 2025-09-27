@@ -67,10 +67,6 @@ export default function ProfilePage() {
                 <dd className="text-gray-900">{user.first_name} {user.last_name}</dd>
               </div>
               <div>
-                <dt className="text-sm font-medium text-gray-500 mb-1">Birth Date</dt>
-                <dd className="text-gray-900">{new Date(user.birth_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</dd>
-              </div>
-              <div>
                 <dt className="text-sm font-medium text-gray-500 mb-1">Member Since</dt>
                 <dd className="text-gray-900">{new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</dd>
               </div>
