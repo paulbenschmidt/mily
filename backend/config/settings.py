@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load environment variables from .env file
 # Look for .env files in the .env/ directory at project root
-env_path = BASE_DIR.parent / '.env' / '.env.local'
+env_path = BASE_DIR.parent / '.env' / f'.env.{os.getenv("MILY_ENV", "local")}'
 # Load dotenv but don't override existing environment variables
 load_dotenv(dotenv_path=env_path, override=False)
 
@@ -196,8 +196,7 @@ FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000')
 
 # CORS settings for frontend integration
 # TODO: Update for production
-CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '').split(',') if os.getenv('CORS_ALLOWED_ORIGINS') \
-    else ["TBD"]
+CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '').split(',')
 CORS_ALLOW_CREDENTIALS = True
 CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
 

@@ -14,7 +14,6 @@ DATABASE_PORT=5432
 
 # API
 NEXT_PUBLIC_API_URL=http://localhost:8000/api
-RAILWAY_BACKEND_URL=https://your-railway-app.up.railway.app
 FRONTEND_URL=https://your-vercel-app.vercel.app
 
 # Security

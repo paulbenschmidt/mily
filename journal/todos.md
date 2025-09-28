@@ -1,9 +1,10 @@
 ## Now
+- [ ] JWT tokens using djangorestframework-simplejwt
+- [ ] TODO: Remove localhost from backend CORS_ALLOWED_ORIGINS
 - [ ] Deploy to Vercel
 - [ ] Get rid of System Created Events as well as Is Editable field
 
 ## Upcoming
-- [ ] JWT tokens using djangorestframework-simplejwt
 - [ ] Password reset via Django's built-in email system
 - [ ] Email verification using Django's activation tokens (to make sure a bot doesn't sign up)
 - [ ] Rate limiting with django-ratelimit
