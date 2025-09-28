@@ -5,9 +5,9 @@ import { existsSync } from 'fs';
 
 // Try to load environment variables from different possible locations
 const envPaths = [
-  // resolve(__dirname, '../.env/.env.production'),
+  resolve(__dirname, '../.env/.env.production'),
   // resolve(__dirname, '../.env/.env.development'),
-  resolve(__dirname, '../.env/.env.local'),
+  // resolve(__dirname, '../.env/.env.local'),
 ];
 
 // Load the first .env file that exists
@@ -46,11 +46,11 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/:path*/',
-        destination: apiUrl + '/:path*/',
+        destination: apiUrl + '/api/:path*/',
       },
       {
         source: '/api/:path*',
-        destination: apiUrl + '/:path*/',
+        destination: apiUrl + '/api/:path*/',
       },
     ];
   },
