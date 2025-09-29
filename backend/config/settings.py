@@ -36,8 +36,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 # TODO: Modify allowed hosts for production
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') if os.getenv('ALLOWED_HOSTS') \
-    else ['.railway.app', '.up.railway.app']
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
 # Application definition
 
@@ -192,7 +191,7 @@ EMAIL_HOST_PASSWORD = ''
 DEFAULT_FROM_EMAIL = 'noreply@mily.app'
 
 # Frontend URL for password reset links
-FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000')
+FRONTEND_URL = os.getenv('FRONTEND_URL')
 
 # CORS settings for frontend integration
 # TODO: Update for production
@@ -216,8 +215,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Persist sessions
 CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to read CSRF token
 CSRF_COOKIE_SECURE = False  # Set to True in production with HTTPS
 CSRF_COOKIE_SAMESITE = 'Lax'
-CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if os.getenv('CSRF_TRUSTED_ORIGINS') \
-    else ["https://milyv2-production.up.railway.app"]
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
 
 # Logging configuration
 LOGGING = {
