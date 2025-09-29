@@ -62,7 +62,7 @@ class AuthApiClient {
     last_name: string;
     handle: string;
   }): Promise<AuthResponse> {
-    return this.request<AuthResponse>('/auth/signup/', {
+    return this.request<AuthResponse>('/auth/register/', {
       method: 'POST',
       body: JSON.stringify(userData),
     });

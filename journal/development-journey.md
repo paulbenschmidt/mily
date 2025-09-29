@@ -1,5 +1,6 @@
 # Development Journey
 
+- 2025-09-29: I finally realized what the issue on the frontend deployment was: a darn environment variable. Turns out I was just confusing the top-level collection of projects with the actual Mily project deployment. I managed to get the login for an existing user to work (and successfully grab the events for that user), but the user signup didn't work.
 - 2025-09-27:
     - Big day! I deployed the backend to Railway. I'm glad that I have Django Admin because I was able to verify that that the backend was working as expected. The first few hours were spent trying to figure out the ideal MVP deployment infrastructure. In the end, I landed on Railway for the backend and Vercel for the frontend. I might migrate the database from Neon onto Railway, but I'm not sure yet.
     - Ran into issues on the frontend. First it was deployment issues that required modifying Next.js settings. After I solved those, I ran into CORS issues and then local storage of cookies (apparently also caused by having separate servers for front and backend). So I'm going to transition to JWTs. I'm pretty brain-dead. As an aside, having CICD automatically available for both Railway AND Vercel is pretty great.
