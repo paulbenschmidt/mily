@@ -1,7 +1,7 @@
 import { UserType, TimelineEventType, AuthResponse } from '@/types/api';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-
+// Use /api prefix to trigger Next.js rewrites
+const API_BASE_URL = '/api';
 
 class AuthApiClient {
   private baseUrl: string;
