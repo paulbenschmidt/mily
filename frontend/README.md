@@ -5,7 +5,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 First, run the development server:
 
 ```bash
-npm run dev
+MILY_ENV="local" npm run dev
 ```
 
 If you get an error about Node.js version, run `nvm ls` and then choose an available version with `nvm use xx`.

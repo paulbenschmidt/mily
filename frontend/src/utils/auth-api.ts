@@ -40,6 +40,8 @@ class AuthApiClient {
       }
     }
 
+    console.log("Headers", headers);
+
     const response = await fetch(url, {
       ...options,
       headers,
@@ -90,7 +92,7 @@ class AuthApiClient {
   }
 
   async requestPasswordReset(email: string): Promise<{ message: string }> {
-    return this.request<{ message: string }>('/auth/password-reset/', {
+    return this.request<{ message: string }>('/auth/password-reset-request/', {
       method: 'POST',
       body: JSON.stringify({ email }),
     });
