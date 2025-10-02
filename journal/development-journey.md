@@ -1,6 +1,15 @@
 # Development Journey
 
-- 2025-09-29: I finally realized what the issue on the frontend deployment was: a darn environment variable. Turns out I was just confusing the top-level collection of projects with the actual Mily project deployment. I managed to get the login for an existing user to work (and successfully grab the events for that user), but the user signup didn't work.
+- 2025-09-29:
+    - I finally realized what the issue on the frontend deployment was: a darn environment variable. Turns out I was just confusing the top-level collection of projects with the actual Mily project deployment. I managed to get the login for an existing user to work (and successfully grab the events for that user), but the user signup didn't work.
+    - OH MY GORSH! Setting up the Porkbun `mily.bio` domain to point to the Vercel deployment URL was so stinking easy and very fast. I remember when I tried to do this for Mentorigami, it took me a few days. I finished this in a matter of minutes. Also, I didn't realize that `www.mily.bio` is actually a subdomain of `mily.bio`. Funky. Both are pointing to the same Vercel deployment URL. Vercel also automatically handles SSL certificates, which also took me a while to figure out back then.
+    - The steps involved to set up the DNS Records for both Vercel and Resend (domain: `verify.mily.bio`) were to go to Porkbun and add the following records:
+        - A Record: mily.bio -> Vercel IP grabbed the project's domain
+        - CNAME Record: www.mily.bio -> Vercel URL grabbed from the project's domain after entering a new subdomain of `www`
+        - TXT Record: send.verify.mily.bio -> Resend Domain Key provided during Resend setup
+        - TXT Record: resend._domainkey.mily.bio -> Resend Domain Key provided during Resend setup
+        - TXT Record: _dmarc.mily.bio -> Resend Domain Key provided during Resend setup (helps prevent being marked as spam)
+    - In chatting with Claude, it recommended using a different email provider for sending emails. I was thinking I'd want all emails to go through Gsuite. I also didn't know that having emails coming from a different subdomain would be better for website reputation. Also, Claude mentioned that I wouldn't need to add an MX record for Resend because I didn't plan on receiving emails from Resend.
 - 2025-09-27:
     - Big day! I deployed the backend to Railway. I'm glad that I have Django Admin because I was able to verify that that the backend was working as expected. The first few hours were spent trying to figure out the ideal MVP deployment infrastructure. In the end, I landed on Railway for the backend and Vercel for the frontend. I might migrate the database from Neon onto Railway, but I'm not sure yet.
     - Ran into issues on the frontend. First it was deployment issues that required modifying Next.js settings. After I solved those, I ran into CORS issues and then local storage of cookies (apparently also caused by having separate servers for front and backend). So I'm going to transition to JWTs. I'm pretty brain-dead. As an aside, having CICD automatically available for both Railway AND Vercel is pretty great.

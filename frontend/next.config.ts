@@ -5,9 +5,9 @@ import { existsSync } from 'fs';
 
 // Try to load environment variables from different possible locations
 const envPaths = [
-  resolve(__dirname, '../.env/.env.production'),
+  // resolve(__dirname, '../.env/.env.production'),
   // resolve(__dirname, '../.env/.env.development'),
-  // resolve(__dirname, '../.env/.env.local'),
+  resolve(__dirname, '../.env/.env.local'),
 ];
 
 // Load the first .env file that exists
@@ -20,8 +20,7 @@ for (const path of envPaths) {
 }
 
 // Get API URL with fallback for Vercel deployment
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-console.log('API URL for Next.js config:', apiUrl);
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 const nextConfig: NextConfig = {
   env: {
@@ -45,12 +44,8 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: '/api/:path*/',
-        destination: apiUrl + '/:path*/',
-      },
-      {
         source: '/api/:path*',
-        destination: apiUrl + '/:path*/',
+        destination: `${apiUrl}/:path*/`,
       },
     ];
   },

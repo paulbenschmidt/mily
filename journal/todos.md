@@ -1,8 +1,20 @@
+
+The application is now deployed to Vercel! I'd like to begin the next step of the process: email verification. This should send an email to the user's email address asking for verification. Once they verify, the user should be directed to the main /app/  screen.
+
+Some additional notes:
+- I will
+
 ## Now
+- [ ] Set up local environment to actually work (currently it's failing when fetching events)
+- [ ] Change button of Begin to purple (or default color)
+- [ ] Change color text of inputs to be darker
+- [ ] Change date to only allow past events
+- [ ] Fix events endpoint to actually add events
 - [ ] JWT tokens using djangorestframework-simplejwt
-- [ ] TODO: Remove localhost from backend CORS_ALLOWED_ORIGINS
-- [ ] Deploy to Vercel
+    - [ ] Fix app to not just crash if the token is invalid (maybe I should just transition to JWTs)
 - [ ] Get rid of System Created Events as well as Is Editable field
+
+- [ ] Create dev domain for dev testing to have true local, dev, prod envs
 
 ## Upcoming
 - [ ] Password reset via Django's built-in email system
