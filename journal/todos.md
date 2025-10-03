@@ -5,7 +5,6 @@ Some additional notes:
 - I will
 
 ## Now
-- [ ] Set up local environment to actually work (currently it's failing when fetching events)
 - [ ] Change button of Begin to purple (or default color)
 - [ ] Change color text of inputs to be darker
 - [ ] Change date to only allow past events
