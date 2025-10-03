@@ -150,7 +150,7 @@ export function AddEventModal({
 
   return (
     <div
-      className="fixed inset-0 bg-gray-500/30 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      className="modal-backdrop"
       onClick={handleBackdropClick}
     >
       {/* Delete Confirmation Modal */}
@@ -159,43 +159,45 @@ export function AddEventModal({
           className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-60"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-sm p-6 m-4">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Delete Event</h3>
-            <p className="text-gray-600 mb-6">Are you sure you want to delete this event? This action cannot be undone.</p>
+          <div className="modal-content max-w-sm">
+            <div className="card-body">
+              <h3 className="text-lg font-medium text-secondary-900 mb-4">Delete Event</h3>
+              <p className="text-secondary-600 mb-6">Are you sure you want to delete this event? This action cannot be undone.</p>
 
-            {error && (
-              <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md text-sm">
-                {error}
+              {error && (
+                <div className="mb-4 alert-error">
+                  {error}
+                </div>
+              )}
+
+              <div className="flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteConfirmation(false)}
+                  className="btn-secondary"
+                  disabled={isDeleting}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  className="btn-danger"
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? 'Deleting...' : 'Delete'}
+                </button>
               </div>
-            )}
-
-            <div className="flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setShowDeleteConfirmation(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                disabled={isDeleting}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleDelete}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                disabled={isDeleting}
-              >
-                {isDeleting ? 'Deleting...' : 'Delete'}
-              </button>
             </div>
           </div>
         </div>
       )}
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
-        <div className="flex justify-between items-center border-b border-gray-200 px-6 py-4">
-          <h2 className="text-xl font-medium text-gray-900">{isEditMode ? 'Edit Event' : 'Add New Event'}</h2>
+      <div className="modal-content">
+        <div className="card-header flex justify-between items-center">
+          <h2 className="text-xl font-medium text-secondary-900">{isEditMode ? 'Edit Event' : 'Add New Event'}</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-500"
+            className="text-secondary-400 hover:text-secondary-500"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -203,15 +205,15 @@ export function AddEventModal({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-6 py-4">
+        <form onSubmit={handleSubmit} className="card-body">
           {error && (
-            <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md text-sm">
+            <div className="mb-4 alert-error">
               {error}
             </div>
           )}
 
           <div className="mb-4">
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="title" className="input-label">
               Title *
             </label>
             <input
@@ -219,13 +221,13 @@ export function AddEventModal({
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              className="input-field"
               required
             />
           </div>
 
           <div className="mb-4">
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="description" className="input-label">
               Description
             </label>
             <textarea
@@ -233,12 +235,12 @@ export function AddEventModal({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              className="input-field"
             />
           </div>
 
           <div className="mb-4">
-            <label htmlFor="eventDate" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="eventDate" className="input-label">
               Event Date *
             </label>
             <input
@@ -246,20 +248,20 @@ export function AddEventModal({
               id="eventDate"
               value={eventDate}
               onChange={(e) => setEventDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              className="input-field"
               required
             />
           </div>
 
           <div className="mb-4">
-            <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="category" className="input-label">
               Category
             </label>
             <select
               id="category"
               value={category}
               onChange={(e) => setCategory(e.target.value as 'major' | 'minor' | 'memory')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              className="input-field"
               required
             >
               <option value="major">Major</option>
@@ -269,14 +271,14 @@ export function AddEventModal({
           </div>
 
           <div className="mb-4">
-            <label htmlFor="privacy" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="privacy" className="input-label">
               Privacy
             </label>
             <select
               id="privacy"
               value={privacyLevel}
               onChange={(e) => setPrivacyLevel(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              className="input-field"
               required
             >
               <option value="private">Private</option>
@@ -286,7 +288,7 @@ export function AddEventModal({
           </div>
 
           <div className="mb-4">
-            <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="notes" className="input-label">
               Notes (Optional)
             </label>
             <textarea
@@ -294,7 +296,7 @@ export function AddEventModal({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              className="input-field"
             />
           </div>
 
@@ -303,7 +305,7 @@ export function AddEventModal({
               <button
                 type="button"
                 onClick={() => setShowDeleteConfirmation(true)}
-                className="mr-auto px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                className="mr-auto btn-danger"
                 disabled={isSubmitting}
               >
                 Delete
@@ -312,14 +314,14 @@ export function AddEventModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="btn-secondary"
               disabled={isSubmitting}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="btn-primary"
               disabled={isSubmitting}
             >
               {isSubmitting ? (isEditMode ? 'Saving...' : 'Adding...') : (isEditMode ? 'Save Changes' : 'Add Event')}
