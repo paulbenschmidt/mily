@@ -5,10 +5,15 @@ Some additional notes:
 - I will
 
 ## Now
+- [ ] Standardize styling on landing page?
+- [ ] Change it so that year is dynamic, to the left of the line (and remove year from the event date)
 - [ ] Fix events endpoint to actually add events
+- [ ] Add pop-up on "Share" to let people know the feature is coming soon
 - [ ] JWT tokens using djangorestframework-simplejwt
     - [ ] Fix app to not just crash if the token is invalid (maybe I should just transition to JWTs)
 - [ ] Get rid of System Created Events as well as Is Editable field
+- [ ] Add tags to events and allow users to filter by them
+- [ ] Eventually, add AI-generated "tags" to events so that users can auto-filter events
 
 - [ ] Create dev domain for dev testing to have true local, dev, prod envs
 

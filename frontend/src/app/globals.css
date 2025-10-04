@@ -1,4 +1,10 @@
 @import "tailwindcss";
+/*
+TODO: Enable dark mode; the setting below makes it so that dark is not defined by the system but by CSS selectors, in
+which case I have none.
+https://tailwindcss.com/docs/dark-mode#toggling-dark-mode-manually
+*/
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
   --background: #ffffff;
@@ -82,13 +88,6 @@
   --color-danger-700: #b91c1c;
   --color-danger-800: #991b1b;
   --color-danger-900: #7f1d1d;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
