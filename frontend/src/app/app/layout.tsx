@@ -21,9 +21,9 @@ export default function AppLayout({
         {/* Header */}
         <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-secondary-200/50 px-6 py-4">
           <div className="max-w-4xl mx-auto flex items-center justify-between">
-            <Link 
+            <Link
               href="/app"
-              className="text-2xl font-medium text-secondary-900"
+              className="font-serif text-2xl font-medium text-secondary-900 cursor-pointer hover:text-secondary-900 no-underline"
             >
               Mily
             </Link>
