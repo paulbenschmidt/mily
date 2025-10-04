@@ -87,7 +87,7 @@ export function TimelineEvent({ event, isLast = false, onEditEvent }: TimelineEv
       {/* Event content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-3 mb-2">
-          <SmallText className="font-mono tracking-wider">
+          <SmallText className="font-serif tracking-wider">
             {formatDate(event.event_date)}
           </SmallText>
           <Badge className={
