@@ -5,9 +5,6 @@ Some additional notes:
 - I will
 
 ## Now
-- [ ] Change button of Begin to purple (or default color)
-- [ ] Change color text of inputs to be darker
-- [ ] Change date to only allow past events
 - [ ] Fix events endpoint to actually add events
 - [ ] JWT tokens using djangorestframework-simplejwt
     - [ ] Fix app to not just crash if the token is invalid (maybe I should just transition to JWTs)

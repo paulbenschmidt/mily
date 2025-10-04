@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { Input, Select, Button, Subheading } from '@/components/ui';
 
 export interface FilterOptions {
   startDate: string | null;
@@ -68,31 +69,25 @@ export function FilterDropdown({
   return (
     <div
       ref={dropdownRef}
-      className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg z-20 border border-gray-200"
+      className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg z-20 border border-secondary-200"
     >
       <div className="p-4">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Filter Timeline</h3>
+        <Subheading className="mb-4">Filter Timeline</Subheading>
 
         {/* Date Range */}
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Events After
-          </label>
-          <input
+          <Input
             type="date"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            label="Events After"
             value={filters.startDate || ''}
             onChange={(e) => setFilters({ ...filters, startDate: e.target.value || null })}
           />
         </div>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Events Before
-          </label>
-          <input
+          <Input
             type="date"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            label="Events Before"
             value={filters.endDate || ''}
             onChange={(e) => setFilters({ ...filters, endDate: e.target.value || null })}
           />
@@ -100,11 +95,8 @@ export function FilterDropdown({
 
         {/* Category Filter */}
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Event Category
-          </label>
-          <select
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+          <Select
+            label="Event Category"
             value={filters.category}
             onChange={(e) => setFilters({
               ...filters,
@@ -115,23 +107,22 @@ export function FilterDropdown({
             <option value="major">Major Events</option>
             <option value="minor">Minor Events</option>
             <option value="memory">Memories</option>
-          </select>
+          </Select>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-end space-x-2 mt-6">
-          <button
+        <div className="flex justify-end gap-2 mt-6">
+          <Button
+            variant="secondary"
             onClick={handleReset}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             Reset
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleApply}
-            className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             Apply
-          </button>
+          </Button>
         </div>
       </div>
     </div>
