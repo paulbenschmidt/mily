@@ -5,22 +5,20 @@ Some additional notes:
 - I will
 
 ## Now
-- [ ] Standardize styling on landing page?
-- [ ] Change it so that year is dynamic, to the left of the line (and remove year from the event date)
 - [ ] Fix events endpoint to actually add events
 - [ ] Add pop-up on "Share" to let people know the feature is coming soon
-- [ ] JWT tokens using djangorestframework-simplejwt
-    - [ ] Fix app to not just crash if the token is invalid (maybe I should just transition to JWTs)
 - [ ] Get rid of System Created Events as well as Is Editable field
-- [ ] Add tags to events and allow users to filter by them
-- [ ] Eventually, add AI-generated "tags" to events so that users can auto-filter events
-
-- [ ] Create dev domain for dev testing to have true local, dev, prod envs
+- [ ] Email verification using Django's activation tokens (to make sure a bot doesn't sign up)
 
 ## Upcoming
-- [ ] Password reset via Django's built-in email system
-- [ ] Email verification using Django's activation tokens (to make sure a bot doesn't sign up)
 - [ ] Rate limiting with django-ratelimit
+- [ ] Add logo to loading spinners and to footer
+- [ ] Change it so that year is dynamic, to the left of the line (and remove year from the event date)
+- [ ] JWT tokens using djangorestframework-simplejwt
+    - [ ] Fix app to not just crash if the token is invalid (maybe I should just transition to JWTs)
+- [ ] Add tags to events and allow users to filter by them
+- [ ] Create dev domain for dev testing to have true local, dev, prod envs
+- [ ] Password reset via Django's built-in email system
 - [ ] Go through packages and update any that are not needed
 - [ ] Update readmes/windsurfrules/roadmaps/comments/etc
 - [ ] Create front-end test to make sure that authenticated users get redirected to dashboard
@@ -44,6 +42,7 @@ Some additional notes:
 - [ ] Backend: Move on from Nixpacks to current best practices (I'm getting a deprecation warning)
 
 ### Features
+- [ ] Eventually, add AI-generated "tags" to events so that users can auto-filter events
 - [ ] Create a feature requests page so that users can suggest and upvote features
 - [ ] Enable photos on events
 - [ ] Add timeline event share logic
