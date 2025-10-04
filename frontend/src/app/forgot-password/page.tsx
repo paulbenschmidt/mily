@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { authApiClient } from '@/utils/auth-api';
+import { Input, Button, PageHeading, SmallText, Alert, Link } from '@/components/ui';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -29,23 +29,20 @@ export default function ForgotPasswordPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-secondary-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
-          <div className="text-center">
-            <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+          <div className="text-center space-y-4">
+            <PageHeading className="mt-6">
               Check Your Email
-            </h2>
-            <p className="mt-2 text-sm text-gray-600">
+            </PageHeading>
+            <SmallText>
               We&apos;ve sent a password reset link to <strong>{email}</strong>
-            </p>
-            <p className="mt-4 text-sm text-gray-600">
+            </SmallText>
+            <SmallText>
               Check your email and click the link to reset your password.
-            </p>
+            </SmallText>
             <div className="mt-6">
-              <Link
-                href="/login"
-                className="text-blue-600 hover:text-blue-500 font-medium"
-              >
+              <Link href="/login" variant="secondary">
                 Back to Sign In
               </Link>
             </div>
@@ -56,62 +53,47 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-secondary-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <PageHeading className="mt-6 text-center">
             Reset Your Password
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          </PageHeading>
+          <SmallText className="mt-2 text-center">
             Enter your email address and we&apos;ll send you a link to reset your password
-          </p>
+          </SmallText>
         </div>
         
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email Address
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-              placeholder="Enter your email address"
-            />
-          </div>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            label="Email Address"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter your email address"
+          />
 
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-md p-4">
-              <p className="text-red-600 text-sm">{error}</p>
-            </div>
+            <Alert variant="error">
+              {error}
+            </Alert>
           )}
 
           <div>
-            <button
+            <Button
               type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              loading={loading}
+              fullWidth
             >
-              {loading ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Sending...
-                </>
-              ) : (
-                'Send Reset Link'
-              )}
-            </button>
+              {loading ? 'Sending...' : 'Send Reset Link'}
+            </Button>
           </div>
           
           <div className="text-center">
-            <Link
-              href="/login"
-              className="text-sm text-blue-600 hover:text-blue-500"
-            >
+            <Link href="/login" variant="secondary">
               Back to Sign In
             </Link>
           </div>

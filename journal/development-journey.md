@@ -1,5 +1,6 @@
 # Development Journey
 
+- 2025-10-03: Worked on this for a while. It was enjoyable going file by file to make sure that the styling still looked good and loaded properly.
 - 2025-10-02: Man, this was humbling. I've been beating my head against the wall for hours trying to fix an issue with infinite redirects. I thought the issue could be related to: Next URL rewrites or requests not including tokens (as a result of Next URL rewrites). After moving slowly through the code, cleaning up some revisions, I tested it on an incognito browser and it worked! My browser had been caching the redirect responses (and the `Network` tab in Chrome DevTools was showing the redirect responses being cached). I'm glad I'm passed that. :) (Sidenote: this was frustrating because Claude kept circling through the same resolutions, so we kept going around and around. It's tough to say how much of the fault was mine, but I think I'm at fault.)
 - 2025-09-29:
     - I finally realized what the issue on the frontend deployment was: a darn environment variable. Turns out I was just confusing the top-level collection of projects with the actual Mily project deployment. I managed to get the login for an existing user to work (and successfully grab the events for that user), but the user signup didn't work.

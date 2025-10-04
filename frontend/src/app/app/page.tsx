@@ -7,6 +7,7 @@ import { FilterOptions } from '@/components/FilterDropdown';
 import { TimelineHeader } from '@/components/TimelineHeader';
 import { TimelineEvent } from '@/components/TimelineEvent';
 import { AddEventModal } from '@/components/AddEventModal';
+import { BodyText, SmallText, Button } from '@/components/ui';
 
 export default function Timeline() {
   const [events, setEvents] = useState<TimelineEventType[]>([]);
@@ -111,7 +112,7 @@ export default function Timeline() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-secondary-50">
         <TimelineHeader
           onAddEvent={handleAddEvent}
           onFilter={handleFilter}
@@ -120,7 +121,7 @@ export default function Timeline() {
           currentFilters={filters}
         />
         <div className="flex justify-center items-center min-h-[calc(100vh-120px)]">
-          <div className="text-gray-600">Loading your timeline...</div>
+          <BodyText>Loading your timeline...</BodyText>
         </div>
       </div>
     );
@@ -128,7 +129,7 @@ export default function Timeline() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-secondary-50">
         <TimelineHeader
           onAddEvent={handleAddEvent}
           onFilter={handleFilter}
@@ -137,14 +138,14 @@ export default function Timeline() {
           currentFilters={filters}
         />
         <div className="flex justify-center items-center min-h-[calc(100vh-120px)]">
-          <div className="text-red-600">Error: {error}</div>
+          <BodyText className="text-danger-600">Error: {error}</BodyText>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-secondary-50">
       <TimelineHeader
         onAddEvent={handleAddEvent}
         onFilter={handleFilter}
@@ -156,24 +157,26 @@ export default function Timeline() {
       <main className="max-w-4xl mx-auto px-6 py-8">
         {events.length === 0 ? (
           <div className="text-center mt-20 flex flex-col items-center">
-            <button
+            <Button
               onClick={handleAddEvent}
-              className="px-10 py-4 bg-gradient-to-r from-gray-700 to-gray-800 text-white text-lg font-medium rounded-lg shadow-lg hover:from-gray-800 hover:to-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700 transition-all transform hover:scale-105 duration-200"
+              size="lg"
+              className="shadow-lg transition-all transform hover:scale-105 duration-200"
             >
               Begin
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="space-y-0">
             {filteredEvents.length === 0 ? (
               <div className="text-center py-10">
-                <p className="text-gray-600">No events match your filters</p>
-                <button
+                <BodyText>No events match your filters</BodyText>
+                <Button
                   onClick={() => setFilters({ startDate: null, endDate: null, category: 'all' })}
-                  className="mt-4 px-4 py-2 text-sm font-medium text-indigo-600 bg-white border border-indigo-300 rounded-md hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  variant="secondary"
+                  className="mt-4"
                 >
                   Clear Filters
-                </button>
+                </Button>
               </div>
             ) : (
               filteredEvents.map((event, index) => (
@@ -189,16 +192,17 @@ export default function Timeline() {
 
         {/* Filter status indicator */}
         {(filters.startDate || filters.endDate || filters.category !== 'all') && events.length > 0 && (
-          <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white px-4 py-2 rounded-full shadow-lg border border-gray-200 flex items-center space-x-2">
-            <span className="text-sm text-gray-600">
+          <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white px-4 py-2 rounded-full shadow-lg border border-secondary-200 flex items-center space-x-2">
+            <SmallText>
               Showing {filteredEvents.length} of {events.length} events
-            </span>
-            <button
+            </SmallText>
+            <Button
               onClick={() => setFilters({ startDate: null, endDate: null, category: 'all' })}
-              className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+              variant="text"
+              size="sm"
             >
               Clear
-            </button>
+            </Button>
           </div>
         )}
 

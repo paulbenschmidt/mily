@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { TimelineEventType } from '@/types/api';
 import { authApiClient } from '@/utils/auth-api';
+import { Input, Button, Subheading, BodyText, Alert, Textarea, Select } from '@/components/ui';
 
 interface AddEventModalProps {
   isOpen: boolean;
@@ -150,7 +151,7 @@ export function AddEventModal({
 
   return (
     <div
-      className="fixed inset-0 bg-gray-500/30 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-secondary-500/30 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={handleBackdropClick}
     >
       {/* Delete Confirmation Modal */}
@@ -160,170 +161,156 @@ export function AddEventModal({
           onClick={(e) => e.stopPropagation()}
         >
           <div className="bg-white rounded-lg shadow-xl w-full max-w-sm p-6 m-4">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Delete Event</h3>
-            <p className="text-gray-600 mb-6">Are you sure you want to delete this event? This action cannot be undone.</p>
+            <Subheading className="mb-4">Delete Event</Subheading>
+            <BodyText className="mb-6">Are you sure you want to delete this event? This action cannot be undone.</BodyText>
 
             {error && (
-              <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md text-sm">
+              <Alert variant="error" className="mb-4">
                 {error}
-              </div>
+              </Alert>
             )}
 
             <div className="flex justify-end gap-3">
-              <button
-                type="button"
+              <Button
+                variant="secondary"
                 onClick={() => setShowDeleteConfirmation(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 disabled={isDeleting}
               >
                 Cancel
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
+                variant="danger"
                 onClick={handleDelete}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                disabled={isDeleting}
+                loading={isDeleting}
               >
                 {isDeleting ? 'Deleting...' : 'Delete'}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
       )}
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
-        <div className="flex justify-between items-center border-b border-gray-200 px-6 py-4">
-          <h2 className="text-xl font-medium text-gray-900">{isEditMode ? 'Edit Event' : 'Add New Event'}</h2>
-          <button
+        <div className="flex justify-between items-center border-b border-secondary-200 px-6 py-4">
+          <Subheading>{isEditMode ? 'Edit Event' : 'Add New Event'}</Subheading>
+          <Button
+            variant="text"
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-500"
+            className="p-0 text-secondary-400 hover:text-secondary-500"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
-          </button>
+          </Button>
         </div>
 
         <form onSubmit={handleSubmit} className="px-6 py-4">
           {error && (
-            <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md text-sm">
+            <Alert variant="error" className="mb-4">
               {error}
-            </div>
+            </Alert>
           )}
 
           <div className="mb-4">
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-              Title *
-            </label>
-            <input
+            <Input
               type="text"
               id="title"
+              label="Title *"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               required
             />
           </div>
 
           <div className="mb-4">
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-              Description
-            </label>
-            <textarea
+            <Textarea
               id="description"
+              label="Description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
 
           <div className="mb-4">
-            <label htmlFor="eventDate" className="block text-sm font-medium text-gray-700 mb-1">
-              Event Date *
-            </label>
-            <input
+            <Input
               type="date"
               id="eventDate"
+              label="Event Date *"
               value={eventDate}
               onChange={(e) => setEventDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              max={(() => {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+              })()}
               required
             />
           </div>
 
           <div className="mb-4">
-            <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-              Category
-            </label>
-            <select
+            <Select
               id="category"
+              label="Category"
               value={category}
               onChange={(e) => setCategory(e.target.value as 'major' | 'minor' | 'memory')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               required
             >
               <option value="major">Major</option>
               <option value="minor">Minor</option>
               <option value="memory">Memory</option>
-            </select>
+            </Select>
           </div>
 
           <div className="mb-4">
-            <label htmlFor="privacy" className="block text-sm font-medium text-gray-700 mb-1">
-              Privacy
-            </label>
-            <select
+            <Select
               id="privacy"
+              label="Privacy"
               value={privacyLevel}
               onChange={(e) => setPrivacyLevel(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               required
             >
               <option value="private">Private</option>
               <option value="friends">Friends</option>
               <option value="public">Public</option>
-            </select>
+            </Select>
           </div>
 
           <div className="mb-4">
-            <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
-              Notes (Optional)
-            </label>
-            <textarea
+            <Textarea
               id="notes"
+              label="Notes (Optional)"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
 
           <div className="flex justify-end gap-3 mt-6">
             {isEditMode && (
-              <button
-                type="button"
+              <Button
+                variant="danger"
                 onClick={() => setShowDeleteConfirmation(true)}
-                className="mr-auto px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                 disabled={isSubmitting}
+                className="mr-auto"
               >
                 Delete
-              </button>
+              </Button>
             )}
-            <button
-              type="button"
+            <Button
+              variant="secondary"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               disabled={isSubmitting}
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              disabled={isSubmitting}
+              loading={isSubmitting}
             >
               {isSubmitting ? (isEditMode ? 'Saving...' : 'Adding...') : (isEditMode ? 'Save Changes' : 'Add Event')}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
