@@ -26,15 +26,15 @@ class UserAdmin(BaseUserAdmin):
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     """Admin interface for Event model"""
-    list_display = ('title', 'user', 'category', 'type', 'event_date', 'is_editable', 'created_at')
-    list_filter = ('category', 'type', 'privacy_level', 'is_editable', 'created_at')
+    list_display = ('title', 'user', 'category', 'event_date', 'created_at')
+    list_filter = ('category', 'privacy_level', 'created_at')
     search_fields = ('title', 'description', 'user__username', 'location')
     readonly_fields = ('id', 'created_at', 'updated_at')
     date_hierarchy = 'event_date'
 
     fieldsets = (
         (None, {
-            'fields': ('user', 'category', 'type', 'title', 'description')
+            'fields': ('user', 'category', 'title', 'description')
         }),
         ('Date & Location', {
             'fields': ('event_date', 'location')
@@ -43,7 +43,7 @@ class EventAdmin(admin.ModelAdmin):
             'fields': ('notes', 'photos')
         }),
         ('Settings', {
-            'fields': ('privacy_level', 'is_editable'),
+            'fields': ('privacy_level',),
         }),
         ('Metadata', {
             'fields': ('id', 'created_at', 'updated_at'),

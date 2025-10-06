@@ -83,8 +83,7 @@ export default function Timeline() {
   };
 
   const handleShare = () => {
-    // TODO: Implement share functionality
-    console.log('Share clicked');
+    alert('Feature coming soon!');
   };
 
   // Apply filters to events

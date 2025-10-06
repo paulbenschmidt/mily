@@ -37,11 +37,6 @@ class EventPrivacyLevel(models.TextChoices):
     # TODO: optional add "close friends" privacy level
 
 
-class EventType(models.TextChoices):
-    USER = "user", "User Created"
-    SYSTEM_BIRTHDAY = "system_birthday", "System Birthday"
-
-
 class FriendshipStatus(models.TextChoices):
     PENDING = "pending", "Pending"
     ACCEPTED = "accepted", "Accepted"
@@ -71,8 +66,6 @@ class Event(models.Model):
     privacy_level = models.CharField(max_length=10, choices=EventPrivacyLevel.choices, default=EventPrivacyLevel.PRIVATE)
     photos = models.JSONField(default=list, blank=True)  # Store photo URLs/metadata
     tags = models.JSONField(default=list, blank=True)  # Store event tags as array of strings
-    is_editable = models.BooleanField(default=False, help_text="Whether this event can be edited by the user. False for system-generated events.")
-    type = models.CharField(max_length=20, choices=EventType.choices, default=EventType.USER)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
