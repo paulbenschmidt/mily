@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { Input, Button, PageHeading, SmallText, Alert, Link, Caption } from '@/components/ui';
+import { Input, Button, PageHeading, SmallText, Alert, Link } from '@/components/ui';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -18,6 +18,23 @@ export default function SignupPage() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const generateHandle = (firstName: string, lastName: string, email: string): string => {
+    // Create a base handle from first name and last name
+    const baseName = `${firstName}${lastName}`.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+    // Use last 8 digits of timestamp for uniqueness (virtually collision-proof)
+    const timestamp = Date.now().toString().slice(-8);
+
+    // If we have a valid base name, use it
+    if (baseName.length > 0) {
+      return `${baseName}${timestamp}`;
+    }
+
+    // Fallback: use email username part
+    const emailUsername = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+    return `${emailUsername}${timestamp}`;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,8 +53,15 @@ export default function SignupPage() {
       setLoading(true);
       setError(null);
 
+      // Auto-generate handle if not provided
+      const handle = formData.handle || generateHandle(
+        formData.first_name,
+        formData.last_name,
+        formData.email
+      );
+
       const { confirmPassword, ...signupData } = formData;
-      await signup(signupData);
+      await signup({ ...signupData, handle });
 
       // Redirect to app after successful signup
       router.push('/app');
@@ -104,22 +128,6 @@ export default function SignupPage() {
               onChange={handleChange}
               placeholder="Enter your email"
             />
-
-            <div>
-              <Input
-                id="handle"
-                name="handle"
-                type="text"
-                label="Username Handle *"
-                required
-                value={formData.handle}
-                onChange={handleChange}
-                placeholder="@username"
-              />
-              <Caption className="mt-1">
-                This will be your unique handle for your timeline URL
-              </Caption>
-            </div>
 
             <Input
               id="password"

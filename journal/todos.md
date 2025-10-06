@@ -5,8 +5,6 @@ Some additional notes:
 - I will
 
 ## Now
-- [ ] Add pop-up on "Share" to let people know the feature is coming soon
-- [ ] Get rid of System Created Events as well as Is Editable field
 - [ ] Email verification using Django's activation tokens (to make sure a bot doesn't sign up)
 
 ## Upcoming
