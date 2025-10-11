@@ -158,7 +158,7 @@ export default function SignupPage() {
 
           <div className="pt-4 space-y-3">
             <SmallText>
-              Didn't receive the email?{' '}
+              Didn&apos;t receive the email?{' '}
               <button
                 onClick={handleResendEmail}
                 disabled={loading}
