@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { PageHeading, SmallText, Alert, Button } from '@/components/ui';
 
-export default function VerifyEmailReminderPage() {
+function VerifyEmailReminderContent() {
   const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
@@ -78,7 +78,7 @@ export default function VerifyEmailReminderPage() {
         ) : (
           <>
             <SmallText>
-              Your email address <strong>{email}</strong> hasn't been verified yet.
+              Your email address <strong>{email}</strong> hasn&apos;t been verified yet.
             </SmallText>
             <SmallText className="text-secondary-500">
               Please check your inbox for the verification email we sent when you signed up.
@@ -110,5 +110,22 @@ export default function VerifyEmailReminderPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function VerifyEmailReminderPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-secondary-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8 text-center">
+          <div className="animate-pulse">
+            <div className="w-16 h-16 bg-secondary-200 rounded-full mx-auto mb-4"></div>
+          </div>
+          <PageHeading>Loading...</PageHeading>
+        </div>
+      </div>
+    }>
+      <VerifyEmailReminderContent />
+    </Suspense>
   );
 }

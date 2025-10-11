@@ -1,25 +1,28 @@
+########################
+###     Backend      ###
+########################
+
 # Django Settings
-SECRET_KEY=your-secret-key-here
+SECRET_KEY=
 DEBUG=True
 
 # Logging
 LOGGER_LOG_LEVEL="DEBUG"
 
 # Neon Database Configuration
-DATABASE_NAME=your-database-name
-DATABASE_USER=your-database-user
-DATABASE_PASSWORD=your-database-password
-DATABASE_HOST=your-neon-host.neon.tech
+DATABASE_NAME=
+DATABASE_USER=
+DATABASE_PASSWORD=
+DATABASE_HOST=
 DATABASE_PORT=5432
 
-# API
-NEXT_PUBLIC_API_URL=http://localhost:8000/api
-FRONTEND_URL=https://your-vercel-app.vercel.app
+# Backend awareness of frontend for URLs
+FRONTEND_URL=http://localhost:3000
 
 # Security
-ALLOWED_HOSTS=https://your-vercel-app.vercel.app,https://*.vercel.app
-CSRF_TRUSTED_ORIGINS=https://your-vercel-app.vercel.app,https://*.vercel.app
-CORS_ALLOWED_ORIGINS=https://your-vercel-app.vercel.app,https://*.vercel.app
+ALLOWED_HOSTS=localhost,127.0.0.1
+CSRF_TRUSTED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,http://localhost:8000,http://127.0.0.1:8000
+CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,http://localhost:8000,http://127.0.0.1:8000
 
 # Email Service
 EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
@@ -28,8 +31,21 @@ EMAIL_PORT=1025
 EMAIL_USE_TLS=False
 EMAIL_HOST_USER=None
 EMAIL_HOST_PASSWORD=None
-DEFAULT_FROM_EMAIL=noreply_ENVIRONMENT@mily.bio
+DEFAULT_FROM_EMAIL=noreply_local@mily.bio
+
+#########################
+###     Frontend      ###
+#########################
+
+# API
+NEXT_PUBLIC_API_URL=http://localhost:8000/api
+
+######################
+###     Other      ###
+######################
 
 # Users
 SUPERUSER_EMAIL=
 SUPERUSER_PASSWORD=
+TESTUSER_EMAIL=
+TESTUSER_PASSWORD=
