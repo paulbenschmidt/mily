@@ -50,7 +50,10 @@ class AuthApiClient {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `Request failed: ${response.status} ${response.statusText}`);
+      const error = new Error(errorData.error || `Request failed: ${response.status} ${response.statusText}`) as Error & { errorCode?: string; email?: string };
+      error.errorCode = errorData.error_code;
+      error.email = errorData.email;
+      throw error;
     }
 
     return response.json();

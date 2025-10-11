@@ -5,9 +5,11 @@ Some additional notes:
 - I will
 
 ## Now
-- [ ] Email verification using Django's activation tokens (to make sure a bot doesn't sign up)
+- [ ] Figure out why Vercel is failing to deploy to "Preview" environment but not to "Production"
 
 ## Upcoming
+- [ ] Set up true dev/prod environments
+- [ ] Look into serving photos through Railway buckets?
 - [ ] Rate limiting with django-ratelimit
 - [ ] Add logo to loading spinners and to footer
 - [ ] Change it so that year is dynamic, to the left of the line (and remove year from the event date)

@@ -1,10 +1,12 @@
 import datetime as dt
 import logging
+import secrets
 
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMessage, get_connection
+from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -65,8 +67,7 @@ def register_view(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-
-        # Create user
+        # Create user (not logged in yet, needs email verification)
         user = User.objects.create_user(
             username=email,  # Use email as username
             email=email,
@@ -74,15 +75,16 @@ def register_view(request):
             first_name=first_name,
             last_name=last_name,
             handle=handle,
+            is_email_verified=False,
         )
 
-        # Log the user in
-        login(request, user)
+        # Generate token and send verification email
+        verification_token = generate_and_save_verification_token(user)
+        send_verification_email(user, verification_token)
 
-        serializer = UserPrivateSerializer(user)
         return Response({
-            'message': 'Account created successfully',
-            'user': serializer.data
+            'message': 'Account created. Please check your email to verify your account.',
+            'email': email
         }, status=status.HTTP_201_CREATED)
 
     except Exception as e:
@@ -108,6 +110,13 @@ def login_view(request):
     user = authenticate(request, username=email, password=password)
 
     if user is not None:
+        if not user.is_email_verified:
+            return Response({
+                'error': 'Please verify your email before logging in. Check your inbox for the verification link.',
+                'error_code': 'EMAIL_NOT_VERIFIED',
+                'email': user.email
+            }, status=status.HTTP_401_UNAUTHORIZED)
+
         if user.is_active:
             login(request, user) # Critical for cookies to be set as part of the session data
 
@@ -316,6 +325,99 @@ def csrf_token_view(request):
         'message': 'CSRF token set in cookie'
     })
 
+
+@ensure_csrf_cookie
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def verify_email_view(request):
+    """Verify user's email with token."""
+    token = request.data.get('token')
+
+    if not token:
+        return Response({
+            'error': 'Verification token is required'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        # Find user with this token
+        user = User.objects.get(email_verification_token=token)
+
+        # Check if token is expired (1 hour)
+        if user.email_verification_sent_at:
+            time_elapsed = timezone.now() - user.email_verification_sent_at
+            if time_elapsed.total_seconds() > 3600:  # 1 hour
+                return Response({
+                    'error': 'Verification link has expired. Please request a new one.'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Verify email
+        user.is_email_verified = True
+        user.email_verification_token = None  # Clear token after use
+        user.save()
+
+        # Log the user in
+        login(request, user)
+
+        serializer = UserPrivateSerializer(user)
+        response = Response({
+            'message': 'Email verified successfully',
+            'user': serializer.data
+        })
+
+        # Set session cookie
+        response.set_cookie(
+            'sessionid',
+            request.session.session_key,
+            max_age=SESSION_COOKIE_AGE,
+            httponly=SESSION_COOKIE_HTTPONLY,
+            secure=SESSION_COOKIE_SECURE,
+            samesite=SESSION_COOKIE_SAMESITE
+        )
+
+        return response
+
+    except User.DoesNotExist:
+        return Response({
+            'error': 'Invalid or expired verification link'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+
+@ensure_csrf_cookie
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def resend_verification_email_view(request):
+    """Resend verification email to user."""
+    email = request.data.get('email', '').strip().lower()
+
+    if not email:
+        return Response({
+            'error': 'Email is required'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = User.objects.get(email=email)
+
+        # Check if already verified
+        if user.is_email_verified:
+            return Response({
+                'error': 'Email is already verified'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Generate new token and send email
+        verification_token = generate_and_save_verification_token(user)
+        send_verification_email(user, verification_token)
+
+        return Response({
+            'message': 'Verification email sent'
+        })
+
+    except User.DoesNotExist:
+        # Don't reveal if email exists
+        return Response({
+            'message': 'If an account with that email exists, a verification email has been sent'
+        })
+
+
 # TODO: Implement session refresh
 # @require_http_methods(["POST"])
 # def refresh_session(request):
@@ -326,3 +428,61 @@ def csrf_token_view(request):
 #         return JsonResponse({'success': True})
 
 #     return JsonResponse({'authenticated': False}, status=401)
+
+
+# Email Verification
+
+def generate_and_save_verification_token(user):
+    """Generate new verification token and save to user."""
+    verification_token = secrets.token_urlsafe(48)  # 64-character URL-safe token
+    user.email_verification_token = verification_token
+    user.email_verification_sent_at = timezone.now()
+    user.save()
+    return verification_token
+
+
+def send_verification_email(user, token):
+    """Send email verification link to user."""
+    verification_url = f"{settings.FRONTEND_URL}/verify-email?token={token}"
+
+    subject = 'Verify Your Email - Mily'
+    message = f"""
+    Hi {user.first_name},
+
+    Welcome to Mily! Please verify your email address by clicking the link below:
+
+    {verification_url}
+
+    This link will expire in 1 hour.
+
+    If you didn't create an account, please ignore this email.
+
+    Thanks,
+    The Mily Team
+    """
+
+    if settings.EMAIL_BACKEND == 'django.core.mail.backends.console.EmailBackend':
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+            fail_silently=False,
+        )
+    else:
+        with get_connection(
+            host=settings.EMAIL_HOST,
+            port=settings.EMAIL_PORT,
+            username=settings.EMAIL_HOST_USER,
+            password=settings.EMAIL_HOST_PASSWORD,
+            use_tls=settings.EMAIL_USE_TLS,
+        ) as connection:
+            r = EmailMessage(
+                  subject=subject,
+                  body=message,
+                  to=[user.email],
+                  from_email=settings.DEFAULT_FROM_EMAIL,
+                  connection=connection
+            ).send()
+            print(f"Verification email sent to {user.email}")
+            print(f"Email sent with status code: {r}")
