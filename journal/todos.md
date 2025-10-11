@@ -47,6 +47,7 @@ Some additional notes:
 - [ ] Add timeline event share logic
 
 ### Optimizations
+- [ ] Auto-generate requirements.txt from pyproject.toml so that you don't have to remember to export poetry when deploying to Railway
 - [ ] Implement OpenAPI schema generation so that frontend inherits data models from backend (DRY)
 - [ ] Change static/media to use S3
 - [ ] Allow user blocking as first action (currently a post request to friendship is required as the primary action)
