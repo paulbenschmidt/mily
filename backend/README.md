@@ -93,6 +93,8 @@ The backend is automatically deployed to Railway when you push to the `main` bra
 - `railway.json`
 - `requirements.txt`
 
+> Ideally, the requirements would be determined automatically from the `pyproject.toml` file, but I'm not sure how to do that, so for now, run the command: `poetry export -f requirements.txt --output requirements.txt --without-hashes --without dev`.
+
 The deployment script includes `python manage.py collectstatic --noinput` and `python manage.py migrate` to ensure that the database is up to date and static files are collected (which are required for the admin interface).
 
 Once deployed, you will need to:
