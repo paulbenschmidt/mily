@@ -181,20 +181,15 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20
 }
 
-# Email settings
+# Email settings for password reset and verification
+# Use console backend for local development, Resend API for production
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
-EMAIL_HOST = os.getenv('EMAIL_HOST')
-EMAIL_PORT = os.getenv('EMAIL_PORT')
-EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 
 # Frontend URL for password reset links and email verification
 FRONTEND_URL = os.getenv('FRONTEND_URL')
 
 # CORS settings for frontend integration
-# TODO: Update for production
 CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '').split(',')
 CORS_ALLOW_CREDENTIALS = True
 CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']

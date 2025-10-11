@@ -1,15 +1,16 @@
-import datetime as dt
+import os
 import logging
 import secrets
 
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail, EmailMessage, get_connection
+from django.core.mail import send_mail
 from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+import resend
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
@@ -446,22 +447,36 @@ def send_verification_email(user, token):
     verification_url = f"{settings.FRONTEND_URL}/verify-email?token={token}"
 
     subject = 'Verify Your Email - Mily'
-    message = f"""
-    Hi {user.first_name},
+    message = f"""Hi {user.first_name},
 
-    Welcome to Mily! Please verify your email address by clicking the link below:
+Welcome to Mily! Please verify your email address by clicking the link below:
 
-    {verification_url}
+{verification_url}
 
-    This link will expire in 1 hour.
+This link will expire in 1 hour.
 
-    If you didn't create an account, please ignore this email.
+If you didn't create an account, please ignore this email.
 
-    Thanks,
-    The Mily Team
-    """
+Thanks,
+The Mily Team
+"""
 
-    if settings.EMAIL_BACKEND == 'django.core.mail.backends.console.EmailBackend':
+    api_key = os.getenv('RESEND_API_KEY')
+    if api_key and api_key != '':
+        try:
+            resend.api_key = api_key # Use HTTPS for production (since SMTP is blocked by Railway)
+            email = resend.Emails.send({
+                "from": settings.DEFAULT_FROM_EMAIL,
+                "to": [user.email],
+                "subject": subject,
+                "text": message,
+            })
+            print(f"Verification email sent to {user.email} via Resend API")
+            print(f"Resend response: {email}")
+        except Exception as e:
+            print(f"Failed to send email via Resend: {e}")
+            raise
+    else:
         send_mail(
             subject,
             message,
@@ -469,20 +484,3 @@ def send_verification_email(user, token):
             [user.email],
             fail_silently=False,
         )
-    else:
-        with get_connection(
-            host=settings.EMAIL_HOST,
-            port=settings.EMAIL_PORT,
-            username=settings.EMAIL_HOST_USER,
-            password=settings.EMAIL_HOST_PASSWORD,
-            use_tls=settings.EMAIL_USE_TLS,
-        ) as connection:
-            r = EmailMessage(
-                  subject=subject,
-                  body=message,
-                  to=[user.email],
-                  from_email=settings.DEFAULT_FROM_EMAIL,
-                  connection=connection
-            ).send()
-            print(f"Verification email sent to {user.email}")
-            print(f"Email sent with status code: {r}")
