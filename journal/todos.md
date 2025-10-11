@@ -5,7 +5,6 @@ Some additional notes:
 - I will
 
 ## Now
-- [ ] Figure out why Vercel doesn't log in after email verification
 - [ ] Figure out why Vercel is failing to deploy to "Preview" environment but not to "Production"
 
 ## Upcoming
