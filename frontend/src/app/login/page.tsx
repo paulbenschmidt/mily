@@ -28,6 +28,15 @@ export default function LoginPage() {
       router.push('/app');
     } catch (err) {
       console.error('Login failed:', err);
+      
+      // Check if error is due to unverified email
+      const error = err as Error & { errorCode?: string; email?: string };
+      if (error.errorCode === 'EMAIL_NOT_VERIFIED') {
+        // Redirect to a verification reminder page with email
+        router.push(`/verify-email-reminder?email=${encodeURIComponent(error.email || formData.email)}`);
+        return;
+      }
+      
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
       setLoading(false);

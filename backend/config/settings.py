@@ -181,16 +181,16 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20
 }
 
-# Email settings for password reset
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development
-EMAIL_HOST = 'localhost'
-EMAIL_PORT = 1025
-EMAIL_USE_TLS = False
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
-DEFAULT_FROM_EMAIL = 'noreply@mily.app'
+# Email settings
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 
-# Frontend URL for password reset links
+# Frontend URL for password reset links and email verification
 FRONTEND_URL = os.getenv('FRONTEND_URL')
 
 # CORS settings for frontend integration

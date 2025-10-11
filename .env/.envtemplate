@@ -21,6 +21,15 @@ ALLOWED_HOSTS=https://your-vercel-app.vercel.app,https://*.vercel.app
 CSRF_TRUSTED_ORIGINS=https://your-vercel-app.vercel.app,https://*.vercel.app
 CORS_ALLOWED_ORIGINS=https://your-vercel-app.vercel.app,https://*.vercel.app
 
+# Email Service
+EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
+EMAIL_HOST=localhost
+EMAIL_PORT=1025
+EMAIL_USE_TLS=False
+EMAIL_HOST_USER=None
+EMAIL_HOST_PASSWORD=None
+DEFAULT_FROM_EMAIL=noreply_ENVIRONMENT@mily.bio
+
 # Users
 SUPERUSER_EMAIL=
 SUPERUSER_PASSWORD=
