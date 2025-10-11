@@ -36,19 +36,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const router = useRouter();
 
   const checkAuth = async () => {
-    // Check if we have a session cookie before making the API call
-    const hasSessionCookie = document.cookie.includes('sessionid=');
-
     try {
-      // Only make the API call if we have a session cookie
-      if (hasSessionCookie) {
-        const authStatus = await authApiClient.getAuthStatus();
+      // Always check with the backend - session cookie is HttpOnly so JS can't see it
+      const authStatus = await authApiClient.getAuthStatus();
 
-        if (authStatus.authenticated && authStatus.user) {
-          setUser(authStatus.user);
-        } else {
-          setUser(null);
-        }
+      if (authStatus.authenticated && authStatus.user) {
+        setUser(authStatus.user);
       } else {
         setUser(null);
       }

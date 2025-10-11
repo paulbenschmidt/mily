@@ -199,18 +199,18 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db' # Slower but more reliabl
 # SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'  # POTENTIAL TODO: Best performance
 SESSION_COOKIE_NAME = 'sessionid'
 SESSION_COOKIE_AGE = 86400  # 24 hours # TODO: Change to something longer?
-SESSION_COOKIE_HTTPONLY = False  # Allow JavaScript access for debugging TODO: Set to True in production
-SESSION_COOKIE_SECURE = False  # TODO Set to True in production with HTTPS
-SESSION_COOKIE_SAMESITE = 'Lax'  # Required for cross-origin requests (localhost:3000 to localhost:8000)
-SESSION_COOKIE_DOMAIN = None  # TODO: Set to production domain in production
+SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE').lower() == 'true'
+SESSION_COOKIE_DOMAIN = os.getenv('SESSION_COOKIE_DOMAIN')
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
 SESSION_SAVE_EVERY_REQUEST = False # Only save when modified
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Persist sessions
 
 # CSRF configuration
-CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to read CSRF token
-CSRF_COOKIE_SECURE = False  # Set to True in production with HTTPS
-CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
+CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to read CSRF token
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'Lax'
 
 # Logging configuration
 LOGGING = {
