@@ -29,14 +29,11 @@ load_dotenv(dotenv_path=env_path, override=False)
 # Quick-start development settings - unsuitable for production
 # TODO: See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
+# TODO: Create separate secret key for each environment?
 SECRET_KEY = os.getenv('SECRET_KEY')
-
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
-
-# TODO: Modify allowed hosts for production
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
+
 
 # Application definition
 
