@@ -29,13 +29,9 @@ load_dotenv(dotenv_path=env_path, override=False)
 # Quick-start development settings - unsuitable for production
 # TODO: See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
+# TODO: Create separate secret key for each environment?
 SECRET_KEY = os.getenv('SECRET_KEY')
-
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
-
-# TODO: Modify allowed hosts for production
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
 # Application definition
@@ -190,7 +186,14 @@ DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 FRONTEND_URL = os.getenv('FRONTEND_URL')
 
 # CORS settings for frontend integration
-CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '').split(',')
+# Support both explicit origins and regex patterns for Vercel subdomains
+cors_origins_env = os.getenv('CORS_ALLOWED_ORIGINS', '')
+CORS_ALLOWED_ORIGINS = [origin for origin in cors_origins_env.split(',') if origin]
+
+# Allow all Vercel preview deployments via regex
+cors_regex_env = os.getenv('CORS_ALLOWED_ORIGIN_REGEXES', '')
+CORS_ALLOWED_ORIGIN_REGEXES = [regex for regex in cors_regex_env.split(',') if regex]
+
 CORS_ALLOW_CREDENTIALS = True
 CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
 
@@ -207,7 +210,8 @@ SESSION_SAVE_EVERY_REQUEST = False # Only save when modified
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Persist sessions
 
 # CSRF configuration
-CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
+csrf_origins_env = os.getenv('CSRF_TRUSTED_ORIGINS', '')
+CSRF_TRUSTED_ORIGINS = [origin for origin in csrf_origins_env.split(',') if origin]
 CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to read CSRF token
 CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = 'Lax'

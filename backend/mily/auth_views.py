@@ -195,7 +195,7 @@ def password_reset_request_view(request):
         # Create reset URL (you'll need to implement this on frontend)
         reset_url = f"{settings.FRONTEND_URL}/reset-password/{uid}/{token}/"
 
-        # Send email (in development, this will print to console)
+        # Send email (in local, this will print to console)
         subject = 'Password Reset - Mily'
         message = f"""
         Hi {user.first_name or user.username},

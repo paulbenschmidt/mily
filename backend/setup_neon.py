@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 def check_environment():
     """Check if all required environment variables are set."""
     # Load environment variables from the correct path
-    env_path = Path(__file__).parent.parent / '.env' / '.env.development'
+    env_path = Path(__file__).parent.parent / '.env' / '.env.local'
     load_dotenv(dotenv_path=env_path)
 
     required_vars = [
