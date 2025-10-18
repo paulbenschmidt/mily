@@ -16,6 +16,12 @@ DATABASE_PASSWORD=
 DATABASE_HOST=
 DATABASE_PORT=5432
 
+# Users
+SUPERUSER_EMAIL=
+SUPERUSER_PASSWORD=
+TESTUSER_EMAIL=
+TESTRUSER_PASSWORD=
+
 # Backend awareness of frontend for URLs
 FRONTEND_URL=http://localhost:3000
 
@@ -39,13 +45,3 @@ DEFAULT_FROM_EMAIL=noreply@verify.mily.bio
 
 # API
 NEXT_PUBLIC_API_URL=http://localhost:8000/api
-
-######################
-###     Other      ###
-######################
-
-# Users
-SUPERUSER_EMAIL=
-SUPERUSER_PASSWORD=
-TESTUSER_EMAIL=
-TESTUSER_PASSWORD=
