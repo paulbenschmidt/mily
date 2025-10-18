@@ -113,7 +113,7 @@ def login_view(request):
         if user.is_active:
             # Generate JWT tokens
             refresh = RefreshToken.for_user(user)
-            
+
             serializer = UserPrivateSerializer(user)
             return Response({
                 'message': 'Login successful',
@@ -252,9 +252,6 @@ def auth_status_view(request):
         'authenticated': True,
         'user': serializer.data
     })
-
-
-# CSRF token endpoint removed - not needed with JWT authentication
 
 
 @api_view(['POST'])

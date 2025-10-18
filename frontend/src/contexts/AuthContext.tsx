@@ -49,6 +49,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // If auth check fails, clear tokens and set user to null
       authApiClient.clearTokens();
       setUser(null);
+      
+      // Redirect to login if on protected route
+      if (typeof window !== 'undefined' && window.location.pathname.startsWith('/app')) {
+        router.push('/login');
+      }
     } finally {
       setLoading(false);
     }

@@ -11,37 +11,33 @@ class AuthApiClient {
   }
 
   // JWT Token Management
-  private getAccessToken(): string | null {
+  private getTokenFromCookie(tokenName: string): string | null {
     if (typeof window === 'undefined') return null;
     const cookies = document.cookie.split(';');
     for (const cookie of cookies) {
       const [name, value] = cookie.trim().split('=');
-      if (name === 'access_token') {
+      if (name === tokenName) {
         return decodeURIComponent(value);
       }
     }
     return null;
   }
 
+  private getAccessToken(): string | null {
+    return this.getTokenFromCookie('access_token');
+  }
+
   private getRefreshToken(): string | null {
-    if (typeof window === 'undefined') return null;
-    const cookies = document.cookie.split(';');
-    for (const cookie of cookies) {
-      const [name, value] = cookie.trim().split('=');
-      if (name === 'refresh_token') {
-        return decodeURIComponent(value);
-      }
-    }
-    return null;
+    return this.getTokenFromCookie('refresh_token');
   }
 
   private setTokens(access: string, refresh: string): void {
     if (typeof window === 'undefined') return;
     // Set tokens in httpOnly-like cookies (client-side for now)
-    // In production, consider using httpOnly cookies set by the backend
+    // TODO: In production, consider using httpOnly cookies set by the backend
     const maxAge = 60 * 60; // 1 hour for access token
     const refreshMaxAge = 7 * 24 * 60 * 60; // 7 days for refresh token
-    
+
     document.cookie = `access_token=${encodeURIComponent(access)}; Path=/; Max-Age=${maxAge}; SameSite=Lax; Secure`;
     document.cookie = `refresh_token=${encodeURIComponent(refresh)}; Path=/; Max-Age=${refreshMaxAge}; SameSite=Lax; Secure`;
   }
@@ -109,7 +105,10 @@ class AuthApiClient {
   private async refreshAccessToken(): Promise<boolean> {
     try {
       const refreshToken = this.getRefreshToken();
-      if (!refreshToken) return false;
+      if (!refreshToken) {
+        this.clearTokens(); // Clear invalid state
+        return false;
+      }
 
       const response = await fetch(`${this.baseUrl}/auth/token/refresh/`, {
         method: 'POST',
@@ -129,9 +128,13 @@ class AuthApiClient {
           return true;
         }
       }
+
+      // Refresh failed (expired or invalid) - clear tokens to force re-login
+      this.clearTokens();
       return false;
     } catch (error) {
       console.error('Token refresh failed:', error);
+      this.clearTokens();
       return false;
     }
   }
@@ -158,12 +161,12 @@ class AuthApiClient {
       method: 'POST',
       body: JSON.stringify(credentials),
     }, true); // Skip auth for login
-    
+
     // Store tokens in cookies
     if (response.access && response.refresh) {
       this.setTokens(response.access, response.refresh);
     }
-    
+
     return response;
   }
 
@@ -207,12 +210,12 @@ class AuthApiClient {
       method: 'POST',
       body: JSON.stringify({ token }),
     }, true); // Skip auth for email verification
-    
+
     // Store tokens in cookies
     if (response.access && response.refresh) {
       this.setTokens(response.access, response.refresh);
     }
-    
+
     return response;
   }
 
