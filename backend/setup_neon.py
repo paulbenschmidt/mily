@@ -4,7 +4,7 @@ Setup script to help configure Neon database connection for Mily project.
 Run this script with Poetry to test your database connection and create initial migrations.
 
 Usage:
-    poetry run python setup_neon.py
+    poetry run python setup_neon.py [staging|production]
 """
 
 import os
@@ -14,11 +14,18 @@ import django
 from django.core.management import execute_from_command_line
 from django.db import connection
 from dotenv import load_dotenv
+import argparse
 
-def check_environment():
+def check_environment(env_name):
     """Check if all required environment variables are set."""
     # Load environment variables from the correct path
-    env_path = Path(__file__).parent.parent / '.env' / '.env.local'
+    env_path = Path(__file__).parent.parent / '.env' / f'.env.{env_name}'
+
+    if not env_path.exists():
+        print(f"❌ Environment file not found: {env_path}")
+        return False
+
+    print(f"📁 Loading environment from: {env_path}")
     load_dotenv(dotenv_path=env_path)
 
     required_vars = [
@@ -81,11 +88,28 @@ def run_migrations():
 
 def main():
     """Main setup function."""
-    print("🚀 Setting up Neon database connection for Mily...")
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(
+        description='Setup Neon database connection for Mily',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  poetry run python setup_neon.py staging
+  poetry run python setup_neon.py production
+        """
+    )
+    parser.add_argument(
+        'environment',
+        choices=['staging', 'production'],
+        help='Environment to use'
+    )
+    args = parser.parse_args()
+
+    print(f"🚀 Setting up Neon database connection for Mily ({args.environment})...")
     print("=" * 50)
 
     # Check environment variables
-    if not check_environment():
+    if not check_environment(args.environment):
         sys.exit(1)
 
     # Test database connection
@@ -97,7 +121,7 @@ def main():
         sys.exit(1)
 
     print("\n🎉 Setup completed successfully!")
-    print("Your Mily project is now connected to Neon database.")
+    print(f"Your Mily project is now connected to Neon database ({args.environment}).")
     print("\nNext steps:")
     print("1. Create a superuser: poetry run python manage.py createsuperuser")
     print("2. Start the development server: poetry run python manage.py runserver")

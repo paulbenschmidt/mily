@@ -203,7 +203,7 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db' # Slower but more reliabl
 SESSION_COOKIE_NAME = 'sessionid'
 SESSION_COOKIE_AGE = 86400  # 24 hours # TODO: Change to something longer?
 SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE').lower() == 'true'
-SESSION_COOKIE_DOMAIN = os.getenv('SESSION_COOKIE_DOMAIN')
+# SESSION_COOKIE_DOMAIN = os.getenv('SESSION_COOKIE_DOMAIN') # testing
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 SESSION_SAVE_EVERY_REQUEST = False # Only save when modified
