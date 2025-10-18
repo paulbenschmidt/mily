@@ -15,7 +15,7 @@ export default function Home() {
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="font-serif text-2xl font-medium text-foreground cursor-pointer bg-transparent border-none p-0"
           >
-            Mily
+            Mily hi
           </button>
           <div className="flex items-center gap-6">
             <Link
