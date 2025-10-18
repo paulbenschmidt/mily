@@ -5,18 +5,16 @@ Some additional notes:
 - I will
 
 ## Now
-- [ ] Figure out why Vercel is failing to deploy to "Preview" environment but not to "Production"
+- [ ] Set up true dev/staging/preview/prod environments
+- [ ] JWT tokens using djangorestframework-simplejwt
+    - [ ] Fix app to not just crash if the token is invalid (maybe I should just transition to JWTs)
 
 ## Upcoming
-- [ ] Set up true dev/prod environments
 - [ ] Look into serving photos through Railway buckets?
 - [ ] Rate limiting with django-ratelimit
 - [ ] Add logo to loading spinners and to footer
 - [ ] Change it so that year is dynamic, to the left of the line (and remove year from the event date)
-- [ ] JWT tokens using djangorestframework-simplejwt
-    - [ ] Fix app to not just crash if the token is invalid (maybe I should just transition to JWTs)
 - [ ] Add tags to events and allow users to filter by them
-- [ ] Create dev domain for dev testing to have true local, dev, prod envs
 - [ ] Password reset via Django's built-in email system
 - [ ] Go through packages and update any that are not needed
 - [ ] Update readmes/windsurfrules/roadmaps/comments/etc
