@@ -37,7 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const checkAuth = async () => {
     try {
-      // Always check with the backend - session cookie is HttpOnly so JS can't see it
+      // Check authentication with JWT token
       const authStatus = await authApiClient.getAuthStatus();
 
       if (authStatus.authenticated && authStatus.user) {
@@ -46,6 +46,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(null);
       }
     } catch (error) {
+      // If auth check fails, clear tokens and set user to null
+      authApiClient.clearTokens();
       setUser(null);
     } finally {
       setLoading(false);
@@ -82,16 +84,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      // Ensure we have a CSRF token before making the POST request
-      await authApiClient.getCSRFTokenFromServer();
+      // Logout will clear tokens automatically
       await authApiClient.logout();
     } catch (error) {
-      // Even if logout fails on server, clear local state
+      // Even if logout fails on server, tokens are cleared
       console.error('AuthContext: Logout error:', error);
     } finally {
-      // Clear the session and CSRF cookies on client side
-      document.cookie = 'sessionid=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax';
-      document.cookie = 'csrftoken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax';
       setUser(null);
       router.push('/login');
     }

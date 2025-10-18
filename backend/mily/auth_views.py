@@ -3,32 +3,25 @@ import logging
 import secrets
 
 from django.conf import settings
-from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.utils import timezone
-from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 import resend
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenRefreshView
 
 from .serializers import UserPrivateSerializer
-
-from config.settings import (
-    SESSION_COOKIE_AGE,
-    SESSION_COOKIE_HTTPONLY,
-    SESSION_COOKIE_SAMESITE,
-    SESSION_COOKIE_SECURE,
-)
 
 
 User = get_user_model()
 
-@ensure_csrf_cookie
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_view(request):
@@ -94,11 +87,10 @@ def register_view(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
 
-@ensure_csrf_cookie
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_view(request):
-    """Authenticate user and create session."""
+    """Authenticate user and return JWT tokens."""
     email = request.data.get('email', '').strip().lower()
     password = request.data.get('password', '')
 
@@ -119,28 +111,16 @@ def login_view(request):
             }, status=status.HTTP_401_UNAUTHORIZED)
 
         if user.is_active:
-            login(request, user) # Critical for cookies to be set as part of the session data
-
-            # Force session save to ensure session key is created
-            request.session.save()
-
+            # Generate JWT tokens
+            refresh = RefreshToken.for_user(user)
+            
             serializer = UserPrivateSerializer(user)
-            response = Response({
+            return Response({
                 'message': 'Login successful',
-                'user': serializer.data
+                'user': serializer.data,
+                'access': str(refresh.access_token),
+                'refresh': str(refresh)
             })
-
-            # Manually set the session cookie
-            response.set_cookie(
-                'sessionid',
-                request.session.session_key,
-                max_age=SESSION_COOKIE_AGE,  # 24 hours
-                httponly=SESSION_COOKIE_HTTPONLY,  # Allow JS access for debugging
-                secure=SESSION_COOKIE_SECURE,    # HTTP for localhost
-                samesite=SESSION_COOKIE_SAMESITE
-            )
-
-            return response
         else:
             return Response({
                 'error': 'Account is disabled'
@@ -151,29 +131,17 @@ def login_view(request):
         }, status=status.HTTP_401_UNAUTHORIZED)
 
 
-@ensure_csrf_cookie
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def logout_view(request):
-    """Logout user and destroy session."""
-    try:
-        logout(request)
-
-        # Ensure session is completely destroyed
-        if hasattr(request, 'session'):
-            request.session.flush()  # More thorough than just logout()
-
-        return Response({
-            'message': 'Logout successful'
-        })
-    except Exception as e:
-        logging.error(f"Logout failed: {str(e)}")
-        return Response({
-            'error': 'Logout failed on server'
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    """Logout user (JWT is stateless, so this is mainly for client-side cleanup)."""
+    # With JWT, logout is handled client-side by removing the tokens
+    # Optionally, you could implement token blacklisting here if needed
+    return Response({
+        'message': 'Logout successful'
+    })
 
 
-@ensure_csrf_cookie
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def password_reset_request_view(request):
@@ -230,7 +198,6 @@ def password_reset_request_view(request):
         })
 
 
-@ensure_csrf_cookie
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def password_reset_confirm_view(request):
@@ -274,64 +241,26 @@ def password_reset_confirm_view(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
 
-@ensure_csrf_cookie
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def auth_status_view(request):
-    """Check if user is authenticated."""
-
-    # # Comprehensive debug logging (9/18/2025: helpful for diagnosing the cookie issue)
-    # print("=" * 50)
-    # print("AUTH STATUS CHECK - DETAILED LOGGING")
-    # print(f"Request method: {request.method}")
-    # print(f"Request path: {request.path}")
-    # print(f"Request headers: {dict(request.headers)}")
-    # print(f"Request cookies: {request.COOKIES}")
-    # print(f"Session key: {request.session.session_key}")
-    # print(f"Session data: {dict(request.session)}")
-    # print(f"User: {request.user}")
-    # print(f"User type: {type(request.user)}")
-    # print(f"Is authenticated: {request.user.is_authenticated}")
-    # print(f"Is anonymous: {request.user.is_anonymous}")
-    # if hasattr(request.user, 'id'):
-    #     print(f"User ID: {request.user.id}")
-    # print("=" * 50)
-
-    if request.user.is_authenticated:
-        serializer = UserPrivateSerializer(request.user)
-        response = Response({
-            'authenticated': True,
-            'user': serializer.data
-        })
-        logging.info("User authenticated successfully")
-        return response
-    else:
-        logging.info("User not authenticated")
-        return Response({
-            'authenticated': False
-        })
-
-
-@ensure_csrf_cookie
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def csrf_token_view(request):
-    """
-    Using the @ensure_csrf_cookie decorator, this view forces Django to set the CSRF cookie in
-    the response. This can be useful prior to making a POST request to ensure the user is
-    authenticated or that the request isn't being made by a malicious user who initiates the
-    request from an untrusted source.
-    """
+    """Check if user is authenticated via JWT."""
+    # JWT authentication is handled by the authentication class
+    # If we reach here, the user is authenticated
+    serializer = UserPrivateSerializer(request.user)
     return Response({
-        'message': 'CSRF token set in cookie'
+        'authenticated': True,
+        'user': serializer.data
     })
 
 
-@ensure_csrf_cookie
+# CSRF token endpoint removed - not needed with JWT authentication
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def verify_email_view(request):
-    """Verify user's email with token."""
+    """Verify user's email with token and return JWT tokens."""
     token = request.data.get('token')
 
     if not token:
@@ -356,26 +285,16 @@ def verify_email_view(request):
         user.email_verification_token = None  # Clear token after use
         user.save()
 
-        # Log the user in
-        login(request, user)
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
 
         serializer = UserPrivateSerializer(user)
-        response = Response({
+        return Response({
             'message': 'Email verified successfully',
-            'user': serializer.data
+            'user': serializer.data,
+            'access': str(refresh.access_token),
+            'refresh': str(refresh)
         })
-
-        # Set session cookie
-        response.set_cookie(
-            'sessionid',
-            request.session.session_key,
-            max_age=SESSION_COOKIE_AGE,
-            httponly=SESSION_COOKIE_HTTPONLY,
-            secure=SESSION_COOKIE_SECURE,
-            samesite=SESSION_COOKIE_SAMESITE
-        )
-
-        return response
 
     except User.DoesNotExist:
         return Response({
@@ -383,7 +302,6 @@ def verify_email_view(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
 
-@ensure_csrf_cookie
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def resend_verification_email_view(request):

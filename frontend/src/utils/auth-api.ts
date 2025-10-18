@@ -10,20 +10,52 @@ class AuthApiClient {
     this.baseUrl = baseUrl;
   }
 
-  private getCSRFToken(): string | null {
+  // JWT Token Management
+  private getAccessToken(): string | null {
+    if (typeof window === 'undefined') return null;
     const cookies = document.cookie.split(';');
     for (const cookie of cookies) {
       const [name, value] = cookie.trim().split('=');
-      if (name === 'csrftoken') {
+      if (name === 'access_token') {
         return decodeURIComponent(value);
       }
     }
     return null;
   }
 
+  private getRefreshToken(): string | null {
+    if (typeof window === 'undefined') return null;
+    const cookies = document.cookie.split(';');
+    for (const cookie of cookies) {
+      const [name, value] = cookie.trim().split('=');
+      if (name === 'refresh_token') {
+        return decodeURIComponent(value);
+      }
+    }
+    return null;
+  }
+
+  private setTokens(access: string, refresh: string): void {
+    if (typeof window === 'undefined') return;
+    // Set tokens in httpOnly-like cookies (client-side for now)
+    // In production, consider using httpOnly cookies set by the backend
+    const maxAge = 60 * 60; // 1 hour for access token
+    const refreshMaxAge = 7 * 24 * 60 * 60; // 7 days for refresh token
+    
+    document.cookie = `access_token=${encodeURIComponent(access)}; Path=/; Max-Age=${maxAge}; SameSite=Lax; Secure`;
+    document.cookie = `refresh_token=${encodeURIComponent(refresh)}; Path=/; Max-Age=${refreshMaxAge}; SameSite=Lax; Secure`;
+  }
+
+  public clearTokens(): void {
+    if (typeof window === 'undefined') return;
+    document.cookie = 'access_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax';
+    document.cookie = 'refresh_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax';
+  }
+
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    skipAuth: boolean = false
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
 
@@ -32,21 +64,36 @@ class AuthApiClient {
       ...options.headers as Record<string, string>,
     };
 
-    // Add CSRF token for state-changing requests
-    if (options.method && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(options.method)) {
-      const csrfToken = this.getCSRFToken();
-      if (csrfToken) {
-        headers['X-CSRFToken'] = csrfToken;
+    // Add JWT token to Authorization header
+    if (!skipAuth) {
+      const accessToken = this.getAccessToken();
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
       }
     }
 
-    console.log("Headers", headers);
-
-    const response = await fetch(url, {
+    let response = await fetch(url, {
       ...options,
       headers,
-      credentials: 'include', // Include cookies for session auth
+      credentials: 'include',
     });
+
+    // If we get a 401 and have a refresh token, try to refresh
+    if (response.status === 401 && !skipAuth && this.getRefreshToken()) {
+      const refreshed = await this.refreshAccessToken();
+      if (refreshed) {
+        // Retry the request with new token
+        const newAccessToken = this.getAccessToken();
+        if (newAccessToken) {
+          headers['Authorization'] = `Bearer ${newAccessToken}`;
+          response = await fetch(url, {
+            ...options,
+            headers,
+            credentials: 'include',
+          });
+        }
+      }
+    }
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -57,6 +104,36 @@ class AuthApiClient {
     }
 
     return response.json();
+  }
+
+  private async refreshAccessToken(): Promise<boolean> {
+    try {
+      const refreshToken = this.getRefreshToken();
+      if (!refreshToken) return false;
+
+      const response = await fetch(`${this.baseUrl}/auth/token/refresh/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ refresh: refreshToken }),
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.access) {
+          // Update access token, keep existing refresh token
+          const maxAge = 60 * 60; // 1 hour
+          document.cookie = `access_token=${encodeURIComponent(data.access)}; Path=/; Max-Age=${maxAge}; SameSite=Lax; Secure`;
+          return true;
+        }
+      }
+      return false;
+    } catch (error) {
+      console.error('Token refresh failed:', error);
+      return false;
+    }
   }
 
   // Authentication endpoints
@@ -70,24 +147,36 @@ class AuthApiClient {
     return this.request<AuthResponse>('/auth/register/', {
       method: 'POST',
       body: JSON.stringify(userData),
-    });
+    }, true); // Skip auth for signup
   }
 
   async login(credentials: {
     email: string;
     password: string;
-  }): Promise<AuthResponse> {
-    console.log("Login called", credentials);
-    return this.request<AuthResponse>('/auth/login/', {
+  }): Promise<AuthResponse & { access: string; refresh: string }> {
+    const response = await this.request<AuthResponse & { access: string; refresh: string }>('/auth/login/', {
       method: 'POST',
       body: JSON.stringify(credentials),
-    });
+    }, true); // Skip auth for login
+    
+    // Store tokens in cookies
+    if (response.access && response.refresh) {
+      this.setTokens(response.access, response.refresh);
+    }
+    
+    return response;
   }
 
   async logout(): Promise<{ message: string }> {
-    return this.request<{ message: string }>('/auth/logout/', {
-      method: 'POST',
-    });
+    try {
+      await this.request<{ message: string }>('/auth/logout/', {
+        method: 'POST',
+      });
+    } finally {
+      // Always clear tokens, even if request fails
+      this.clearTokens();
+    }
+    return { message: 'Logout successful' };
   }
 
   async getAuthStatus(): Promise<{ authenticated: boolean; user?: UserType }> {
@@ -98,7 +187,7 @@ class AuthApiClient {
     return this.request<{ message: string }>('/auth/password-reset-request/', {
       method: 'POST',
       body: JSON.stringify({ email }),
-    });
+    }, true); // Skip auth for password reset request
   }
 
   async confirmPasswordReset(
@@ -109,11 +198,22 @@ class AuthApiClient {
     return this.request<{ message: string }>('/auth/password-reset-confirm/', {
       method: 'POST',
       body: JSON.stringify({ uid, token, new_password }),
-    });
+    }, true); // Skip auth for password reset confirm
   }
 
-  async getCSRFTokenFromServer(): Promise<{ message: string }> {
-    return this.request<{ message: string }>('/auth/csrf-token/');
+  // Verify email and get JWT tokens
+  async verifyEmail(token: string): Promise<AuthResponse & { access: string; refresh: string }> {
+    const response = await this.request<AuthResponse & { access: string; refresh: string }>('/auth/verify-email/', {
+      method: 'POST',
+      body: JSON.stringify({ token }),
+    }, true); // Skip auth for email verification
+    
+    // Store tokens in cookies
+    if (response.access && response.refresh) {
+      this.setTokens(response.access, response.refresh);
+    }
+    
+    return response;
   }
 
   // User endpoints

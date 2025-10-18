@@ -1,8 +1,5 @@
 
-The application is now deployed to Vercel! I'd like to begin the next step of the process: email verification. This should send an email to the user's email address asking for verification. Once they verify, the user should be directed to the main /app/  screen.
-
-Some additional notes:
-- I will
+- Update `requirements.txt`
 
 ## Now
 - [ ] JWT tokens using djangorestframework-simplejwt

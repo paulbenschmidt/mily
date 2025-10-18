@@ -15,6 +15,7 @@ from pathlib import Path
 import sys
 
 from dotenv import load_dotenv
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -44,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt',
     'corsheaders',
     'mily.apps.MilyConfig', # importing Mily app config to enable signals for user creation
 ]
@@ -168,13 +170,42 @@ AUTH_USER_MODEL = 'mily.User'
 # Django REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication', # For API
+        'rest_framework.authentication.SessionAuthentication',  # For Admin only
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20
+}
+
+# Simple JWT settings
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Access token expires in 1 hour
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),  # Refresh token expires in 7 days
+# ROTATE_REFRESH_TOKENS: TODO comment below
+# Warning: Updating last_login will dramatically increase the number of database transactions.
+# People abusing the views could slow the server and this could be a security vulnerability.
+# If you really want this, throttle the endpoint with DRF at the very least.
+    'ROTATE_REFRESH_TOKENS': True,  # Generate new refresh token on refresh
+    'BLACKLIST_AFTER_ROTATION': False,  # Don't blacklist old tokens (requires simplejwt blacklist app)
+    'UPDATE_LAST_LOGIN': True,  # Update user's last_login field on token generation
+
+    'ALGORITHM': 'HS256',
+# TODO: Create separate signing key
+    'SIGNING_KEY': SECRET_KEY,
+    'VERIFYING_KEY': None,
+    'AUDIENCE': None,
+    'ISSUER': None,
+
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
 }
 
 # Email settings for password reset and verification
@@ -187,25 +218,20 @@ FRONTEND_URL = os.getenv('FRONTEND_URL')
 
 # CORS settings for frontend integration
 CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '').split(',')
+CORS_ALLOW_CREDENTIALS = True  # Allow cookies for admin panel
 
-# Session configuration
-SESSION_ENGINE = 'django.contrib.sessions.backends.db' # Slower but more reliable/simpler
-# SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'  # POTENTIAL TODO: Best performance
+# Session configuration (only needed for admin panel)
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_NAME = 'sessionid'
-SESSION_COOKIE_AGE = 86400  # 24 hours # TODO: Change to something longer?
-SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE').lower() == 'true'
-# TODO: Figure out optimal settings
-# I commented out the below because it was causing eternal redirects when accessing the admin console via Railway
-# SESSION_COOKIE_DOMAIN = os.getenv('SESSION_COOKIE_DOMAIN') # testing
+SESSION_COOKIE_AGE = 86400  # 24 hours
+SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
-SESSION_SAVE_EVERY_REQUEST = False # Only save when modified
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Persist sessions
 
-# CSRF configuration
+# CSRF configuration (only needed for admin panel)
 CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
-CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to read CSRF token
-CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
 CSRF_COOKIE_SAMESITE = 'Lax'
 
 # Logging configuration
