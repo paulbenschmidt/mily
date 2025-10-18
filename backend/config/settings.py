@@ -194,6 +194,8 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db' # Slower but more reliabl
 SESSION_COOKIE_NAME = 'sessionid'
 SESSION_COOKIE_AGE = 86400  # 24 hours # TODO: Change to something longer?
 SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE').lower() == 'true'
+# TODO: Figure out optimal settings
+# I commented out the below because it was causing eternal redirects when accessing the admin console via Railway
 # SESSION_COOKIE_DOMAIN = os.getenv('SESSION_COOKIE_DOMAIN') # testing
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
