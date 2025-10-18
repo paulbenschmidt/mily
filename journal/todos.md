@@ -1,5 +1,7 @@
 
-- Update `requirements.txt`
+- For JWTs:
+    - ROTATE_REFRESH_TOKENS - throttle?
+    - SIGNING_KEY - create different keys
 
 ## Now
 - [ ] JWT tokens using djangorestframework-simplejwt
@@ -47,3 +49,5 @@
 - [ ] Allow user blocking as first action (currently a post request to friendship is required as the primary action)
 - [ ] Implement Data Encryption at Rest to protect database in case of breach
 - [ ] Set up MCP for Context7
+- [ ] Refactor views to be class-based so that every POST request doesn't need the csrf_exempt decorator
+- [ ] Implement token blacklisting for JWTs (so that getting a new refresh token invalidates the old one)

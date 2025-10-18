@@ -1,5 +1,4 @@
 import os
-import logging
 import secrets
 
 from django.conf import settings
@@ -16,7 +15,6 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.views import TokenRefreshView
 
 from .serializers import UserPrivateSerializer
 
@@ -245,19 +243,6 @@ def password_reset_confirm_view(request):
         return Response({
             'error': 'Invalid reset link'
         }, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def auth_status_view(request):
-    """Check if user is authenticated via JWT."""
-    # JWT authentication is handled by the authentication class
-    # If we reach here, the user is authenticated
-    serializer = UserPrivateSerializer(request.user)
-    return Response({
-        'authenticated': True,
-        'user': serializer.data
-    })
 
 
 @csrf_exempt

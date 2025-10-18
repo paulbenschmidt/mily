@@ -12,7 +12,6 @@ from .auth_views import (
     logout_view,
     password_reset_request_view,
     password_reset_confirm_view,
-    auth_status_view,
     verify_email_view,
     resend_verification_email_view,
 )
@@ -36,6 +35,5 @@ urlpatterns = [
     path("auth/resend-verification/", resend_verification_email_view, name="resend_verification"),
     path("auth/password-reset-request/", password_reset_request_view, name="password_reset_request"),
     path("auth/password-reset-confirm/", password_reset_confirm_view, name="password_reset_confirm"),
-    path("auth/status/", auth_status_view, name="auth_status"),
     path("auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 ]

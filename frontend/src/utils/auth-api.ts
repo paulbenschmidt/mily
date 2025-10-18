@@ -183,7 +183,12 @@ class AuthApiClient {
   }
 
   async getAuthStatus(): Promise<{ authenticated: boolean; user?: UserType }> {
-    return this.request<{ authenticated: boolean; user?: UserType }>('/auth/status/');
+    try {
+      const user = await this.getCurrentUser();
+      return { authenticated: true, user };
+    } catch (error) {
+      return { authenticated: false };
+    }
   }
 
   async requestPasswordReset(email: string): Promise<{ message: string }> {
@@ -222,10 +227,6 @@ class AuthApiClient {
   // User endpoints
   async getCurrentUser(): Promise<UserType> {
     return this.request<UserType>('/users/me/');
-  }
-
-  async getUserProfile(): Promise<UserType> {
-    return this.getCurrentUser();
   }
 
   async updateUser(userData: Partial<UserType>): Promise<UserType> {
