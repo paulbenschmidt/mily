@@ -48,7 +48,7 @@ class AuthApiClient {
     document.cookie = 'refresh_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax';
   }
 
-  private handleErrorResponse(response: Response, errorData: any): never {
+  private handleErrorResponse(response: Response, errorData: Record<string, unknown>): never {
     // Forbidden (403)
     if (response.status === 403) {
       throw new Error('You don\'t have permission to perform this action.');
@@ -67,11 +67,14 @@ class AuthApiClient {
     }
 
     // Generic error handling
-    const error = new Error(
-      errorData.error || errorData.detail || `Request failed: ${response.status} ${response.statusText}`
-    ) as Error & { errorCode?: string; email?: string };
-    error.errorCode = errorData.error_code;
-    error.email = errorData.email;
+    const errorMessage = 
+      (typeof errorData.error === 'string' ? errorData.error : null) ||
+      (typeof errorData.detail === 'string' ? errorData.detail : null) ||
+      `Request failed: ${response.status} ${response.statusText}`;
+    
+    const error = new Error(errorMessage) as Error & { errorCode?: string; email?: string };
+    error.errorCode = typeof errorData.error_code === 'string' ? errorData.error_code : undefined;
+    error.email = typeof errorData.email === 'string' ? errorData.email : undefined;
     throw error;
   }
 
