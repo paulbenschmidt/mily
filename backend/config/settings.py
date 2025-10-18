@@ -176,6 +176,19 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/hour',  # Anonymous users
+        'user': '1000/hour',  # Authenticated users
+        'auth': '10/hour',  # Auth endpoints (login, signup, password reset)
+        'token_refresh': '20/hour',  # Token refresh
+        'event_create': '100/hour',  # Creating new events
+        'event_modify': '200/hour',  # Updating/deleting events
+        'user_read': '500/hour',  # Reading user profiles
+    },
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20
 }
@@ -184,17 +197,12 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Access token expires in 1 hour
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),  # Refresh token expires in 7 days
-# ROTATE_REFRESH_TOKENS: TODO comment below
-# Warning: Updating last_login will dramatically increase the number of database transactions.
-# People abusing the views could slow the server and this could be a security vulnerability.
-# If you really want this, throttle the endpoint with DRF at the very least.
-    'ROTATE_REFRESH_TOKENS': True,  # Generate new refresh token on refresh
+    'ROTATE_REFRESH_TOKENS': True,  # Generate new refresh token on refresh (throttled to 20/hour)
     'BLACKLIST_AFTER_ROTATION': False,  # Don't blacklist old tokens (requires simplejwt blacklist app)
     'UPDATE_LAST_LOGIN': True,  # Update user's last_login field on token generation
 
     'ALGORITHM': 'HS256',
-# TODO: Create separate signing key
-    'SIGNING_KEY': SECRET_KEY,
+    'SIGNING_KEY': os.getenv('JWT_SIGNING_KEY'),
     'VERIFYING_KEY': None,
     'AUDIENCE': None,
     'ISSUER': None,

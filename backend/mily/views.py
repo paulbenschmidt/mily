@@ -12,9 +12,14 @@ from .models import (
     FriendshipStatus,
 )
 from .serializers import (
+    EventSerializer,
     UserPublicSerializer,
     UserPrivateSerializer,
-    EventSerializer,
+)
+from .throttling import (
+    EventCreateRateThrottle,
+    EventModifyRateThrottle,
+    UserReadRateThrottle,
 )
 
 logger = logging.getLogger(__name__)
@@ -51,6 +56,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.filter(is_active=True).order_by("username")
     serializer_class = UserPublicSerializer
     permission_classes = [permissions.IsAuthenticated]
+    throttle_classes = [UserReadRateThrottle]
 
     @action(detail=False, methods=["get"], url_path="me")
     def me(self, request, *args, **kwargs):
@@ -69,6 +75,14 @@ class EventViewSet(viewsets.ModelViewSet):
     """
     serializer_class = EventSerializer
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+
+    def get_throttles(self):
+        """Apply different throttles based on action."""
+        if self.action == 'create':
+            return [EventCreateRateThrottle()]
+        elif self.action in ['update', 'partial_update', 'destroy']:
+            return [EventModifyRateThrottle()]
+        return super().get_throttles()
 
     def get_queryset(self):
         user = self.request.user if self.request and self.request.user.is_authenticated else None

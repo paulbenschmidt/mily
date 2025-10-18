@@ -16,6 +16,7 @@ from .auth_views import (
     resend_verification_email_view,
 )
 from .helper_views import health_check
+from .throttling import TokenRefreshRateThrottle
 
 router = DefaultRouter()
 router.register(r"users", UserViewSet, basename="user")
@@ -35,5 +36,6 @@ urlpatterns = [
     path("auth/resend-verification/", resend_verification_email_view, name="resend_verification"),
     path("auth/password-reset-request/", password_reset_request_view, name="password_reset_request"),
     path("auth/password-reset-confirm/", password_reset_confirm_view, name="password_reset_confirm"),
-    path("auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("auth/token/refresh/",
+        TokenRefreshView.as_view(throttle_classes=[TokenRefreshRateThrottle]), name="token_refresh"),
 ]

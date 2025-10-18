@@ -1,7 +1,4 @@
-
-- For JWTs:
-    - ROTATE_REFRESH_TOKENS - throttle?
-    - SIGNING_KEY - create different keys
+- Update journal with JWT learnings
 
 ## Now
 - [ ] JWT tokens using djangorestframework-simplejwt

@@ -11,12 +11,13 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.decorators.csrf import csrf_exempt
 import resend
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .serializers import UserPrivateSerializer
+from .throttling import AuthRateThrottle
 
 
 User = get_user_model()
@@ -24,6 +25,7 @@ User = get_user_model()
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([AuthRateThrottle])
 def register_view(request):
     """Create a new user account."""
     # TODO: Account for instances where user is already signed in? Basically, there is a weird behavior if I'm already
@@ -90,6 +92,7 @@ def register_view(request):
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([AuthRateThrottle])
 def login_view(request):
     """Authenticate user and return JWT tokens."""
     email = request.data.get('email', '').strip().lower()
@@ -135,6 +138,7 @@ def login_view(request):
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
+@throttle_classes([AuthRateThrottle])
 def logout_view(request):
     """Logout user (JWT is stateless, so this is mainly for client-side cleanup)."""
     # With JWT, logout is handled client-side by removing the tokens
@@ -147,6 +151,7 @@ def logout_view(request):
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([AuthRateThrottle])
 def password_reset_request_view(request):
     """Request password reset email."""
     email = request.data.get('email', '').strip().lower()
@@ -204,6 +209,7 @@ def password_reset_request_view(request):
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([AuthRateThrottle])
 def password_reset_confirm_view(request):
     """Confirm password reset with token."""
     uid = request.data.get('uid')
@@ -248,6 +254,7 @@ def password_reset_confirm_view(request):
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([AuthRateThrottle])
 def verify_email_view(request):
     """Verify user's email with token and return JWT tokens."""
     token = request.data.get('token')
@@ -294,6 +301,7 @@ def verify_email_view(request):
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([AuthRateThrottle])
 def resend_verification_email_view(request):
     """Resend verification email to user."""
     email = request.data.get('email', '').strip().lower()

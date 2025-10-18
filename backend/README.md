@@ -85,6 +85,12 @@ backend/
 └── manage.py       # Django management script
 ```
 
+## Authentication
+
+This project contains both JWT and session-based authentication. The JWT authentication is used for when the front-end makes requests to the API, while the session-based authentication is used for the admin interface (since Django was designed to be used with sessions).
+
+JWTs were chosen over sessions primarily to support mobile authentication and have the same authentication used for the web app.
+
 ## Database
 See [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md) for detailed model specifications and relationships.
 

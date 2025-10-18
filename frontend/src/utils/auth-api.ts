@@ -48,6 +48,33 @@ class AuthApiClient {
     document.cookie = 'refresh_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax';
   }
 
+  private handleErrorResponse(response: Response, errorData: any): never {
+    // Forbidden (403)
+    if (response.status === 403) {
+      throw new Error('You don\'t have permission to perform this action.');
+    }
+
+    // Rate limiting (429)
+    if (response.status === 429) {
+      const error = new Error('Please slow down and try again in a few moments.') as Error & { errorCode?: string };
+      error.errorCode = 'RATE_LIMIT_EXCEEDED';
+      throw error;
+    }
+
+    // Server error (500)
+    if (response.status >= 500) {
+      throw new Error('Server error. Please try again later.');
+    }
+
+    // Generic error handling
+    const error = new Error(
+      errorData.error || errorData.detail || `Request failed: ${response.status} ${response.statusText}`
+    ) as Error & { errorCode?: string; email?: string };
+    error.errorCode = errorData.error_code;
+    error.email = errorData.email;
+    throw error;
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestInit = {},
@@ -93,10 +120,7 @@ class AuthApiClient {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      const error = new Error(errorData.error || `Request failed: ${response.status} ${response.statusText}`) as Error & { errorCode?: string; email?: string };
-      error.errorCode = errorData.error_code;
-      error.email = errorData.email;
-      throw error;
+      this.handleErrorResponse(response, errorData);
     }
 
     return response.json();
