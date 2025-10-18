@@ -1,5 +1,7 @@
 # Development Journey
 
+- 2025-10-18:
+    - I spent the day mapping out environment segregation. I decided to just stick with local, staging, and production environments. The general workflow will be to develop locally on the self-hosted backend/frontend servers, push to the `staging` branch in GitHub to preview the changes at `staging.mily.bio`, and then merge the branch into `main` to deploy the changes at `mily.bio`. For simplicity, I'm only going to have two databases: one for staging and one for production (with the exception of the ephemeral one for local testing).
 - 2025-10-11:
     - I got email authentication working! Woohoo! :)
     - Realized that there wasn't a risk to adding MX records to a subdomain (the root domain will still be available), so I went ahead and added the MX records for `verify.mily.bio` to point to Resend.

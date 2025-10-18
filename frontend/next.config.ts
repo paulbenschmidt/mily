@@ -6,7 +6,7 @@ import { existsSync } from 'fs';
 // Try to load environment variables from different possible locations
 const envPaths = [
   // resolve(__dirname, '../.env/.env.production'),
-  // resolve(__dirname, '../.env/.env.development'),
+  // resolve(__dirname, '../.env/.env.staging'),
   resolve(__dirname, '../.env/.env.local'),
 ];
 

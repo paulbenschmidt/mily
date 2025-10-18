@@ -27,7 +27,7 @@ poetry install
 
 Copy the environment template and update database credentials:
 ```bash
-cp ../.env/.envtemplate ../.env/.env.development
+cp ../.env/.envtemplate ../.env/.env.local
 ```
 
 ### 4. Setup Database

@@ -5,7 +5,6 @@ Some additional notes:
 - I will
 
 ## Now
-- [ ] Set up true dev/staging/preview/prod environments
 - [ ] JWT tokens using djangorestframework-simplejwt
     - [ ] Fix app to not just crash if the token is invalid (maybe I should just transition to JWTs)
 

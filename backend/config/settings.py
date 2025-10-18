@@ -29,13 +29,9 @@ load_dotenv(dotenv_path=env_path, override=False)
 # Quick-start development settings - unsuitable for production
 # TODO: See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
+# TODO: Create separate secret key for each environment?
 SECRET_KEY = os.getenv('SECRET_KEY')
-
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
-
-# TODO: Modify allowed hosts for production
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
 # Application definition
@@ -191,8 +187,6 @@ FRONTEND_URL = os.getenv('FRONTEND_URL')
 
 # CORS settings for frontend integration
 CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '').split(',')
-CORS_ALLOW_CREDENTIALS = True
-CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
 
 # Session configuration
 SESSION_ENGINE = 'django.contrib.sessions.backends.db' # Slower but more reliable/simpler
@@ -200,7 +194,9 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db' # Slower but more reliabl
 SESSION_COOKIE_NAME = 'sessionid'
 SESSION_COOKIE_AGE = 86400  # 24 hours # TODO: Change to something longer?
 SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE').lower() == 'true'
-SESSION_COOKIE_DOMAIN = os.getenv('SESSION_COOKIE_DOMAIN')
+# TODO: Figure out optimal settings
+# I commented out the below because it was causing eternal redirects when accessing the admin console via Railway
+# SESSION_COOKIE_DOMAIN = os.getenv('SESSION_COOKIE_DOMAIN') # testing
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 SESSION_SAVE_EVERY_REQUEST = False # Only save when modified
