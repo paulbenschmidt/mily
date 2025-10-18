@@ -9,6 +9,7 @@ from django.core.mail import send_mail
 from django.utils import timezone
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.views.decorators.csrf import csrf_exempt
 import resend
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -22,6 +23,7 @@ from .serializers import UserPrivateSerializer
 
 User = get_user_model()
 
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_view(request):
@@ -87,6 +89,7 @@ def register_view(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
 
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_view(request):
@@ -131,6 +134,7 @@ def login_view(request):
         }, status=status.HTTP_401_UNAUTHORIZED)
 
 
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
@@ -142,6 +146,7 @@ def logout_view(request):
     })
 
 
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def password_reset_request_view(request):
@@ -198,6 +203,7 @@ def password_reset_request_view(request):
         })
 
 
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def password_reset_confirm_view(request):
@@ -254,6 +260,7 @@ def auth_status_view(request):
     })
 
 
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def verify_email_view(request):
@@ -299,6 +306,7 @@ def verify_email_view(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
 
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def resend_verification_email_view(request):
