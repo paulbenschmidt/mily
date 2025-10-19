@@ -199,7 +199,6 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),  # Refresh token expires in 7 days
     'ROTATE_REFRESH_TOKENS': True,  # Generate new refresh token on refresh (throttled to 20/hour)
     'BLACKLIST_AFTER_ROTATION': False,  # Don't blacklist old tokens (requires simplejwt blacklist app)
-    'UPDATE_LAST_LOGIN': True,  # Update user's last_login field on token generation
 
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': os.getenv('JWT_SIGNING_KEY'),

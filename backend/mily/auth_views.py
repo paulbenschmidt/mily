@@ -15,6 +15,8 @@ from rest_framework.decorators import api_view, permission_classes, throttle_cla
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
 from .serializers import UserPrivateSerializer
 from .throttling import AuthRateThrottle
@@ -115,16 +117,43 @@ def login_view(request):
             }, status=status.HTTP_401_UNAUTHORIZED)
 
         if user.is_active:
+            # Update last login timestamp
+            user.last_login = timezone.now()
+            user.save(update_fields=['last_login'])
+
             # Generate JWT tokens
             refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+            refresh_token = str(refresh)
 
             serializer = UserPrivateSerializer(user)
-            return Response({
+            response = Response({
                 'message': 'Login successful',
                 'user': serializer.data,
-                'access': str(refresh.access_token),
-                'refresh': str(refresh)
             })
+
+            # Set httpOnly cookies for tokens (secure in production with HTTPS)
+            is_production = settings.DEBUG is False
+            response.set_cookie(
+                key='access_token',
+                value=access_token,
+                max_age=60 * 60,  # 1 hour
+                httponly=True,
+                secure=is_production,  # True in production (HTTPS only)
+                samesite='Lax',
+                path='/',
+            )
+            response.set_cookie(
+                key='refresh_token',
+                value=refresh_token,
+                max_age=7 * 24 * 60 * 60,  # 7 days
+                httponly=True,
+                secure=is_production,
+                samesite='Lax',
+                path='/',
+            )
+
+            return response
         else:
             return Response({
                 'error': 'Account is disabled'
@@ -140,12 +169,16 @@ def login_view(request):
 @permission_classes([IsAuthenticated])
 @throttle_classes([AuthRateThrottle])
 def logout_view(request):
-    """Logout user (JWT is stateless, so this is mainly for client-side cleanup)."""
-    # With JWT, logout is handled client-side by removing the tokens
-    # Optionally, you could implement token blacklisting here if needed
-    return Response({
+    """Logout user by clearing httpOnly cookies."""
+    response = Response({
         'message': 'Logout successful'
     })
+
+    # Clear httpOnly cookies
+    response.delete_cookie('access_token', path='/', samesite='Lax')
+    response.delete_cookie('refresh_token', path='/', samesite='Lax')
+
+    return response
 
 
 @csrf_exempt
@@ -276,21 +309,45 @@ def verify_email_view(request):
                     'error': 'Verification link has expired. Please request a new one.'
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-        # Verify email
+        # Verify email and update last login
         user.is_email_verified = True
         user.email_verification_token = None  # Clear token after use
+        user.last_login = timezone.now()
         user.save()
 
         # Generate JWT tokens
         refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+        refresh_token = str(refresh)
 
         serializer = UserPrivateSerializer(user)
-        return Response({
+        response = Response({
             'message': 'Email verified successfully',
             'user': serializer.data,
-            'access': str(refresh.access_token),
-            'refresh': str(refresh)
         })
+
+        # Set httpOnly cookies for tokens
+        is_production = settings.DEBUG is False
+        response.set_cookie(
+            key='access_token',
+            value=access_token,
+            max_age=60 * 60,  # 1 hour
+            httponly=True,
+            secure=is_production,
+            samesite='Lax',
+            path='/',
+        )
+        response.set_cookie(
+            key='refresh_token',
+            value=refresh_token,
+            max_age=7 * 24 * 60 * 60,  # 7 days
+            httponly=True,
+            secure=is_production,
+            samesite='Lax',
+            path='/',
+        )
+
+        return response
 
     except User.DoesNotExist:
         return Response({
@@ -400,3 +457,58 @@ The Mily Team
             [user.email],
             fail_silently=False,
         )
+
+
+# Custom Token Refresh View for httpOnly Cookies
+
+class CookieTokenRefreshView(TokenRefreshView):
+    """
+    Custom token refresh view that reads refresh token from httpOnly cookie
+    and sets new access token in httpOnly cookie.
+    """
+    def post(self, request, *args, **kwargs):
+        # Get refresh token from cookie instead of request body
+        refresh_token = request.COOKIES.get('refresh_token')
+
+        if not refresh_token:
+            return Response(
+                {'error': 'Refresh token not found'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        # Add refresh token to request data for parent class to process
+        request.data._mutable = True if hasattr(request.data, '_mutable') else None
+        request.data['refresh'] = refresh_token
+
+        try:
+            # Call parent class to validate and generate new access token
+            response = super().post(request, *args, **kwargs)
+
+            # Extract new access token from response
+            if response.status_code == 200 and 'access' in response.data:
+                access_token = response.data['access']
+
+                # Create new response without token in body
+                new_response = Response({'message': 'Token refreshed successfully'})
+
+                # Set new access token in httpOnly cookie
+                is_production = settings.DEBUG is False
+                new_response.set_cookie(
+                    key='access_token',
+                    value=access_token,
+                    max_age=60 * 60,  # 1 hour
+                    httponly=True,
+                    secure=is_production,
+                    samesite='Lax',
+                    path='/',
+                )
+
+                return new_response
+
+            return response
+
+        except (InvalidToken, TokenError) as e:
+            return Response(
+                {'error': 'Invalid or expired refresh token'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )

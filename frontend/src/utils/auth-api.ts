@@ -10,44 +10,6 @@ class AuthApiClient {
     this.baseUrl = baseUrl;
   }
 
-  // JWT Token Management
-  private getTokenFromCookie(tokenName: string): string | null {
-    if (typeof window === 'undefined') return null;
-    const cookies = document.cookie.split(';');
-    for (const cookie of cookies) {
-      const [name, value] = cookie.trim().split('=');
-      if (name === tokenName) {
-        return decodeURIComponent(value);
-      }
-    }
-    return null;
-  }
-
-  private getAccessToken(): string | null {
-    return this.getTokenFromCookie('access_token');
-  }
-
-  private getRefreshToken(): string | null {
-    return this.getTokenFromCookie('refresh_token');
-  }
-
-  private setTokens(access: string, refresh: string): void {
-    if (typeof window === 'undefined') return;
-    // Set tokens in httpOnly-like cookies (client-side for now)
-    // TODO: In production, consider using httpOnly cookies set by the backend
-    const maxAge = 60 * 60; // 1 hour for access token
-    const refreshMaxAge = 7 * 24 * 60 * 60; // 7 days for refresh token
-
-    document.cookie = `access_token=${encodeURIComponent(access)}; Path=/; Max-Age=${maxAge}; SameSite=Lax; Secure`;
-    document.cookie = `refresh_token=${encodeURIComponent(refresh)}; Path=/; Max-Age=${refreshMaxAge}; SameSite=Lax; Secure`;
-  }
-
-  public clearTokens(): void {
-    if (typeof window === 'undefined') return;
-    document.cookie = 'access_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax';
-    document.cookie = 'refresh_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax';
-  }
-
   private handleErrorResponse(response: Response, errorData: Record<string, unknown>): never {
     // Forbidden (403)
     if (response.status === 403) {
@@ -67,22 +29,23 @@ class AuthApiClient {
     }
 
     // Generic error handling
-    const errorMessage = 
+    const errorMessage =
       (typeof errorData.error === 'string' ? errorData.error : null) ||
       (typeof errorData.detail === 'string' ? errorData.detail : null) ||
       `Request failed: ${response.status} ${response.statusText}`;
-    
+
     const error = new Error(errorMessage) as Error & { errorCode?: string; email?: string };
     error.errorCode = typeof errorData.error_code === 'string' ? errorData.error_code : undefined;
     error.email = typeof errorData.email === 'string' ? errorData.email : undefined;
     throw error;
   }
 
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {},
-    skipAuth: boolean = false
-  ): Promise<T> {
+  private async request<T>(params: {
+    endpoint: string;
+    options?: RequestInit;
+    skipAuth?: boolean;
+  }): Promise<T> {
+    const { endpoint, options = {}, skipAuth = false } = params;
     const url = `${this.baseUrl}${endpoint}`;
 
     const headers: Record<string, string> = {
@@ -90,34 +53,22 @@ class AuthApiClient {
       ...options.headers as Record<string, string>,
     };
 
-    // Add JWT token to Authorization header
-    if (!skipAuth) {
-      const accessToken = this.getAccessToken();
-      if (accessToken) {
-        headers['Authorization'] = `Bearer ${accessToken}`;
-      }
-    }
-
     let response = await fetch(url, {
       ...options,
       headers,
       credentials: 'include',
     });
 
-    // If we get a 401 and have a refresh token, try to refresh
-    if (response.status === 401 && !skipAuth && this.getRefreshToken()) {
+    // If we get a 401, try to refresh the token
+    if (response.status === 401 && !skipAuth) {
       const refreshed = await this.refreshAccessToken();
       if (refreshed) {
-        // Retry the request with new token
-        const newAccessToken = this.getAccessToken();
-        if (newAccessToken) {
-          headers['Authorization'] = `Bearer ${newAccessToken}`;
-          response = await fetch(url, {
-            ...options,
-            headers,
-            credentials: 'include',
-          });
-        }
+        // Retry the request - new access token cookie is now set
+        response = await fetch(url, {
+          ...options,
+          headers,
+          credentials: 'include',
+        });
       }
     }
 
@@ -131,37 +82,23 @@ class AuthApiClient {
 
   private async refreshAccessToken(): Promise<boolean> {
     try {
-      const refreshToken = this.getRefreshToken();
-      if (!refreshToken) {
-        this.clearTokens(); // Clear invalid state
-        return false;
-      }
-
       const response = await fetch(`${this.baseUrl}/auth/token/refresh/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ refresh: refreshToken }),
-        credentials: 'include',
+        credentials: 'include', // Send cookies
       });
 
       if (response.ok) {
-        const data = await response.json();
-        if (data.access) {
-          // Update access token, keep existing refresh token
-          const maxAge = 60 * 60; // 1 hour
-          document.cookie = `access_token=${encodeURIComponent(data.access)}; Path=/; Max-Age=${maxAge}; SameSite=Lax; Secure`;
-          return true;
-        }
+        // New access token cookie is automatically set by backend
+        return true;
       }
 
-      // Refresh failed (expired or invalid) - clear tokens to force re-login
-      this.clearTokens();
+      // Refresh failed (expired or invalid)
       return false;
     } catch (error) {
       console.error('Token refresh failed:', error);
-      this.clearTokens();
       return false;
     }
   }
@@ -174,37 +111,41 @@ class AuthApiClient {
     last_name: string;
     handle: string;
   }): Promise<AuthResponse> {
-    return this.request<AuthResponse>('/auth/register/', {
-      method: 'POST',
-      body: JSON.stringify(userData),
-    }, true); // Skip auth for signup
+    return this.request<AuthResponse>({
+      endpoint: '/auth/register/',
+      options: {
+        method: 'POST',
+        body: JSON.stringify(userData),
+      },
+      skipAuth: true,
+    });
   }
 
   async login(credentials: {
     email: string;
     password: string;
-  }): Promise<AuthResponse & { access: string; refresh: string }> {
-    const response = await this.request<AuthResponse & { access: string; refresh: string }>('/auth/login/', {
-      method: 'POST',
-      body: JSON.stringify(credentials),
-    }, true); // Skip auth for login
-
-    // Store tokens in cookies
-    if (response.access && response.refresh) {
-      this.setTokens(response.access, response.refresh);
-    }
-
-    return response;
+  }): Promise<AuthResponse> {
+    // Backend sets httpOnly cookies automatically
+    return this.request<AuthResponse>({
+      endpoint: '/auth/login/',
+      options: {
+        method: 'POST',
+        body: JSON.stringify(credentials),
+      },
+      skipAuth: true,
+    });
   }
 
   async logout(): Promise<{ message: string }> {
     try {
-      await this.request<{ message: string }>('/auth/logout/', {
-        method: 'POST',
+      await this.request<{ message: string }>({
+        endpoint: '/auth/logout/',
+        options: {
+          method: 'POST',
+        },
       });
-    } finally {
-      // Always clear tokens, even if request fails
-      this.clearTokens();
+    } catch (error) {
+      console.error('Logout failed:', error);
     }
     return { message: 'Logout successful' };
   }
@@ -219,10 +160,14 @@ class AuthApiClient {
   }
 
   async requestPasswordReset(email: string): Promise<{ message: string }> {
-    return this.request<{ message: string }>('/auth/password-reset-request/', {
-      method: 'POST',
-      body: JSON.stringify({ email }),
-    }, true); // Skip auth for password reset request
+    return this.request<{ message: string }>({
+      endpoint: '/auth/password-reset-request/',
+      options: {
+        method: 'POST',
+        body: JSON.stringify({ email }),
+      },
+      skipAuth: true,
+    });
   }
 
   async confirmPasswordReset(
@@ -230,64 +175,81 @@ class AuthApiClient {
     token: string,
     new_password: string
   ): Promise<{ message: string }> {
-    return this.request<{ message: string }>('/auth/password-reset-confirm/', {
-      method: 'POST',
-      body: JSON.stringify({ uid, token, new_password }),
-    }, true); // Skip auth for password reset confirm
+    return this.request<{ message: string }>({
+      endpoint: '/auth/password-reset-confirm/',
+      options: {
+        method: 'POST',
+        body: JSON.stringify({ uid, token, new_password }),
+      },
+      skipAuth: true,
+    });
   }
 
-  // Verify email and get JWT tokens
-  async verifyEmail(token: string): Promise<AuthResponse & { access: string; refresh: string }> {
-    const response = await this.request<AuthResponse & { access: string; refresh: string }>('/auth/verify-email/', {
-      method: 'POST',
-      body: JSON.stringify({ token }),
-    }, true); // Skip auth for email verification
-
-    // Store tokens in cookies
-    if (response.access && response.refresh) {
-      this.setTokens(response.access, response.refresh);
-    }
-
-    return response;
+  // Verify email - backend sets httpOnly cookies automatically
+  async verifyEmail(token: string): Promise<AuthResponse> {
+    return this.request<AuthResponse>({
+      endpoint: '/auth/verify-email/',
+      options: {
+        method: 'POST',
+        body: JSON.stringify({ token }),
+      },
+      skipAuth: true,
+    });
   }
 
   // User endpoints
   async getCurrentUser(): Promise<UserType> {
-    return this.request<UserType>('/users/me/');
+    return this.request<UserType>({
+      endpoint: '/users/me/',
+    });
   }
 
   async updateUser(userData: Partial<UserType>): Promise<UserType> {
-    return this.request<UserType>('/users/me/', {
-      method: 'PATCH',
-      body: JSON.stringify(userData),
+    return this.request<UserType>({
+      endpoint: '/users/me/',
+      options: {
+        method: 'PATCH',
+        body: JSON.stringify(userData),
+      },
     });
   }
 
   // Events endpoints
   async getEvents(): Promise<TimelineEventType[]> {
-    return this.request<TimelineEventType[]>('/events/self/');
+    return this.request<TimelineEventType[]>({
+      endpoint: '/events/self/',
+    });
   }
 
   // Use Omit to create a type that excludes server-generated fields
   async createEvent(eventData: Omit<TimelineEventType, 'id' | 'user' | 'created_at' | 'updated_at'>): Promise<TimelineEventType> {
-    return this.request<TimelineEventType>('/events/', {
-      method: 'POST',
-      body: JSON.stringify(eventData),
+    return this.request<TimelineEventType>({
+      endpoint: '/events/',
+      options: {
+        method: 'POST',
+        body: JSON.stringify(eventData),
+      },
     });
   }
 
   // Update an existing event using PATCH to allow partial updates
   async updateEvent(eventId: string, eventData: Partial<Omit<TimelineEventType, 'id' | 'user' | 'created_at' | 'updated_at'>>): Promise<TimelineEventType> {
-    return this.request<TimelineEventType>(`/events/${eventId}/`, {
-      method: 'PATCH',
-      body: JSON.stringify(eventData),
+    return this.request<TimelineEventType>({
+      endpoint: `/events/${eventId}/`,
+      options: {
+        method: 'PATCH',
+        body: JSON.stringify(eventData),
+      },
     });
   }
 
   // Delete an existing event
   async deleteEvent(eventId: string): Promise<void> {
-    await this.request<void>(`/events/${eventId}/`, {
-      method: 'DELETE',
+    await this.request<void>({
+      endpoint: `/events/${eventId}/`,
+      options: {
+        method: 'DELETE',
+      },
     });
   }
 }

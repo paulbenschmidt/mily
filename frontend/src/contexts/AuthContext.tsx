@@ -46,10 +46,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(null);
       }
     } catch (error) {
-      // If auth check fails, clear tokens and set user to null
-      authApiClient.clearTokens();
       setUser(null);
-      
+
       // Redirect to login if on protected route
       if (typeof window !== 'undefined' && window.location.pathname.startsWith('/app')) {
         router.push('/login');
@@ -92,7 +90,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Logout will clear tokens automatically
       await authApiClient.logout();
     } catch (error) {
-      // Even if logout fails on server, tokens are cleared
+      // Logout will clear tokens on frontend (backend does not preserve session state)
       console.error('AuthContext: Logout error:', error);
     } finally {
       setUser(null);

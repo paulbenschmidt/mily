@@ -1,6 +1,5 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import TokenRefreshView
 
 from .views import (
     UserViewSet,
@@ -14,6 +13,7 @@ from .auth_views import (
     password_reset_confirm_view,
     verify_email_view,
     resend_verification_email_view,
+    CookieTokenRefreshView,
 )
 from .helper_views import health_check
 from .throttling import TokenRefreshRateThrottle
@@ -37,5 +37,5 @@ urlpatterns = [
     path("auth/password-reset-request/", password_reset_request_view, name="password_reset_request"),
     path("auth/password-reset-confirm/", password_reset_confirm_view, name="password_reset_confirm"),
     path("auth/token/refresh/",
-        TokenRefreshView.as_view(throttle_classes=[TokenRefreshRateThrottle]), name="token_refresh"),
+        CookieTokenRefreshView.as_view(throttle_classes=[TokenRefreshRateThrottle]), name="token_refresh"),
 ]
