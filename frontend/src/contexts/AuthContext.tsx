@@ -99,7 +99,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
-    checkAuth();
+    const initialize = async () => {
+
+      // Always initialize CSRF token
+      await authApiClient.initializeCsrf();
+
+      if (typeof window !== 'undefined' && window.location.pathname.startsWith('/app')) {
+        await checkAuth();
+      } else {
+        setLoading(false);
+      }
+    };
+    initialize();
   }, []);
 
   const value: AuthContextType = {

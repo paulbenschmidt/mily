@@ -13,6 +13,7 @@ from .auth_views import (
     password_reset_confirm_view,
     verify_email_view,
     resend_verification_email_view,
+    get_csrf_token_view,
     CookieTokenRefreshView,
 )
 from .helper_views import health_check
@@ -29,6 +30,7 @@ urlpatterns = [
     path("health/", health_check, name="health_check"),
 
     # Authentication endpoints
+    path("auth/csrf-token/", get_csrf_token_view, name="csrf_token"),
     path("auth/register/", register_view, name="auth_register"),
     path("auth/login/", login_view, name="auth_login"),
     path("auth/logout/", logout_view, name="auth_logout"),

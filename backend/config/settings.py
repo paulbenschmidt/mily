@@ -32,6 +32,7 @@ load_dotenv(dotenv_path=env_path, override=False)
 
 # TODO: Create separate secret key for each environment?
 SECRET_KEY = os.getenv('SECRET_KEY')
+ENVIRONMENT = os.getenv('ENVIRONMENT', 'local')
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
@@ -170,7 +171,7 @@ AUTH_USER_MODEL = 'mily.User'
 # Django REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication', # For API
+        'mily.authentication.CookieJWTAuthentication',  # Custom JWT auth from cookies
         'rest_framework.authentication.SessionAuthentication',  # For Admin only
     ],
     'DEFAULT_PERMISSION_CLASSES': [
@@ -235,7 +236,7 @@ SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'False').lower() == '
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 
-# CSRF configuration (only needed for admin panel)
+# CSRF configuration
 CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
 CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'False').lower() == 'true'

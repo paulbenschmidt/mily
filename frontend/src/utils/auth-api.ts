@@ -10,6 +10,31 @@ class AuthApiClient {
     this.baseUrl = baseUrl;
   }
 
+  private getCookie(name: string): string | null {
+    if (typeof document === 'undefined') return null;
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) {
+      return parts.pop()?.split(';').shift() || null;
+    }
+    return null;
+  }
+
+  async initializeCsrf(): Promise<void> {
+    /**
+     * Initialize CSRF token by fetching from backend.
+     * This should be called once on app initialization.
+     * The backend will set the csrftoken cookie in the response.
+     */
+    try {
+      await fetch(`${this.baseUrl}/auth/csrf-token/`, {
+        credentials: 'include',
+      });
+    } catch (error) {
+      console.error('Failed to initialize CSRF token:', error);
+    }
+  }
+
   private handleErrorResponse(response: Response, errorData: Record<string, unknown>): never {
     // Forbidden (403)
     if (response.status === 403) {
@@ -53,6 +78,16 @@ class AuthApiClient {
       ...options.headers as Record<string, string>,
     };
 
+    // Add CSRF token for state-changing requests
+    // Backend sets csrftoken cookie via Django middleware
+    if (options.method && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(options.method)) {
+      const csrfToken = this.getCookie('csrftoken');
+      console.log('CSRF Token:', csrfToken);
+      if (csrfToken) {
+        headers['X-CSRFToken'] = csrfToken;
+      }
+    }
+
     let response = await fetch(url, {
       ...options,
       headers,
@@ -80,6 +115,7 @@ class AuthApiClient {
     return response.json();
   }
 
+
   private async refreshAccessToken(): Promise<boolean> {
     try {
       const response = await fetch(`${this.baseUrl}/auth/token/refresh/`, {
@@ -87,18 +123,23 @@ class AuthApiClient {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include', // Send cookies
+        credentials: 'include',
       });
 
       if (response.ok) {
-        // New access token cookie is automatically set by backend
         return true;
       }
 
-      // Refresh failed (expired or invalid)
+      // Refresh failed - redirect to login (unless already there)
+      if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
+        window.location.href = '/login';
+      }
       return false;
     } catch (error) {
       console.error('Token refresh failed:', error);
+      if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
+        window.location.href = '/login';
+      }
       return false;
     }
   }

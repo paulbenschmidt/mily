@@ -5,10 +5,10 @@ from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from django.middleware.csrf import get_token
 from django.utils import timezone
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.views.decorators.csrf import csrf_exempt
 import resend
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, throttle_classes
@@ -21,10 +21,46 @@ from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from .serializers import UserPrivateSerializer
 from .throttling import AuthRateThrottle
 
+from config.settings import (
+    DEFAULT_FROM_EMAIL,
+    SESSION_COOKIE_HTTPONLY,
+    SESSION_COOKIE_SAMESITE,
+    SESSION_COOKIE_SECURE,
+)
+
+ACCESS_TOKEN_EXPIRE = 60 * 60
+REFRESH_TOKEN_EXPIRE = 7 * 24 * 60 * 60
 
 User = get_user_model()
 
-@csrf_exempt
+# Helper functions
+
+def set_access_token_cookie(response: Response, access_token: str) -> Response:
+    response.set_cookie(
+        key='access_token',
+        value=access_token,
+        max_age=ACCESS_TOKEN_EXPIRE,
+        httponly=SESSION_COOKIE_HTTPONLY,
+        secure=SESSION_COOKIE_SECURE,
+        samesite=SESSION_COOKIE_SAMESITE,
+        path='/',
+    )
+    return response
+
+
+def set_refresh_token_cookie(response: Response, refresh_token: str) -> Response:
+    response.set_cookie(
+        key='refresh_token',
+        value=refresh_token,
+        max_age=REFRESH_TOKEN_EXPIRE,
+        httponly=SESSION_COOKIE_HTTPONLY,
+        secure=SESSION_COOKIE_SECURE,
+        samesite=SESSION_COOKIE_SAMESITE,
+        path='/',
+    )
+    return response
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 @throttle_classes([AuthRateThrottle])
@@ -91,7 +127,6 @@ def register_view(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
 @throttle_classes([AuthRateThrottle])
@@ -132,26 +167,9 @@ def login_view(request):
                 'user': serializer.data,
             })
 
-            # Set httpOnly cookies for tokens (secure in production with HTTPS)
-            is_production = settings.DEBUG is False
-            response.set_cookie(
-                key='access_token',
-                value=access_token,
-                max_age=60 * 60,  # 1 hour
-                httponly=True,
-                secure=is_production,  # True in production (HTTPS only)
-                samesite='Lax',
-                path='/',
-            )
-            response.set_cookie(
-                key='refresh_token',
-                value=refresh_token,
-                max_age=7 * 24 * 60 * 60,  # 7 days
-                httponly=True,
-                secure=is_production,
-                samesite='Lax',
-                path='/',
-            )
+            # Set httpOnly cookies for tokens
+            set_access_token_cookie(response, access_token)
+            set_refresh_token_cookie(response, refresh_token)
 
             return response
         else:
@@ -164,7 +182,6 @@ def login_view(request):
         }, status=status.HTTP_401_UNAUTHORIZED)
 
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @throttle_classes([AuthRateThrottle])
@@ -181,7 +198,6 @@ def logout_view(request):
     return response
 
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
 @throttle_classes([AuthRateThrottle])
@@ -223,7 +239,7 @@ def password_reset_request_view(request):
         send_mail(
             subject,
             message,
-            settings.DEFAULT_FROM_EMAIL,
+            DEFAULT_FROM_EMAIL,
             [user.email],
             fail_silently=False,
         )
@@ -239,7 +255,6 @@ def password_reset_request_view(request):
         })
 
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
 @throttle_classes([AuthRateThrottle])
@@ -284,7 +299,6 @@ def password_reset_confirm_view(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
 @throttle_classes([AuthRateThrottle])
@@ -327,25 +341,8 @@ def verify_email_view(request):
         })
 
         # Set httpOnly cookies for tokens
-        is_production = settings.DEBUG is False
-        response.set_cookie(
-            key='access_token',
-            value=access_token,
-            max_age=60 * 60,  # 1 hour
-            httponly=True,
-            secure=is_production,
-            samesite='Lax',
-            path='/',
-        )
-        response.set_cookie(
-            key='refresh_token',
-            value=refresh_token,
-            max_age=7 * 24 * 60 * 60,  # 7 days
-            httponly=True,
-            secure=is_production,
-            samesite='Lax',
-            path='/',
-        )
+        set_access_token_cookie(response, access_token)
+        set_refresh_token_cookie(response, refresh_token)
 
         return response
 
@@ -355,7 +352,6 @@ def verify_email_view(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
 @throttle_classes([AuthRateThrottle])
@@ -390,6 +386,18 @@ def resend_verification_email_view(request):
         return Response({
             'message': 'If an account with that email exists, a verification email has been sent'
         })
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_csrf_token_view(request):
+    """
+    Get CSRF token for client-side requests.
+    This endpoint explicitly sets the csrftoken cookie via get_token().
+    Call this on app initialization to ensure CSRF token is available.
+    """
+    get_token(request)
+    return Response({'message': 'CSRF token initialized'})
 
 
 # TODO: Implement session refresh
@@ -477,7 +485,6 @@ class CookieTokenRefreshView(TokenRefreshView):
             )
 
         # Add refresh token to request data for parent class to process
-        request.data._mutable = True if hasattr(request.data, '_mutable') else None
         request.data['refresh'] = refresh_token
 
         try:
@@ -492,16 +499,7 @@ class CookieTokenRefreshView(TokenRefreshView):
                 new_response = Response({'message': 'Token refreshed successfully'})
 
                 # Set new access token in httpOnly cookie
-                is_production = settings.DEBUG is False
-                new_response.set_cookie(
-                    key='access_token',
-                    value=access_token,
-                    max_age=60 * 60,  # 1 hour
-                    httponly=True,
-                    secure=is_production,
-                    samesite='Lax',
-                    path='/',
-                )
+                set_access_token_cookie(new_response, access_token)
 
                 return new_response
 

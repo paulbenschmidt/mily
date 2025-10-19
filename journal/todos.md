@@ -1,8 +1,7 @@
-- Update journal with JWT learnings
-
 ## Now
 - [ ] JWT tokens using djangorestframework-simplejwt
     - [ ] Fix app to not just crash if the token is invalid (maybe I should just transition to JWTs)
+- Update journal with JWT learnings
 
 ## Upcoming
 - [ ] Look into serving photos through Railway buckets?
