@@ -32,7 +32,6 @@ load_dotenv(dotenv_path=env_path, override=False)
 
 # TODO: Create separate secret key for each environment?
 SECRET_KEY = os.getenv('SECRET_KEY')
-ENVIRONMENT = os.getenv('ENVIRONMENT', 'local')
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
@@ -232,15 +231,16 @@ CORS_ALLOW_CREDENTIALS = True  # Allow cookies for admin panel
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_NAME = 'sessionid'
 SESSION_COOKIE_AGE = 86400  # 24 hours
-SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
+SESSION_COOKIE_DOMAIN = os.getenv('COOKIE_DOMAIN')
+SESSION_COOKIE_SECURE = os.getenv('COOKIE_SECURE', 'False').lower() == 'true'
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 
 # CSRF configuration
 CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
-CSRF_COOKIE_HTTPONLY = False
-CSRF_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
-CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_HTTPONLY = False  # Must be False so frontend can read it
+CSRF_COOKIE_SECURE = os.getenv('COOKIE_SECURE', 'False').lower() == 'true'  # True in production (HTTPS only)
+CSRF_COOKIE_SAMESITE = 'Lax'  # Prevents CSRF attacks
 
 # Logging configuration
 LOGGING = {

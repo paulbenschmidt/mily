@@ -23,6 +23,7 @@ from .throttling import AuthRateThrottle
 
 from config.settings import (
     DEFAULT_FROM_EMAIL,
+    SESSION_COOKIE_DOMAIN,
     SESSION_COOKIE_HTTPONLY,
     SESSION_COOKIE_SAMESITE,
     SESSION_COOKIE_SECURE,
@@ -40,6 +41,7 @@ def set_access_token_cookie(response: Response, access_token: str) -> Response:
         key='access_token',
         value=access_token,
         max_age=ACCESS_TOKEN_EXPIRE,
+        domain=SESSION_COOKIE_DOMAIN,
         httponly=SESSION_COOKIE_HTTPONLY,
         secure=SESSION_COOKIE_SECURE,
         samesite=SESSION_COOKIE_SAMESITE,
@@ -53,6 +55,7 @@ def set_refresh_token_cookie(response: Response, refresh_token: str) -> Response
         key='refresh_token',
         value=refresh_token,
         max_age=REFRESH_TOKEN_EXPIRE,
+        domain=SESSION_COOKIE_DOMAIN,
         httponly=SESSION_COOKIE_HTTPONLY,
         secure=SESSION_COOKIE_SECURE,
         samesite=SESSION_COOKIE_SAMESITE,

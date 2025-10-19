@@ -32,8 +32,8 @@ CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,http://localhos
 JWT_SIGNING_KEY=
 
 # Cookie Settings
-SESSION_COOKIE_SECURE=False  # Set to True in production (HTTPS only)
-SESSION_COOKIE_DOMAIN=.localhost # Set to .mily.bio for production
+COOKIE_SECURE=False  # Set to True in production (HTTPS only)
+COOKIE_DOMAIN=.localhost # Set to .mily.bio for production
 
 # Email Service (Resend)
 EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend  # Use console for local dev
