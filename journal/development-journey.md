@@ -1,5 +1,7 @@
 # Development Journey
 
+- 2025-10-20:
+    - It took a while, but I'm finally done with JWT authentication. Pretty challenging to keep the mental map of the authentication flow between frontend and backend straight, but I think I'm getting there. My mind is strengthening the neural pathways for this.
 - 2025-10-18:
     - I spent the day mapping out environment segregation. I decided to just stick with local, staging, and production environments. The general workflow will be to develop locally on the self-hosted backend/frontend servers, push to the `staging` branch in GitHub to preview the changes at `staging.mily.bio`, and then merge the branch into `main` to deploy the changes at `mily.bio`. For simplicity, I'm only going to have two databases: one for staging and one for production (with the exception of the ephemeral one for local testing).
 - 2025-10-11:

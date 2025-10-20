@@ -87,10 +87,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      // Logout will clear tokens automatically
-      await authApiClient.logout();
+      await authApiClient.logout(); // Logout will clear tokens on backend
     } catch (error) {
-      // Logout will clear tokens on frontend (backend does not preserve session state)
       console.error('AuthContext: Logout error:', error);
     } finally {
       setUser(null);

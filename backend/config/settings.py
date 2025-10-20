@@ -239,7 +239,7 @@ SESSION_COOKIE_SAMESITE = 'Lax'
 # CSRF configuration
 CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
 CSRF_COOKIE_HTTPONLY = False  # Must be False so frontend can read it
-CSRF_COOKIE_SECURE = os.getenv('COOKIE_SECURE', 'False').lower() == 'true'  # True in production (HTTPS only)
+CSRF_COOKIE_SECURE = os.getenv('COOKIE_SECURE', 'False').lower() == 'true'
 CSRF_COOKIE_SAMESITE = 'Lax'  # Prevents CSRF attacks
 
 # Logging configuration

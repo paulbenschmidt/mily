@@ -494,16 +494,14 @@ class CookieTokenRefreshView(TokenRefreshView):
             # Call parent class to validate and generate new access token
             response = super().post(request, *args, **kwargs)
 
-            # Extract new access token from response
+            # Extract new access token from response and create new response to return with new access token
             if response.status_code == 200 and 'access' in response.data:
                 access_token = response.data['access']
-
-                # Create new response without token in body
-                new_response = Response({'message': 'Token refreshed successfully'})
-
-                # Set new access token in httpOnly cookie
+                new_response = Response(
+                    {'message': 'Token refreshed successfully'},
+                    status=status.HTTP_200_OK
+                )
                 set_access_token_cookie(new_response, access_token)
-
                 return new_response
 
             return response

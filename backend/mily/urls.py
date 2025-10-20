@@ -31,13 +31,13 @@ urlpatterns = [
 
     # Authentication endpoints
     path("auth/csrf-token/", get_csrf_token_view, name="csrf_token"),
-    path("auth/register/", register_view, name="auth_register"),
     path("auth/login/", login_view, name="auth_login"),
     path("auth/logout/", logout_view, name="auth_logout"),
-    path("auth/verify-email/", verify_email_view, name="verify_email"),
-    path("auth/resend-verification/", resend_verification_email_view, name="resend_verification"),
-    path("auth/password-reset-request/", password_reset_request_view, name="password_reset_request"),
     path("auth/password-reset-confirm/", password_reset_confirm_view, name="password_reset_confirm"),
+    path("auth/password-reset-request/", password_reset_request_view, name="password_reset_request"),
+    path("auth/register/", register_view, name="auth_register"),
+    path("auth/resend-verification/", resend_verification_email_view, name="resend_verification"),
     path("auth/token/refresh/",
         CookieTokenRefreshView.as_view(throttle_classes=[TokenRefreshRateThrottle]), name="token_refresh"),
+    path("auth/verify-email/", verify_email_view, name="verify_email"),
 ]

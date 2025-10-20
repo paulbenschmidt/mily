@@ -87,9 +87,42 @@ backend/
 
 ## Authentication
 
-This project contains both JWT and session-based authentication. The JWT authentication is used for when the front-end makes requests to the API, while the session-based authentication is used for the admin interface (since Django was designed to be used with sessions).
+This project uses JWT-based authentication with httpOnly cookies for API requests and session-based authentication for the Django admin interface. JWTs are used for API requests because they are mobile-ready and stateless (don't require a server-side session); additionally, the web client uses httpOnly cookies for authentication for extra security.
 
-JWTs were chosen over sessions primarily to support mobile authentication and have the same authentication used for the web app.
+### Authentication Flow
+
+**Initial Setup (App Load):**
+1. Frontend calls `/auth/csrf-token/` to initialize CSRF protection
+2. Backend sets `csrftoken` cookie (httpOnly=False, so JavaScript can read it)
+
+**Login:**
+1. User submits credentials to `/auth/login/`
+2. Backend validates credentials and generates JWT tokens
+3. Backend sets httpOnly cookies: `access_token` and `refresh_token`
+4. Frontend stores user data in React context
+
+**Authenticated Requests:**
+1. Browser automatically includes `access_token` cookie with every request
+2. Frontend manually adds `X-CSRFToken` header for POST/PUT/PATCH/DELETE requests
+3. Backend's custom `CookieJWTAuthentication` class in `mily/authentication.py` reads JWT from cookie (for web clients) or Authorization header (for mobile clients)
+4. Backend's `CsrfViewMiddleware` validates CSRF token
+
+**Token Refresh:**
+1. When `access_token` expires (401 response), frontend automatically calls `/auth/token/refresh/`
+2. Backend validates `refresh_token` cookie and issues new `access_token`
+3. Request is retried with new token
+
+**Logout:**
+1. Frontend calls `/auth/logout/`
+2. Backend clears authentication cookies
+3. Frontend redirects to login
+
+### Security Features
+- **httpOnly cookies**: JWT tokens inaccessible to JavaScript (XSS protection)
+- **CSRF protection**: All state-changing requests require valid CSRF token
+- **Secure cookies**: In production, cookies only sent over HTTPS
+- **SameSite=Lax**: Additional CSRF protection
+- **Dual authentication support**: Cookie-based (web) or Authorization header (mobile)
 
 ## Database
 See [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md) for detailed model specifications and relationships.

@@ -82,7 +82,6 @@ class AuthApiClient {
     // Backend sets csrftoken cookie via Django middleware
     if (options.method && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(options.method)) {
       const csrfToken = this.getCookie('csrftoken');
-      console.log('CSRF Token:', csrfToken);
       if (csrfToken) {
         headers['X-CSRFToken'] = csrfToken;
       }

@@ -1,7 +1,7 @@
 ## Now
-- [ ] JWT tokens using djangorestframework-simplejwt
-    - [ ] Fix app to not just crash if the token is invalid (maybe I should just transition to JWTs)
-- Update journal with JWT learnings
+- [ ] Test what happens if access tokens expire
+- [ ] Test what happens if refresh tokens expire
+- [ ] Figure out if there is a more accurate way to update `last_login` when a user logs in
 
 ## Upcoming
 - [ ] Look into serving photos through Railway buckets?
