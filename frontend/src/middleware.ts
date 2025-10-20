@@ -4,10 +4,10 @@ import type { NextRequest } from 'next/server';
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Check if user is authenticated by looking for session cookie
-  const sessionCookie = request.cookies.get('sessionid');
-  // Actual cookie authenticated as part of ProtectedRoute component
-  const isAuthenticated = !!sessionCookie?.value;
+  // Check if user is authenticated by looking for JWT access token in cookies
+  const accessToken = request.cookies.get('access_token');
+  // Actual token validation happens in ProtectedRoute component
+  const isAuthenticated = !!accessToken?.value;
 
   // Redirect authenticated users away from auth pages
   if (isAuthenticated && (pathname === '/login' || pathname === '/signup')) {

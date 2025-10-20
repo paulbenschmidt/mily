@@ -11,12 +11,13 @@ from .auth_views import (
     logout_view,
     password_reset_request_view,
     password_reset_confirm_view,
-    auth_status_view,
-    csrf_token_view,
     verify_email_view,
     resend_verification_email_view,
+    get_csrf_token_view,
+    CookieTokenRefreshView,
 )
 from .helper_views import health_check
+from .throttling import TokenRefreshRateThrottle
 
 router = DefaultRouter()
 router.register(r"users", UserViewSet, basename="user")
@@ -29,13 +30,14 @@ urlpatterns = [
     path("health/", health_check, name="health_check"),
 
     # Authentication endpoints
-    path("auth/register/", register_view, name="auth_register"),
+    path("auth/csrf-token/", get_csrf_token_view, name="csrf_token"),
     path("auth/login/", login_view, name="auth_login"),
     path("auth/logout/", logout_view, name="auth_logout"),
-    path("auth/verify-email/", verify_email_view, name="verify_email"),
-    path("auth/resend-verification/", resend_verification_email_view, name="resend_verification"),
-    path("auth/password-reset-request/", password_reset_request_view, name="password_reset_request"),
     path("auth/password-reset-confirm/", password_reset_confirm_view, name="password_reset_confirm"),
-    path("auth/status/", auth_status_view, name="auth_status"),
-    path("auth/csrf-token/", csrf_token_view, name="csrf_token"),
+    path("auth/password-reset-request/", password_reset_request_view, name="password_reset_request"),
+    path("auth/register/", register_view, name="auth_register"),
+    path("auth/resend-verification/", resend_verification_email_view, name="resend_verification"),
+    path("auth/token/refresh/",
+        CookieTokenRefreshView.as_view(throttle_classes=[TokenRefreshRateThrottle]), name="token_refresh"),
+    path("auth/verify-email/", verify_email_view, name="verify_email"),
 ]

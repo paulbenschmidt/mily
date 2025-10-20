@@ -1,36 +1,72 @@
 import os
-import logging
 import secrets
 
 from django.conf import settings
-from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from django.middleware.csrf import get_token
 from django.utils import timezone
-from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 import resend
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
 from .serializers import UserPrivateSerializer
+from .throttling import AuthRateThrottle
 
 from config.settings import (
-    SESSION_COOKIE_AGE,
+    DEFAULT_FROM_EMAIL,
+    SESSION_COOKIE_DOMAIN,
     SESSION_COOKIE_HTTPONLY,
     SESSION_COOKIE_SAMESITE,
     SESSION_COOKIE_SECURE,
 )
 
+ACCESS_TOKEN_EXPIRE = 60 * 60
+REFRESH_TOKEN_EXPIRE = 7 * 24 * 60 * 60
 
 User = get_user_model()
 
-@ensure_csrf_cookie
+# Helper functions
+
+def set_access_token_cookie(response: Response, access_token: str) -> Response:
+    response.set_cookie(
+        key='access_token',
+        value=access_token,
+        max_age=ACCESS_TOKEN_EXPIRE,
+        domain=SESSION_COOKIE_DOMAIN,
+        httponly=SESSION_COOKIE_HTTPONLY,
+        secure=SESSION_COOKIE_SECURE,
+        samesite=SESSION_COOKIE_SAMESITE,
+        path='/',
+    )
+    return response
+
+
+def set_refresh_token_cookie(response: Response, refresh_token: str) -> Response:
+    response.set_cookie(
+        key='refresh_token',
+        value=refresh_token,
+        max_age=REFRESH_TOKEN_EXPIRE,
+        domain=SESSION_COOKIE_DOMAIN,
+        httponly=SESSION_COOKIE_HTTPONLY,
+        secure=SESSION_COOKIE_SECURE,
+        samesite=SESSION_COOKIE_SAMESITE,
+        path='/',
+    )
+    return response
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([AuthRateThrottle])
 def register_view(request):
     """Create a new user account."""
     # TODO: Account for instances where user is already signed in? Basically, there is a weird behavior if I'm already
@@ -94,11 +130,11 @@ def register_view(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
 
-@ensure_csrf_cookie
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([AuthRateThrottle])
 def login_view(request):
-    """Authenticate user and create session."""
+    """Authenticate user and return JWT tokens."""
     email = request.data.get('email', '').strip().lower()
     password = request.data.get('password', '')
 
@@ -119,26 +155,24 @@ def login_view(request):
             }, status=status.HTTP_401_UNAUTHORIZED)
 
         if user.is_active:
-            login(request, user) # Critical for cookies to be set as part of the session data
+            # Update last login timestamp
+            user.last_login = timezone.now()
+            user.save(update_fields=['last_login'])
 
-            # Force session save to ensure session key is created
-            request.session.save()
+            # Generate JWT tokens
+            refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+            refresh_token = str(refresh)
 
             serializer = UserPrivateSerializer(user)
             response = Response({
                 'message': 'Login successful',
-                'user': serializer.data
+                'user': serializer.data,
             })
 
-            # Manually set the session cookie
-            response.set_cookie(
-                'sessionid',
-                request.session.session_key,
-                max_age=SESSION_COOKIE_AGE,  # 24 hours
-                httponly=SESSION_COOKIE_HTTPONLY,  # Allow JS access for debugging
-                secure=SESSION_COOKIE_SECURE,    # HTTP for localhost
-                samesite=SESSION_COOKIE_SAMESITE
-            )
+            # Set httpOnly cookies for tokens
+            set_access_token_cookie(response, access_token)
+            set_refresh_token_cookie(response, refresh_token)
 
             return response
         else:
@@ -151,31 +185,25 @@ def login_view(request):
         }, status=status.HTTP_401_UNAUTHORIZED)
 
 
-@ensure_csrf_cookie
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
+@throttle_classes([AuthRateThrottle])
 def logout_view(request):
-    """Logout user and destroy session."""
-    try:
-        logout(request)
+    """Logout user by clearing httpOnly cookies."""
+    response = Response({
+        'message': 'Logout successful'
+    })
 
-        # Ensure session is completely destroyed
-        if hasattr(request, 'session'):
-            request.session.flush()  # More thorough than just logout()
+    # Clear httpOnly cookies
+    response.delete_cookie('access_token', path='/', samesite='Lax')
+    response.delete_cookie('refresh_token', path='/', samesite='Lax')
 
-        return Response({
-            'message': 'Logout successful'
-        })
-    except Exception as e:
-        logging.error(f"Logout failed: {str(e)}")
-        return Response({
-            'error': 'Logout failed on server'
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return response
 
 
-@ensure_csrf_cookie
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([AuthRateThrottle])
 def password_reset_request_view(request):
     """Request password reset email."""
     email = request.data.get('email', '').strip().lower()
@@ -214,7 +242,7 @@ def password_reset_request_view(request):
         send_mail(
             subject,
             message,
-            settings.DEFAULT_FROM_EMAIL,
+            DEFAULT_FROM_EMAIL,
             [user.email],
             fail_silently=False,
         )
@@ -230,9 +258,9 @@ def password_reset_request_view(request):
         })
 
 
-@ensure_csrf_cookie
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([AuthRateThrottle])
 def password_reset_confirm_view(request):
     """Confirm password reset with token."""
     uid = request.data.get('uid')
@@ -274,64 +302,11 @@ def password_reset_confirm_view(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
 
-@ensure_csrf_cookie
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def auth_status_view(request):
-    """Check if user is authenticated."""
-
-    # # Comprehensive debug logging (9/18/2025: helpful for diagnosing the cookie issue)
-    # print("=" * 50)
-    # print("AUTH STATUS CHECK - DETAILED LOGGING")
-    # print(f"Request method: {request.method}")
-    # print(f"Request path: {request.path}")
-    # print(f"Request headers: {dict(request.headers)}")
-    # print(f"Request cookies: {request.COOKIES}")
-    # print(f"Session key: {request.session.session_key}")
-    # print(f"Session data: {dict(request.session)}")
-    # print(f"User: {request.user}")
-    # print(f"User type: {type(request.user)}")
-    # print(f"Is authenticated: {request.user.is_authenticated}")
-    # print(f"Is anonymous: {request.user.is_anonymous}")
-    # if hasattr(request.user, 'id'):
-    #     print(f"User ID: {request.user.id}")
-    # print("=" * 50)
-
-    if request.user.is_authenticated:
-        serializer = UserPrivateSerializer(request.user)
-        response = Response({
-            'authenticated': True,
-            'user': serializer.data
-        })
-        logging.info("User authenticated successfully")
-        return response
-    else:
-        logging.info("User not authenticated")
-        return Response({
-            'authenticated': False
-        })
-
-
-@ensure_csrf_cookie
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def csrf_token_view(request):
-    """
-    Using the @ensure_csrf_cookie decorator, this view forces Django to set the CSRF cookie in
-    the response. This can be useful prior to making a POST request to ensure the user is
-    authenticated or that the request isn't being made by a malicious user who initiates the
-    request from an untrusted source.
-    """
-    return Response({
-        'message': 'CSRF token set in cookie'
-    })
-
-
-@ensure_csrf_cookie
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([AuthRateThrottle])
 def verify_email_view(request):
-    """Verify user's email with token."""
+    """Verify user's email with token and return JWT tokens."""
     token = request.data.get('token')
 
     if not token:
@@ -351,29 +326,26 @@ def verify_email_view(request):
                     'error': 'Verification link has expired. Please request a new one.'
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-        # Verify email
+        # Verify email and update last login
         user.is_email_verified = True
         user.email_verification_token = None  # Clear token after use
+        user.last_login = timezone.now()
         user.save()
 
-        # Log the user in
-        login(request, user)
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+        refresh_token = str(refresh)
 
         serializer = UserPrivateSerializer(user)
         response = Response({
             'message': 'Email verified successfully',
-            'user': serializer.data
+            'user': serializer.data,
         })
 
-        # Set session cookie
-        response.set_cookie(
-            'sessionid',
-            request.session.session_key,
-            max_age=SESSION_COOKIE_AGE,
-            httponly=SESSION_COOKIE_HTTPONLY,
-            secure=SESSION_COOKIE_SECURE,
-            samesite=SESSION_COOKIE_SAMESITE
-        )
+        # Set httpOnly cookies for tokens
+        set_access_token_cookie(response, access_token)
+        set_refresh_token_cookie(response, refresh_token)
 
         return response
 
@@ -383,9 +355,9 @@ def verify_email_view(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
 
-@ensure_csrf_cookie
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([AuthRateThrottle])
 def resend_verification_email_view(request):
     """Resend verification email to user."""
     email = request.data.get('email', '').strip().lower()
@@ -417,6 +389,18 @@ def resend_verification_email_view(request):
         return Response({
             'message': 'If an account with that email exists, a verification email has been sent'
         })
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_csrf_token_view(request):
+    """
+    Get CSRF token for client-side requests.
+    This endpoint explicitly sets the csrftoken cookie via get_token().
+    Call this on app initialization to ensure CSRF token is available.
+    """
+    get_token(request)
+    return Response({'message': 'CSRF token initialized'})
 
 
 # TODO: Implement session refresh
@@ -484,3 +468,46 @@ The Mily Team
             [user.email],
             fail_silently=False,
         )
+
+
+# Custom Token Refresh View for httpOnly Cookies
+
+class CookieTokenRefreshView(TokenRefreshView):
+    """
+    Custom token refresh view that reads refresh token from httpOnly cookie
+    and sets new access token in httpOnly cookie.
+    """
+    def post(self, request, *args, **kwargs):
+        # Get refresh token from cookie instead of request body
+        refresh_token = request.COOKIES.get('refresh_token')
+
+        if not refresh_token:
+            return Response(
+                {'error': 'Refresh token not found'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        # Add refresh token to request data for parent class to process
+        request.data['refresh'] = refresh_token
+
+        try:
+            # Call parent class to validate and generate new access token
+            response = super().post(request, *args, **kwargs)
+
+            # Extract new access token from response and create new response to return with new access token
+            if response.status_code == 200 and 'access' in response.data:
+                access_token = response.data['access']
+                new_response = Response(
+                    {'message': 'Token refreshed successfully'},
+                    status=status.HTTP_200_OK
+                )
+                set_access_token_cookie(new_response, access_token)
+                return new_response
+
+            return response
+
+        except (InvalidToken, TokenError) as e:
+            return Response(
+                {'error': 'Invalid or expired refresh token'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )

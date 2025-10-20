@@ -37,7 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const checkAuth = async () => {
     try {
-      // Always check with the backend - session cookie is HttpOnly so JS can't see it
+      // Check authentication with JWT token
       const authStatus = await authApiClient.getAuthStatus();
 
       if (authStatus.authenticated && authStatus.user) {
@@ -47,6 +47,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (error) {
       setUser(null);
+
+      // Redirect to login if on protected route
+      if (typeof window !== 'undefined' && window.location.pathname.startsWith('/app')) {
+        router.push('/login');
+      }
     } finally {
       setLoading(false);
     }
@@ -82,23 +87,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      // Ensure we have a CSRF token before making the POST request
-      await authApiClient.getCSRFTokenFromServer();
-      await authApiClient.logout();
+      await authApiClient.logout(); // Logout will clear tokens on backend
     } catch (error) {
-      // Even if logout fails on server, clear local state
       console.error('AuthContext: Logout error:', error);
     } finally {
-      // Clear the session and CSRF cookies on client side
-      document.cookie = 'sessionid=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax';
-      document.cookie = 'csrftoken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax';
       setUser(null);
       router.push('/login');
     }
   };
 
   useEffect(() => {
-    checkAuth();
+    const initialize = async () => {
+
+      // Always initialize CSRF token
+      await authApiClient.initializeCsrf();
+
+      if (typeof window !== 'undefined' && window.location.pathname.startsWith('/app')) {
+        await checkAuth();
+      } else {
+        setLoading(false);
+      }
+    };
+    initialize();
   }, []);
 
   const value: AuthContextType = {

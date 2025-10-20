@@ -1,12 +1,7 @@
-
-The application is now deployed to Vercel! I'd like to begin the next step of the process: email verification. This should send an email to the user's email address asking for verification. Once they verify, the user should be directed to the main /app/  screen.
-
-Some additional notes:
-- I will
-
 ## Now
-- [ ] JWT tokens using djangorestframework-simplejwt
-    - [ ] Fix app to not just crash if the token is invalid (maybe I should just transition to JWTs)
+- [ ] Test what happens if access tokens expire
+- [ ] Test what happens if refresh tokens expire
+- [ ] Figure out if there is a more accurate way to update `last_login` when a user logs in
 
 ## Upcoming
 - [ ] Look into serving photos through Railway buckets?
@@ -50,3 +45,5 @@ Some additional notes:
 - [ ] Allow user blocking as first action (currently a post request to friendship is required as the primary action)
 - [ ] Implement Data Encryption at Rest to protect database in case of breach
 - [ ] Set up MCP for Context7
+- [ ] Refactor views to be class-based so that every POST request doesn't need the csrf_exempt decorator
+- [ ] Implement token blacklisting for JWTs (so that getting a new refresh token invalidates the old one)

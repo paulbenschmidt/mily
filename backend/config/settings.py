@@ -15,6 +15,7 @@ from pathlib import Path
 import sys
 
 from dotenv import load_dotenv
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -44,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt',
     'corsheaders',
     'mily.apps.MilyConfig', # importing Mily app config to enable signals for user creation
 ]
@@ -168,13 +170,49 @@ AUTH_USER_MODEL = 'mily.User'
 # Django REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
+        'mily.authentication.CookieJWTAuthentication',  # Custom JWT auth from cookies
+        'rest_framework.authentication.SessionAuthentication',  # For Admin only
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/hour',  # Anonymous users
+        'user': '1000/hour',  # Authenticated users
+        'auth': '10/hour',  # Auth endpoints (login, signup, password reset)
+        'token_refresh': '20/hour',  # Token refresh
+        'event_create': '100/hour',  # Creating new events
+        'event_modify': '200/hour',  # Updating/deleting events
+        'user_read': '500/hour',  # Reading user profiles
+    },
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20
+}
+
+# Simple JWT settings
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Access token expires in 1 hour
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),  # Refresh token expires in 7 days
+    'ROTATE_REFRESH_TOKENS': True,  # Generate new refresh token on refresh (throttled to 20/hour)
+    'BLACKLIST_AFTER_ROTATION': False,  # Don't blacklist old tokens (requires simplejwt blacklist app)
+
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': os.getenv('JWT_SIGNING_KEY'),
+    'VERIFYING_KEY': None,
+    'AUDIENCE': None,
+    'ISSUER': None,
+
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
 }
 
 # Email settings for password reset and verification
@@ -187,26 +225,22 @@ FRONTEND_URL = os.getenv('FRONTEND_URL')
 
 # CORS settings for frontend integration
 CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '').split(',')
+CORS_ALLOW_CREDENTIALS = True  # Allow cookies for admin panel
 
-# Session configuration
-SESSION_ENGINE = 'django.contrib.sessions.backends.db' # Slower but more reliable/simpler
-# SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'  # POTENTIAL TODO: Best performance
+# Session configuration (only needed for admin panel)
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_NAME = 'sessionid'
-SESSION_COOKIE_AGE = 86400  # 24 hours # TODO: Change to something longer?
-SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE').lower() == 'true'
-# TODO: Figure out optimal settings
-# I commented out the below because it was causing eternal redirects when accessing the admin console via Railway
-# SESSION_COOKIE_DOMAIN = os.getenv('SESSION_COOKIE_DOMAIN') # testing
+SESSION_COOKIE_AGE = 86400  # 24 hours
+SESSION_COOKIE_DOMAIN = os.getenv('COOKIE_DOMAIN')
+SESSION_COOKIE_SECURE = os.getenv('COOKIE_SECURE', 'False').lower() == 'true'
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
-SESSION_SAVE_EVERY_REQUEST = False # Only save when modified
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Persist sessions
 
 # CSRF configuration
 CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
-CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to read CSRF token
-CSRF_COOKIE_SECURE = True
-CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_HTTPONLY = False  # Must be False so frontend can read it
+CSRF_COOKIE_SECURE = os.getenv('COOKIE_SECURE', 'False').lower() == 'true'
+CSRF_COOKIE_SAMESITE = 'Lax'  # Prevents CSRF attacks
 
 # Logging configuration
 LOGGING = {
