@@ -2,6 +2,9 @@
 - [ ] Test what happens if access tokens expire
 - [ ] Test what happens if refresh tokens expire
 - [ ] Figure out if there is a more accurate way to update `last_login` when a user logs in
+- [ ] Figure out how to handle the white screen when authentication fails
+- [ ] Something funky is going on when trying to delete an event
+- [ ] Pushing the logout button doesn't clear the actual cookies
 
 ## Upcoming
 - [ ] Look into serving photos through Railway buckets?
