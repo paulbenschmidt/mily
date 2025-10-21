@@ -25,7 +25,7 @@ export default function AppLayout({
               href="/app"
               className="font-serif text-2xl font-medium text-secondary-900 cursor-pointer hover:text-secondary-900 no-underline"
             >
-              Mily
+              Silly
             </Link>
             <div className="flex items-center gap-2">
               <Button
