@@ -201,22 +201,19 @@ def logout_view(request):
         'message': 'Logout successful'
     })
 
-    # Clear httpOnly cookies - must match all parameters used when setting cookies
+    # Clear httpOnly cookies - only need to match: key, path, domain, samesite
+    # Note: secure and httponly are NOT parameters for delete_cookie()
     response.delete_cookie(
         'access_token',
         path='/',
         domain=SESSION_COOKIE_DOMAIN,
         samesite=SESSION_COOKIE_SAMESITE,
-        secure=SESSION_COOKIE_SECURE,
-        httponly=SESSION_COOKIE_HTTPONLY,
     )
     response.delete_cookie(
         'refresh_token',
         path='/',
         domain=SESSION_COOKIE_DOMAIN,
         samesite=SESSION_COOKIE_SAMESITE,
-        secure=SESSION_COOKIE_SECURE,
-        httponly=SESSION_COOKIE_HTTPONLY,
     )
 
     logger.info(f"Set-Cookie headers in response: {response.cookies}")
