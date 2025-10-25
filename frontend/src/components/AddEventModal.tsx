@@ -27,7 +27,7 @@ export function AddEventModal({
   const [description, setDescription] = useState('');
   const [eventDate, setEventDate] = useState('');
   const [category, setCategory] = useState<'major' | 'minor' | 'memory'>('major');
-  const [privacyLevel, setPrivacyLevel] = useState('private');
+  const [privacyLevel, setPrivacyLevel] = useState('friends');
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,6 +52,12 @@ export function AddEventModal({
     }
   }, [eventToEdit, isOpen]);
 
+  const onModalClose = () => {
+    resetForm();
+    setShowDeleteConfirmation(false);
+    onClose();
+  };
+
   const handleDelete = async () => {
     if (!eventToEdit) return;
 
@@ -65,7 +71,7 @@ export function AddEventModal({
       }
       setShowDeleteConfirmation(false);
       resetForm();
-      onClose();
+      onModalClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete event');
     } finally {
@@ -108,7 +114,7 @@ export function AddEventModal({
       }
 
       resetForm();
-      onClose();
+      onModalClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : `Failed to ${isEditMode ? 'update' : 'create'} event`);
     } finally {
@@ -121,7 +127,7 @@ export function AddEventModal({
     setDescription('');
     setEventDate('');
     setCategory('major');
-    setPrivacyLevel('private');
+    setPrivacyLevel('friends');
     setNotes('');
   };
 
@@ -145,7 +151,7 @@ export function AddEventModal({
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     // Only close if the backdrop itself was clicked, not its children
     if (e.target === e.currentTarget) {
-      onClose();
+      onModalClose();
     }
   };
 
@@ -154,14 +160,23 @@ export function AddEventModal({
       className="fixed inset-0 bg-secondary-500/30 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={handleBackdropClick}
     >
-      {/* Delete Confirmation Modal */}
-      {showDeleteConfirmation && (
-        <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-60"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-sm p-6 m-4">
-            <Subheading className="mb-4">Delete Event</Subheading>
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+        <div className="flex justify-between items-center border-b border-secondary-200 px-6 py-4">
+          <Subheading>{showDeleteConfirmation ? 'Delete Event' : (isEditMode ? 'Edit Event' : 'Add New Event')}</Subheading>
+          <Button
+            variant="text"
+            onClick={onModalClose}
+            className="p-0 text-secondary-400 hover:text-secondary-500"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </Button>
+        </div>
+
+        {showDeleteConfirmation ? (
+          // Show delete confirmation content
+          <div className="px-6 py-4">
             <BodyText className="mb-6">Are you sure you want to delete this event? This action cannot be undone.</BodyText>
 
             {error && (
@@ -187,23 +202,9 @@ export function AddEventModal({
               </Button>
             </div>
           </div>
-        </div>
-      )}
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
-        <div className="flex justify-between items-center border-b border-secondary-200 px-6 py-4">
-          <Subheading>{isEditMode ? 'Edit Event' : 'Add New Event'}</Subheading>
-          <Button
-            variant="text"
-            onClick={onClose}
-            className="p-0 text-secondary-400 hover:text-secondary-500"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </Button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="px-6 py-4">
+        ) : (
+          // Show normal form content
+          <form onSubmit={handleSubmit} className="px-6 py-4">
           {error && (
             <Alert variant="error" className="mb-4">
               {error}
@@ -300,7 +301,7 @@ export function AddEventModal({
             )}
             <Button
               variant="secondary"
-              onClick={onClose}
+              onClick={onModalClose}
               disabled={isSubmitting}
             >
               Cancel
@@ -313,6 +314,7 @@ export function AddEventModal({
             </Button>
           </div>
         </form>
+        )}
       </div>
     </div>
   );
