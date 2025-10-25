@@ -156,9 +156,11 @@ def login_view(request):
             }, status=status.HTTP_401_UNAUTHORIZED)
 
         if user.is_active:
-            # Update last login timestamp
-            user.last_login = timezone.now()
-            user.save(update_fields=['last_login'])
+            # Update last login and last active timestamps
+            now = timezone.now()
+            user.last_login = now
+            user.last_active = now
+            user.save(update_fields=['last_login', 'last_active'])
 
             # Generate JWT tokens
             refresh = RefreshToken.for_user(user)
@@ -338,10 +340,12 @@ def verify_email_view(request):
                     'error': 'Verification link has expired. Please request a new one.'
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-        # Verify email and update last login
+        # Verify email and update last login and last active
+        now = timezone.now()
         user.is_email_verified = True
         user.email_verification_token = None  # Clear token after use
-        user.last_login = timezone.now()
+        user.last_login = now
+        user.last_active = now
         user.save()
 
         # Generate JWT tokens
@@ -483,7 +487,7 @@ The Mily Team
 
 
 # Custom Token Refresh View for httpOnly Cookies
-
+# Uses class-based view instead of function-based view to extend TokenRefreshView
 class CookieTokenRefreshView(TokenRefreshView):
     """
     Custom token refresh view that reads refresh token from httpOnly cookie
@@ -514,6 +518,11 @@ class CookieTokenRefreshView(TokenRefreshView):
 
             # Extract new tokens from response and set them as httpOnly cookies
             if response.status_code == 200:
+                # Update user's last_active timestamp
+                if request.user and request.user.is_authenticated:
+                    request.user.last_active = timezone.now()
+                    request.user.save(update_fields=['last_active'])
+
                 new_response = Response(
                     {'message': 'Tokens refreshed successfully'},
                     status=status.HTTP_200_OK
