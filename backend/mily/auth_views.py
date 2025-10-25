@@ -190,19 +190,12 @@ def login_view(request):
 @throttle_classes([AuthRateThrottle])
 def logout_view(request):
     """Logout user by clearing httpOnly cookies."""
-    import logging
-    logger = logging.getLogger('mily')
-
-    logger.debug(f"Logout request from: {request.META.get('HTTP_ORIGIN', 'unknown')}")
-    logger.debug(f"Cookie domain setting: {SESSION_COOKIE_DOMAIN}")
-    logger.debug(f"Cookies in request: {list(request.COOKIES.keys())}")
 
     response = Response({
         'message': 'Logout successful'
     })
 
-    # Clear httpOnly cookies - only need to match: key, path, domain, samesite
-    # Note: secure and httponly are NOT parameters for delete_cookie()
+    # Clear httpOnly cookies (must match: key, path, domain, samesite)
     response.delete_cookie(
         'access_token',
         path='/',
@@ -215,8 +208,6 @@ def logout_view(request):
         domain=SESSION_COOKIE_DOMAIN,
         samesite=SESSION_COOKIE_SAMESITE,
     )
-
-    logger.info(f"Set-Cookie headers in response: {response.cookies}")
 
     return response
 
