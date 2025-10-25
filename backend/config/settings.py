@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',  # Enable token blacklisting
     'corsheaders',
     'mily.apps.MilyConfig', # importing Mily app config to enable signals for user creation
 ]
@@ -195,10 +196,10 @@ REST_FRAMEWORK = {
 
 # Simple JWT settings
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Access token expires in 1 hour
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),  # Refresh token expires in 7 days
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=90),
     'ROTATE_REFRESH_TOKENS': True,  # Generate new refresh token on refresh (throttled to 20/hour)
-    'BLACKLIST_AFTER_ROTATION': False,  # Don't blacklist old tokens (requires simplejwt blacklist app)
+    'BLACKLIST_AFTER_ROTATION': True,  # Blacklist old refresh tokens after rotation (prevents token reuse attacks)
 
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': os.getenv('JWT_SIGNING_KEY'),

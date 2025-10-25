@@ -27,10 +27,11 @@ from config.settings import (
     SESSION_COOKIE_HTTPONLY,
     SESSION_COOKIE_SAMESITE,
     SESSION_COOKIE_SECURE,
+    SIMPLE_JWT,
 )
 
-ACCESS_TOKEN_EXPIRE = 60 * 60
-REFRESH_TOKEN_EXPIRE = 7 * 24 * 60 * 60
+ACCESS_TOKEN_EXPIRE = int(SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds())
+REFRESH_TOKEN_EXPIRE = int(SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'].total_seconds())
 
 User = get_user_model()
 
@@ -155,9 +156,11 @@ def login_view(request):
             }, status=status.HTTP_401_UNAUTHORIZED)
 
         if user.is_active:
-            # Update last login timestamp
-            user.last_login = timezone.now()
-            user.save(update_fields=['last_login'])
+            # Update last login and last active timestamps
+            now = timezone.now()
+            user.last_login = now
+            user.last_active = now
+            user.save(update_fields=['last_login', 'last_active'])
 
             # Generate JWT tokens
             refresh = RefreshToken.for_user(user)
@@ -190,13 +193,24 @@ def login_view(request):
 @throttle_classes([AuthRateThrottle])
 def logout_view(request):
     """Logout user by clearing httpOnly cookies."""
+
     response = Response({
         'message': 'Logout successful'
     })
 
-    # Clear httpOnly cookies
-    response.delete_cookie('access_token', path='/', samesite='Lax')
-    response.delete_cookie('refresh_token', path='/', samesite='Lax')
+    # Clear httpOnly cookies (must match: key, path, domain, samesite)
+    response.delete_cookie(
+        'access_token',
+        path='/',
+        domain=SESSION_COOKIE_DOMAIN,
+        samesite=SESSION_COOKIE_SAMESITE,
+    )
+    response.delete_cookie(
+        'refresh_token',
+        path='/',
+        domain=SESSION_COOKIE_DOMAIN,
+        samesite=SESSION_COOKIE_SAMESITE,
+    )
 
     return response
 
@@ -326,10 +340,12 @@ def verify_email_view(request):
                     'error': 'Verification link has expired. Please request a new one.'
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-        # Verify email and update last login
+        # Verify email and update last login and last active
+        now = timezone.now()
         user.is_email_verified = True
         user.email_verification_token = None  # Clear token after use
-        user.last_login = timezone.now()
+        user.last_login = now
+        user.last_active = now
         user.save()
 
         # Generate JWT tokens
@@ -471,11 +487,16 @@ The Mily Team
 
 
 # Custom Token Refresh View for httpOnly Cookies
-
+# Uses class-based view instead of function-based view to extend TokenRefreshView
 class CookieTokenRefreshView(TokenRefreshView):
     """
     Custom token refresh view that reads refresh token from httpOnly cookie
-    and sets new access token in httpOnly cookie.
+    and sets new access token AND new refresh token in httpOnly cookies.
+
+    With ROTATE_REFRESH_TOKENS=True and BLACKLIST_AFTER_ROTATION=True:
+    - Generates new access token
+    - Generates new refresh token
+    - Blacklists the old refresh token (prevents reuse attacks)
     """
     def post(self, request, *args, **kwargs):
         # Get refresh token from cookie instead of request body
@@ -491,17 +512,30 @@ class CookieTokenRefreshView(TokenRefreshView):
         request.data['refresh'] = refresh_token
 
         try:
-            # Call parent class to validate and generate new access token
+            # Call parent class to validate and generate new tokens
+            # With ROTATE_REFRESH_TOKENS=True, this returns both 'access' and 'refresh' tokens
             response = super().post(request, *args, **kwargs)
 
-            # Extract new access token from response and create new response to return with new access token
-            if response.status_code == 200 and 'access' in response.data:
-                access_token = response.data['access']
+            # Extract new tokens from response and set them as httpOnly cookies
+            if response.status_code == 200:
+                # Update user's last_active timestamp
+                if request.user and request.user.is_authenticated:
+                    request.user.last_active = timezone.now()
+                    request.user.save(update_fields=['last_active'])
+
                 new_response = Response(
-                    {'message': 'Token refreshed successfully'},
+                    {'message': 'Tokens refreshed successfully'},
                     status=status.HTTP_200_OK
                 )
-                set_access_token_cookie(new_response, access_token)
+
+                # Set new access token cookie
+                if 'access' in response.data:
+                    set_access_token_cookie(new_response, response.data['access'])
+
+                # Set new refresh token cookie (token rotation)
+                if 'refresh' in response.data:
+                    set_refresh_token_cookie(new_response, response.data['refresh'])
+
                 return new_response
 
             return response

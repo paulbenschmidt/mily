@@ -78,8 +78,7 @@ class AuthApiClient {
       ...options.headers as Record<string, string>,
     };
 
-    // Add CSRF token for state-changing requests
-    // Backend sets csrftoken cookie via Django middleware
+    // Add CSRF token for state-changing requests (CSRF token is automatically set by backend via Django middleware)
     if (options.method && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(options.method)) {
       const csrfToken = this.getCookie('csrftoken');
       if (csrfToken) {
@@ -178,6 +177,7 @@ class AuthApiClient {
 
   async logout(): Promise<{ message: string }> {
     try {
+      // Backend is responsible for clearing cookies since they are httpOnly
       await this.request<{ message: string }>({
         endpoint: '/auth/logout/',
         options: {

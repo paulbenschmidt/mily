@@ -6,10 +6,6 @@ import { SectionHeading, Subheading, SmallText, Caption, Card, Button, BodyText 
 export default function ProfilePage() {
   const { user, logout } = useAuth();
 
-  const handleLogout = async () => {
-    await logout();
-  };
-
   if (!user) {
     return null; // ProtectedRoute should handle this
   }

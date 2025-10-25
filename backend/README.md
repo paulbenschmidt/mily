@@ -93,6 +93,7 @@ This project uses JWT-based authentication with httpOnly cookies for API request
 
 **Initial Setup (App Load):**
 1. Frontend calls `/auth/csrf-token/` to initialize CSRF protection
+    - Note: Throttling is not implemented because users may refresh the page frequently and we want to ensure they always have a valid CSRF token. The endpoint is not computationally expensive, so this is acceptable.
 2. Backend sets `csrftoken` cookie (httpOnly=False, so JavaScript can read it)
 
 **Login:**
@@ -102,15 +103,18 @@ This project uses JWT-based authentication with httpOnly cookies for API request
 4. Frontend stores user data in React context
 
 **Authenticated Requests:**
-1. Browser automatically includes `access_token` cookie with every request
+1. Browser automatically includes `access_token` cookie with every request (with `credentials: 'include'` as part of core `request` function)
 2. Frontend manually adds `X-CSRFToken` header for POST/PUT/PATCH/DELETE requests
 3. Backend's custom `CookieJWTAuthentication` class in `mily/authentication.py` reads JWT from cookie (for web clients) or Authorization header (for mobile clients)
 4. Backend's `CsrfViewMiddleware` validates CSRF token
 
-**Token Refresh:**
+**Token Refresh (with Rotation & Blacklisting):**
 1. When `access_token` expires (401 response), frontend automatically calls `/auth/token/refresh/`
-2. Backend validates `refresh_token` cookie and issues new `access_token`
-3. Request is retried with new token
+2. Backend validates `refresh_token` cookie
+3. Backend generates **new** `access_token` and **new** `refresh_token` (rotation)
+4. Backend blacklists the old `refresh_token` (prevents reuse attacks)
+5. Both new tokens are set as httpOnly cookies
+6. Request is retried with new tokens if request failed with 401
 
 **Logout:**
 1. Frontend calls `/auth/logout/`
@@ -122,6 +126,8 @@ This project uses JWT-based authentication with httpOnly cookies for API request
 - **CSRF protection**: All state-changing requests require valid CSRF token
 - **Secure cookies**: In production, cookies only sent over HTTPS
 - **SameSite=Lax**: Additional CSRF protection
+- **Refresh token rotation**: New refresh token issued on every refresh (prevents token reuse)
+- **Token blacklisting**: Old refresh tokens are blacklisted after rotation (prevents replay attacks)
 - **Dual authentication support**: Cookie-based (web) or Authorization header (mobile)
 
 ## Database

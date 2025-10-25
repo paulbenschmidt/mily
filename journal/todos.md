@@ -1,10 +1,5 @@
 ## Now
-- [ ] Test what happens if access tokens expire
-- [ ] Test what happens if refresh tokens expire
-- [ ] Figure out if there is a more accurate way to update `last_login` when a user logs in
-- [ ] Figure out how to handle the white screen when authentication fails
 - [ ] Something funky is going on when trying to delete an event
-- [ ] Pushing the logout button doesn't clear the actual cookies
 
 ## Upcoming
 - [ ] Look into serving photos through Railway buckets?
@@ -50,3 +45,4 @@
 - [ ] Set up MCP for Context7
 - [ ] Refactor views to be class-based so that every POST request doesn't need the csrf_exempt decorator
 - [ ] Implement token blacklisting for JWTs (so that getting a new refresh token invalidates the old one)
+- [ ] Implement cron job to clear out blacklisted tokens
