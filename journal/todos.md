@@ -50,3 +50,4 @@
 - [ ] Set up MCP for Context7
 - [ ] Refactor views to be class-based so that every POST request doesn't need the csrf_exempt decorator
 - [ ] Implement token blacklisting for JWTs (so that getting a new refresh token invalidates the old one)
+- [ ] Implement cron job to clear out blacklisted tokens

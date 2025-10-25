@@ -194,9 +194,23 @@ def logout_view(request):
         'message': 'Logout successful'
     })
 
-    # Clear httpOnly cookies
-    response.delete_cookie('access_token', path='/', samesite='Lax')
-    response.delete_cookie('refresh_token', path='/', samesite='Lax')
+    # Clear httpOnly cookies - must match all parameters used when setting cookies
+    response.delete_cookie(
+        'access_token',
+        path='/',
+        domain=SESSION_COOKIE_DOMAIN,
+        samesite=SESSION_COOKIE_SAMESITE,
+        secure=SESSION_COOKIE_SECURE,
+        httponly=SESSION_COOKIE_HTTPONLY,
+    )
+    response.delete_cookie(
+        'refresh_token',
+        path='/',
+        domain=SESSION_COOKIE_DOMAIN,
+        samesite=SESSION_COOKIE_SAMESITE,
+        secure=SESSION_COOKIE_SECURE,
+        httponly=SESSION_COOKIE_HTTPONLY,
+    )
 
     return response
 
@@ -475,7 +489,12 @@ The Mily Team
 class CookieTokenRefreshView(TokenRefreshView):
     """
     Custom token refresh view that reads refresh token from httpOnly cookie
-    and sets new access token in httpOnly cookie.
+    and sets new access token AND new refresh token in httpOnly cookies.
+
+    With ROTATE_REFRESH_TOKENS=True and BLACKLIST_AFTER_ROTATION=True:
+    - Generates new access token
+    - Generates new refresh token
+    - Blacklists the old refresh token (prevents reuse attacks)
     """
     def post(self, request, *args, **kwargs):
         # Get refresh token from cookie instead of request body
@@ -491,17 +510,25 @@ class CookieTokenRefreshView(TokenRefreshView):
         request.data['refresh'] = refresh_token
 
         try:
-            # Call parent class to validate and generate new access token
+            # Call parent class to validate and generate new tokens
+            # With ROTATE_REFRESH_TOKENS=True, this returns both 'access' and 'refresh' tokens
             response = super().post(request, *args, **kwargs)
 
-            # Extract new access token from response and create new response to return with new access token
-            if response.status_code == 200 and 'access' in response.data:
-                access_token = response.data['access']
+            # Extract new tokens from response and set them as httpOnly cookies
+            if response.status_code == 200:
                 new_response = Response(
-                    {'message': 'Token refreshed successfully'},
+                    {'message': 'Tokens refreshed successfully'},
                     status=status.HTTP_200_OK
                 )
-                set_access_token_cookie(new_response, access_token)
+
+                # Set new access token cookie
+                if 'access' in response.data:
+                    set_access_token_cookie(new_response, response.data['access'])
+
+                # Set new refresh token cookie (token rotation)
+                if 'refresh' in response.data:
+                    set_refresh_token_cookie(new_response, response.data['refresh'])
+
                 return new_response
 
             return response
