@@ -17,6 +17,11 @@ export interface UserType {
   updated_at: string;
 }
 
+export const EVENT_CATEGORIES = ['major', 'minor', 'memory'] as const;
+export type EventCategory = typeof EVENT_CATEGORIES[number];
+export const EVENT_PRIVACY_LEVELS = ['private', 'friends', 'public'] as const;
+export type EventPrivacyLevel = typeof EVENT_PRIVACY_LEVELS[number];
+
 export interface TimelineEventType {
   id: string;
   user: string;
@@ -24,8 +29,8 @@ export interface TimelineEventType {
   description: string;
   notes?: string;
   event_date: string;
-  category: 'major' | 'minor' | 'memory';
-  privacy_level: string;
+  category: EventCategory;
+  privacy_level: EventPrivacyLevel;
   photos?: string[];
   tags?: string[];
   created_at: string;
