@@ -14,6 +14,7 @@
 - [ ] Create side "scrollbar" that shows years as well as events in their chronological order with appropriate spacing
 - [ ] Create scrolling feature that "snaps" to the nearest event
 - [ ] Allow users to delete their accounts
+- [ ] Allow users to change the view of the timeline (toggling descriptions or notes, etc.)
 
 ### Pre-production
 - [ ] Validate all user inputs (names, dates, event descriptions)

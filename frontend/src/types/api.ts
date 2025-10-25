@@ -19,7 +19,7 @@ export interface UserType {
 
 export const EVENT_CATEGORIES = ['major', 'minor', 'memory'] as const;
 export type EventCategory = typeof EVENT_CATEGORIES[number];
-export const EVENT_PRIVACY_LEVELS = ['private', 'friends', 'public'] as const;
+export const EVENT_PRIVACY_LEVELS = ['public', 'friends', 'private'] as const;
 export type EventPrivacyLevel = typeof EVENT_PRIVACY_LEVELS[number];
 
 export interface TimelineEventType {
