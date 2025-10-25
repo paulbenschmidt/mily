@@ -1,5 +1,4 @@
 ## Now
-- [ ] Figure out how to handle the white screen when authentication fails
 - [ ] Something funky is going on when trying to delete an event
 
 ## Upcoming
