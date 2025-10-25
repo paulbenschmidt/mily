@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { TimelineEventType } from '@/types/api';
+import { TimelineEventType, EventCategory, EventPrivacyLevel, EVENT_CATEGORIES, EVENT_PRIVACY_LEVELS } from '@/types/api';
 import { authApiClient } from '@/utils/auth-api';
 import { Input, Button, Subheading, BodyText, Alert, Textarea } from '@/components/ui';
+import { ToggleButtonGroup } from '@/components/ToggleButtonGroup';
 
-const DEFAULT_CATEGORY = 'memory';
-const DEFAULT_PRIVACY_LEVEL = 'friends';
+const DEFAULT_CATEGORY: EventCategory = 'memory';
+const DEFAULT_PRIVACY_LEVEL: EventPrivacyLevel = 'friends';
 
 interface AddEventModalProps {
   isOpen: boolean;
@@ -29,8 +30,8 @@ export function AddEventModal({
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [eventDate, setEventDate] = useState('');
-  const [category, setCategory] = useState<'memory' | 'major' | 'minor'>(DEFAULT_CATEGORY);
-  const [privacyLevel, setPrivacyLevel] = useState<'private' | 'friends' | 'public'>(DEFAULT_PRIVACY_LEVEL);
+  const [category, setCategory] = useState<EventCategory>(DEFAULT_CATEGORY);
+  const [privacyLevel, setPrivacyLevel] = useState<EventPrivacyLevel>(DEFAULT_PRIVACY_LEVEL);
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -259,55 +260,23 @@ export function AddEventModal({
             />
           </div>
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-secondary-700 mb-2">
-              Category *
-            </label>
-            <div className="flex gap-2">
-              {(['major', 'minor', 'memory'] as const).map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => setCategory(cat)}
-                  disabled={!isSelectionsLoaded}
-                  className={`min-w-[90px] px-4 py-2 rounded-full text-sm font-medium transition-colors capitalize ${
-                    !isSelectionsLoaded
-                      ? 'bg-secondary-200 text-secondary-400 cursor-wait'
-                      : category === cat
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-          </div>
+          <ToggleButtonGroup
+            label="Category"
+            options={EVENT_CATEGORIES}
+            value={category}
+            onChange={setCategory}
+            disabled={!isSelectionsLoaded}
+            required
+          />
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-secondary-700 mb-2">
-              Privacy *
-            </label>
-            <div className="flex gap-2">
-              {(['private', 'friends', 'public'] as const).map((privacy) => (
-                <button
-                  key={privacy}
-                  type="button"
-                  onClick={() => setPrivacyLevel(privacy)}
-                  disabled={!isSelectionsLoaded}
-                  className={`min-w-[90px] px-4 py-2 rounded-full text-sm font-medium transition-colors capitalize ${
-                    !isSelectionsLoaded
-                      ? 'bg-secondary-200 text-secondary-400 cursor-wait'
-                      : privacyLevel === privacy
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
-                  }`}
-                >
-                  {privacy}
-                </button>
-              ))}
-            </div>
-          </div>
+          <ToggleButtonGroup
+            label="Privacy"
+            options={EVENT_PRIVACY_LEVELS}
+            value={privacyLevel}
+            onChange={setPrivacyLevel}
+            disabled={!isSelectionsLoaded}
+            required
+          />
 
           <div className="mb-4">
             <Textarea
