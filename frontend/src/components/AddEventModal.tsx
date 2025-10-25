@@ -52,9 +52,9 @@ export function AddEventModal({
       setPrivacyLevel(eventToEdit.privacy_level);
       setNotes(eventToEdit.notes || '');
       // Delay to show smooth transition from gray to selected
-      setTimeout(() => setIsSelectionsLoaded(true), 100);
+      setTimeout(() => setIsSelectionsLoaded(true), 50);
     } else if (!eventToEdit && isOpen) {
-      setTimeout(() => setIsSelectionsLoaded(true), 100);
+      setTimeout(() => setIsSelectionsLoaded(true), 50);
     } else if (!isOpen) {
       // Reset loaded state when modal closes
       setIsSelectionsLoaded(false);
