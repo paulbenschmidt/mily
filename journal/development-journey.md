@@ -1,5 +1,8 @@
 # Development Journey
 
+- 2025-10-25:
+    - Spent the morning refactoring the JWT authentication so that refresh tokens were refreshed and old ones blacklisted on every access token refresh.
+    - I also figured out the issue with the delete event modal causing the edit event modal to disappear. I learned that it's bad UX to have multiple stacked modals, so the refactor flattened the modal stack by swapping the edit event modal with the delete event modal and separating the `onClose` function to include some other cleanup logic. Happy with this solution.
 - 2025-10-20:
     - It took a while, but I'm finally done with JWT authentication. Pretty challenging to keep the mental map of the authentication flow between frontend and backend straight, but I think I'm getting there. My mind is strengthening the neural pathways for this.
 - 2025-10-18:
