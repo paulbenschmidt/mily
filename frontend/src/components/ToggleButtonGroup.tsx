@@ -31,7 +31,7 @@ export function ToggleButtonGroup<T extends string>({
             disabled={disabled}
             className={`min-w-[90px] px-4 py-2 rounded-full text-sm font-medium transition-colors capitalize ${
               disabled
-                ? 'bg-secondary-200 text-secondary-400 cursor-wait'
+                ? 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
                 : value === option
                 ? 'bg-primary-600 text-white'
                 : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
