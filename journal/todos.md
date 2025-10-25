@@ -1,9 +1,8 @@
 ## Now
-- [ ] Something funky is going on when trying to delete an event
+- [ ] Change Add/Edit event to have bubbles for privacy level and category
 
 ## Upcoming
 - [ ] Look into serving photos through Railway buckets?
-- [ ] Rate limiting with django-ratelimit
 - [ ] Add logo to loading spinners and to footer
 - [ ] Change it so that year is dynamic, to the left of the line (and remove year from the event date)
 - [ ] Add tags to events and allow users to filter by them
@@ -22,11 +21,8 @@
 - [ ] Run through some test for any vulnerabilities?
 - [ ] Lock down Django API views so that users can't access each other's data
 - [ ] Remove all console.log steps (or toggle them to not run in production)
-- [ ] Security: Ensure that CSRF tokens are enforced for all state-changing requests (maybe GET requests too for sensitive data?)
 - [ ] Security: Ensure that HTTPS is used for all requests: Force redirect HTTP→HTTPS, set Secure flag on cookies
-- [ ] Security: Implement rate limiting to avoid DoS attacks
 - [ ] Security: Implement 2FA?
-- [ ] Security: Implement API Security Headers
 - [ ] Security: Regular Security Updates via Dependabot or something similar
 - [ ] Backend: Move on from Nixpacks to current best practices (I'm getting a deprecation warning)
 
@@ -43,6 +39,5 @@
 - [ ] Allow user blocking as first action (currently a post request to friendship is required as the primary action)
 - [ ] Implement Data Encryption at Rest to protect database in case of breach
 - [ ] Set up MCP for Context7
-- [ ] Refactor views to be class-based so that every POST request doesn't need the csrf_exempt decorator
-- [ ] Implement token blacklisting for JWTs (so that getting a new refresh token invalidates the old one)
+- [ ] Refactor views to be either class-based or function-based
 - [ ] Implement cron job to clear out blacklisted tokens
