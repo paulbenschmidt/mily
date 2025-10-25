@@ -25,7 +25,7 @@ export interface TimelineEventType {
   notes?: string;
   event_date: string;
   category: 'major' | 'minor' | 'memory';
-  privacy_level: string;
+  privacy_level: 'private' | 'friends' | 'public';
   photos?: string[];
   tags?: string[];
   created_at: string;

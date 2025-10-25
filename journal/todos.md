@@ -1,5 +1,4 @@
 ## Now
-- [ ] Change Add/Edit event to have bubbles for privacy level and category
 
 ## Upcoming
 - [ ] Look into serving photos through Railway buckets?
@@ -14,6 +13,7 @@
 - [ ] Verify that users cannot see the years associated with any events (for privacy reasons)
 - [ ] Create side "scrollbar" that shows years as well as events in their chronological order with appropriate spacing
 - [ ] Create scrolling feature that "snaps" to the nearest event
+- [ ] Allow users to delete their accounts
 
 ### Pre-production
 - [ ] Validate all user inputs (names, dates, event descriptions)

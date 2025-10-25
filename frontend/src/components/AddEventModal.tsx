@@ -3,7 +3,10 @@
 import { useState, useEffect } from 'react';
 import { TimelineEventType } from '@/types/api';
 import { authApiClient } from '@/utils/auth-api';
-import { Input, Button, Subheading, BodyText, Alert, Textarea, Select } from '@/components/ui';
+import { Input, Button, Subheading, BodyText, Alert, Textarea } from '@/components/ui';
+
+const DEFAULT_CATEGORY = 'memory';
+const DEFAULT_PRIVACY_LEVEL = 'friends';
 
 interface AddEventModalProps {
   isOpen: boolean;
@@ -26,13 +29,14 @@ export function AddEventModal({
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [eventDate, setEventDate] = useState('');
-  const [category, setCategory] = useState<'major' | 'minor' | 'memory'>('major');
-  const [privacyLevel, setPrivacyLevel] = useState('friends');
+  const [category, setCategory] = useState<'memory' | 'major' | 'minor'>(DEFAULT_CATEGORY);
+  const [privacyLevel, setPrivacyLevel] = useState<'private' | 'friends' | 'public'>(DEFAULT_PRIVACY_LEVEL);
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSelectionsLoaded, setIsSelectionsLoaded] = useState(false);
 
   // Load event data when in edit mode
   useEffect(() => {
@@ -46,9 +50,13 @@ export function AddEventModal({
       setCategory(eventToEdit.category);
       setPrivacyLevel(eventToEdit.privacy_level);
       setNotes(eventToEdit.notes || '');
+      // Delay to show smooth transition from gray to selected
+      setTimeout(() => setIsSelectionsLoaded(true), 100);
     } else if (!eventToEdit && isOpen) {
-      // Reset form when opening in create mode
-      resetForm();
+      setTimeout(() => setIsSelectionsLoaded(true), 100);
+    } else if (!isOpen) {
+      // Reset loaded state when modal closes
+      setIsSelectionsLoaded(false);
     }
   }, [eventToEdit, isOpen]);
 
@@ -126,9 +134,10 @@ export function AddEventModal({
     setTitle('');
     setDescription('');
     setEventDate('');
-    setCategory('major');
-    setPrivacyLevel('friends');
+    setCategory(DEFAULT_CATEGORY);
+    setPrivacyLevel(DEFAULT_PRIVACY_LEVEL);
     setNotes('');
+    setIsSelectionsLoaded(false);
   };
 
   // Disable body scrolling when modal is open
@@ -251,37 +260,59 @@ export function AddEventModal({
           </div>
 
           <div className="mb-4">
-            <Select
-              id="category"
-              label="Category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value as 'major' | 'minor' | 'memory')}
-              required
-            >
-              <option value="major">Major</option>
-              <option value="minor">Minor</option>
-              <option value="memory">Memory</option>
-            </Select>
+            <label className="block text-sm font-medium text-secondary-700 mb-2">
+              Category *
+            </label>
+            <div className="flex gap-2">
+              {(['major', 'minor', 'memory'] as const).map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setCategory(cat)}
+                  disabled={!isSelectionsLoaded}
+                  className={`min-w-[90px] px-4 py-2 rounded-full text-sm font-medium transition-colors capitalize ${
+                    !isSelectionsLoaded
+                      ? 'bg-secondary-200 text-secondary-400 cursor-wait'
+                      : category === cat
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="mb-4">
-            <Select
-              id="privacy"
-              label="Privacy"
-              value={privacyLevel}
-              onChange={(e) => setPrivacyLevel(e.target.value)}
-              required
-            >
-              <option value="private">Private</option>
-              <option value="friends">Friends</option>
-              <option value="public">Public</option>
-            </Select>
+            <label className="block text-sm font-medium text-secondary-700 mb-2">
+              Privacy *
+            </label>
+            <div className="flex gap-2">
+              {(['private', 'friends', 'public'] as const).map((privacy) => (
+                <button
+                  key={privacy}
+                  type="button"
+                  onClick={() => setPrivacyLevel(privacy)}
+                  disabled={!isSelectionsLoaded}
+                  className={`min-w-[90px] px-4 py-2 rounded-full text-sm font-medium transition-colors capitalize ${
+                    !isSelectionsLoaded
+                      ? 'bg-secondary-200 text-secondary-400 cursor-wait'
+                      : privacyLevel === privacy
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
+                  }`}
+                >
+                  {privacy}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="mb-4">
             <Textarea
               id="notes"
-              label="Notes (Optional)"
+              label="Notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
