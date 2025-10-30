@@ -4,7 +4,7 @@ import { useEffect } from 'react';
  * Disables body scrolling when a modal is open
  * Restores original overflow style when modal closes
  */
-export function disableBodyScroll(isOpen: boolean) {
+export function useDisableBodyScroll(isOpen: boolean) {
   useEffect(() => {
     if (isOpen) {
       // Save the current overflow value

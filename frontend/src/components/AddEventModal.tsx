@@ -7,7 +7,7 @@ import { Input, Button, Subheading, BodyText, Alert, Textarea } from '@/componen
 import { ToggleButtonGroup } from '@/components/ToggleButtonGroup';
 import { useAutoFocus } from '@/hooks/useAutoFocus';
 import { useModalKeyboardShortcuts } from '@/hooks/useModalKeyboardShortcuts';
-import { disableBodyScroll } from '@/hooks/disableBodyScroll';
+import { useDisableBodyScroll } from '@/hooks/disableBodyScroll';
 
 const DEFAULT_CATEGORY: EventCategory = 'memory';
 const DEFAULT_PRIVACY_LEVEL: EventPrivacyLevel = 'friends';
@@ -153,13 +153,13 @@ export function AddEventModal({
     showDeleteConfirmation,
     isDeleting,
     isSubmitting,
-    onSubmit: () => handleSubmit({} as any),
+    onSubmit: () => handleSubmit({ preventDefault: () => {} } as React.FormEvent),
     onDelete: handleDelete,
     onClose: onModalClose,
   });
 
   // Disable body scroll when modal is open
-  disableBodyScroll(isOpen);
+  useDisableBodyScroll(isOpen);
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     // Only close if the backdrop itself was clicked, not its children
