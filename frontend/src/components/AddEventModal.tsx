@@ -5,6 +5,9 @@ import { TimelineEventType, EventCategory, EventPrivacyLevel, EVENT_CATEGORIES, 
 import { authApiClient } from '@/utils/auth-api';
 import { Input, Button, Subheading, BodyText, Alert, Textarea } from '@/components/ui';
 import { ToggleButtonGroup } from '@/components/ToggleButtonGroup';
+import { useAutoFocus } from '@/hooks/useAutoFocus';
+import { useModalKeyboardShortcuts } from '@/hooks/useModalKeyboardShortcuts';
+import { useDisableBodyScroll } from '@/hooks/disableBodyScroll';
 
 const DEFAULT_CATEGORY: EventCategory = 'memory';
 const DEFAULT_PRIVACY_LEVEL: EventPrivacyLevel = 'friends';
@@ -141,22 +144,22 @@ export function AddEventModal({
     setIsSelectionsLoaded(false);
   };
 
-  // Disable body scrolling when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      // Save the current overflow value
-      const originalStyle = window.getComputedStyle(document.body).overflow;
-      // Disable scrolling on body
-      document.body.style.overflow = 'hidden';
+  // Auto-focus the title input when the modal opens
+  const titleInputRef = useAutoFocus<HTMLInputElement>(isOpen && !showDeleteConfirmation);
 
-      // Re-enable scrolling when component unmounts or modal closes
-      return () => {
-        document.body.style.overflow = originalStyle;
-      };
-    }
-  }, [isOpen]);
+  // Allow CMD+Enter to submit the form and Escape to close
+  useModalKeyboardShortcuts({
+    isOpen,
+    showDeleteConfirmation,
+    isDeleting,
+    isSubmitting,
+    onSubmit: () => handleSubmit({ preventDefault: () => {} } as React.FormEvent),
+    onDelete: handleDelete,
+    onClose: onModalClose,
+  });
 
-  if (!isOpen) return null;
+  // Disable body scroll when modal is open
+  useDisableBodyScroll(isOpen);
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     // Only close if the backdrop itself was clicked, not its children
@@ -164,6 +167,9 @@ export function AddEventModal({
       onModalClose();
     }
   };
+
+  // Return null if the modal is not open
+  if (!isOpen) return null;
 
   return (
     <div
@@ -223,6 +229,7 @@ export function AddEventModal({
 
           <div className="mb-4">
             <Input
+              ref={titleInputRef}
               type="text"
               id="title"
               label="Title *"
