@@ -1,6 +1,4 @@
 ## Now
-- Honor linebreaks in descriptions and notes
-
 - Show privacy level on events (and add filter for privacy level)
 - Add "expand" button to show the full description or notes
 - Ability to select multiple events and update/delete them
