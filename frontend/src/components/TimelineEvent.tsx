@@ -119,7 +119,7 @@ export function TimelineEvent({ event, isLast = false, onEditEvent }: TimelineEv
           <BodyText className="font-semibold mb-2">{event.title}</BodyText>
 
           {event.description && (
-            <SmallText className="leading-relaxed mb-4">{event.description}</SmallText>
+            <SmallText className="leading-relaxed mb-4 whitespace-pre-wrap">{event.description}</SmallText>
           )}
 
           {event.photos && event.photos.length > 0 && (
