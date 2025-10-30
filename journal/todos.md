@@ -1,4 +1,17 @@
 ## Now
+- Show privacy level on events (and add filter for privacy level)
+- Add "expand" button to show the full description or notes
+- CMD+Enter should save an event
+- Ability to select multiple events and update/delete them
+- Cursor should go immediately to title when creating a new event
+- Honor linebreaks in descriptions and notes
+- How can I add age? Should I make it optional for users to add a birthday?
+    - If I add it as part of the profile, I can add a little blurb that says "this field will be used to calculate your age for each event". It'll also auto-add an event to the user's timeline for their birthday.
+- Escape should close the modal
+- Show timeline on left of where you are relative to the first and last event
+- Optional to add major world events to the timeline
+- Modify filter to allow for multiple categories
+- Make mobile browser UI better
 
 ## Upcoming
 - [ ] Look into serving photos through Railway buckets?
