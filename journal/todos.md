@@ -1,11 +1,9 @@
 ## Now
-- Show privacy level on events (and add filter for privacy level)
 - How can I add age? Should I make it optional for users to add a birthday?
     - If I add it as part of the profile, I can add a little blurb that says "this field will be used to calculate your age for each event". It'll also auto-add an event to the user's timeline for their birthday.
-- Show timeline on left of where you are relative to the first and last event
 - Optional to add major world events to the timeline
-- Modify filter to allow for multiple categories
 - Make mobile browser UI better
+- Allow users ability to change password
 
 ## Upcoming
 - [ ] Look into serving photos through Railway buckets?
@@ -41,6 +39,8 @@
 - [ ] Add timeline event share logic
 
 ### Optimizations
+- UX: Create dotted line between events where the spacing is variable based on the distance between events
+- Modify filter to allow for multiple categories
 - Ability to select multiple events and update/delete them
 - [ ] Auto-generate requirements.txt from pyproject.toml so that you don't have to remember to export poetry when deploying to Railway
 - [ ] Implement OpenAPI schema generation so that frontend inherits data models from backend (DRY)

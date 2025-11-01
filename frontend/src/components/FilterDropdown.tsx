@@ -7,6 +7,7 @@ export interface FilterOptions {
   startDate: string | null;
   endDate: string | null;
   category: 'all' | 'major' | 'minor' | 'memory';
+  privacy_level: 'all' | 'public' | 'friends' | 'private';
 }
 
 interface FilterDropdownProps {
@@ -58,6 +59,7 @@ export function FilterDropdown({
       startDate: null,
       endDate: null,
       category: 'all',
+      privacy_level: 'all',
     };
     setFilters(resetFilters);
     onApplyFilters(resetFilters);
@@ -107,6 +109,23 @@ export function FilterDropdown({
             <option value="major">Major Events</option>
             <option value="minor">Minor Events</option>
             <option value="memory">Memories</option>
+          </Select>
+        </div>
+
+        {/* Privacy Level Filter */}
+        <div className="mb-4">
+          <Select
+            label="Privacy Level"
+            value={filters.privacy_level}
+            onChange={(e) => setFilters({
+              ...filters,
+              privacy_level: e.target.value as 'all' | 'public' | 'friends' | 'private'
+            })}
+          >
+            <option value="all">All Privacy Levels</option>
+            <option value="public">Public</option>
+            <option value="friends">Friends</option>
+            <option value="private">Private</option>
           </Select>
         </div>
 

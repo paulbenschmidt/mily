@@ -8,23 +8,13 @@ interface TimelineEventProps {
   event: TimelineEventType;
   isLast?: boolean;
   onEditEvent?: (event: TimelineEventType) => void;
+  previousEvent?: TimelineEventType;
+  nextEvent?: TimelineEventType;
 }
 
-export function TimelineEvent({ event, isLast = false, onEditEvent }: TimelineEventProps) {
+export function TimelineEvent({ event, onEditEvent, previousEvent, nextEvent }: TimelineEventProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case "major":
-        return "bg-timeline-dot-major border-timeline-dot-major"
-      case "minor":
-        return "bg-timeline-dot border-timeline-dot"
-      case "memory":
-        return "bg-muted-foreground border-muted-foreground"
-      default:
-        return "bg-timeline-dot border-timeline-dot"
-    }
-  };
 
   const getCategorySize = (category: string) => {
     switch (category) {
@@ -39,29 +29,27 @@ export function TimelineEvent({ event, isLast = false, onEditEvent }: TimelineEv
     }
   };
 
-  const getLineTopOffset = (category: string) => {
+  const getBackgroundCircleSize = (category: string) => {
     switch (category) {
       case "major":
-        return 'top-7'; // 28px - larger dot needs more space
+        return 'w-6 h-6'; // Larger background for major events
       case "minor":
-        return 'top-6'; // 24px - medium dot
+        return 'w-5 h-5'; // Medium background for minor events
       case "memory":
-        return 'top-6'; // 20px - smaller dot
+        return 'w-4 h-4'; // Smaller background for memory events
       default:
-        return 'top-6';
+        return 'w-5 h-5';
     }
   };
 
-  const formatDate = (dateString: string) => {
-    // Parse as local date to avoid timezone conversion issues
-    // dateString format: "YYYY-MM-DD"
+  const getStackedDate = (dateString: string) => {
     const [year, month, day] = dateString.split('-').map(Number);
-    const date = new Date(year, month - 1, day); // month is 0-indexed
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
+    const date = new Date(year, month - 1, day);
+    return {
+      month: date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase(),
+      day: date.getDate().toString(),
+      year: year.toString()
+    };
   };
 
   const handleEdit = () => {
@@ -72,40 +60,101 @@ export function TimelineEvent({ event, isLast = false, onEditEvent }: TimelineEv
 
   const hasExpandableContent = event.description || (event.photos && event.photos.length > 0) || event.notes;
 
+  const shouldShowYear = () => {
+    if (!nextEvent) return true; // Always show year for last event
+    // Parse year directly from date string to avoid timezone issues
+    const currentYear = parseInt(event.event_date.split('-')[0]);
+    const nextYear = parseInt(nextEvent.event_date.split('-')[0]);
+    return currentYear !== nextYear;
+  };
+
+  const getYear = () => {
+    // Parse year directly from date string to avoid timezone issues
+    return event.event_date.split('-')[0];
+  };
+
+  const getCategoryShadow = (category: string) => {
+    switch (category) {
+      case "major":
+        return '[box-shadow:0_10px_15px_-3px_rgba(0,0,0,0.25),0_4px_6px_-4px_rgba(0,0,0,0.25)]'; // Darker shadow
+      case "minor":
+        return '[box-shadow:0_10px_15px_-3px_rgba(0,0,0,0.15),0_4px_6px_-4px_rgba(0,0,0,0.15)]'; // Medium shadow
+      case "memory":
+        return '[box-shadow:0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)]'; // Lighter shadow
+      default:
+        return '[box-shadow:0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)]';
+    }
+  };
+
+  const getBottomPadding = () => {
+    if (!nextEvent) return 'pb-4'; // Default padding for last event
+
+    const currentDate = new Date(event.event_date);
+    const nextDate = new Date(nextEvent.event_date);
+    const daysDiff = Math.abs(Math.floor((currentDate.getTime() - nextDate.getTime()) / (1000 * 60 * 60 * 24)));
+
+    // Scale padding based on time gap
+    if (daysDiff <= 90) return 'pb-4';
+    if (daysDiff <= 180) return 'pb-8';
+    if (daysDiff <= 365) return 'pb-12';
+    return 'pb-16';
+  };
+
+  const getLineHeight = () => {
+    if (!nextEvent) return 'h-0'; // No line for last event
+
+    const currentDate = new Date(event.event_date);
+    const nextDate = new Date(nextEvent.event_date);
+    const daysDiff = Math.abs(Math.floor((currentDate.getTime() - nextDate.getTime()) / (1000 * 60 * 60 * 24)));
+
+    // Match the padding values
+    if (daysDiff <= 90) return 'h-[calc(50%+1rem)]';
+    if (daysDiff <= 180) return 'h-[calc(50%+2rem)]';
+    if (daysDiff <= 365) return 'h-[calc(50%+3rem)]';
+    return 'h-[calc(50%+4rem)]';
+  };
+
   return (
     <div
-      className="relative flex gap-6 pb-8"
+      className={`relative flex items-center gap-6 ${getBottomPadding()}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      {/* Year label - only shown when year changes */}
+      <div className="w-16 flex items-center justify-end">
+        {shouldShowYear() && (
+          <BodyText className="font-serif font-semibold text-secondary-600">
+            {getYear()}
+          </BodyText>
+        )}
+      </div>
+
       {/* Timeline line and dot */}
-      <div className="flex flex-col items-center relative pt-1">
-        {/* Create a fixed-width container for the dot to ensure consistent positioning */}
-        <div className="w-4 h-4 flex items-center justify-center">
+      <div className="flex flex-col items-center justify-center relative self-stretch">
+        {/* Top line - only show if there's a previous event */}
+        {previousEvent && (
+          <div className="absolute top-0 bottom-1/2 left-1/2 transform -translate-x-[0.5px] w-px bg-secondary-300" />
+        )}
+
+        {/* Bottom line - extends dynamically based on time gap to next event */}
+        {nextEvent && (
+          <div className={`absolute top-1/2 left-1/2 transform -translate-x-[0.5px] w-px bg-secondary-300 ${getLineHeight()}`} />
+        )}
+
+        {/* Dot with background circle to separate from line */}
+        <div className="w-6 h-6 flex items-center justify-center relative z-1">
+          {/* Background circle to match background of page - sized based on category */}
+          <div className={`absolute bg-secondary-50 rounded-full ${getBackgroundCircleSize(event.category)}`} />
+          {/* Actual dot */}
           <div
-            className={`rounded-full border-2 ${getCategoryColor(event.category)} ${getCategorySize(event.category)} flex-shrink-0`}
+            className={`rounded-full border-2 bg-muted-foreground border-muted-foreground ${getCategorySize(event.category)} ${getCategoryShadow(event.category)} flex-shrink-0 relative z-10`}
           />
         </div>
-        {/* Center the line regardless of dot size */}
-        {!isLast && <div className={`absolute ${getLineTopOffset(event.category)} left-1/2 transform -translate-x-[0.5px] w-px bg-secondary-300 h-full`} />}
       </div>
 
       {/* Event content */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-3 mb-2">
-          <SmallText className="font-serif tracking-wider">
-            {formatDate(event.event_date)}
-          </SmallText>
-          <Badge className={
-            event.category === 'major' ? 'border-2 border-secondary-500 bg-secondary-200' :
-            event.category === 'minor' ? 'border-2 border-secondary-400 bg-secondary-100' :
-            'border-2 border-secondary-300 bg-transparent'
-          }>
-            {event.category}
-          </Badge>
-        </div>
-
-        <Card className="p-6 relative">
+        <Card className={`p-6 relative ${getCategoryShadow(event.category)}`}>
           {/* Edit button - only visible on hover */}
           {isHovered && onEditEvent && (
             <Button
@@ -139,39 +188,60 @@ export function TimelineEvent({ event, isLast = false, onEditEvent }: TimelineEv
             </Button>
           )}
 
-          <BodyText className="font-semibold mb-2">{event.title}</BodyText>
+          <div className="flex gap-4 items-center">
+            {/* Stacked date on the left */}
+            <div className="flex flex-col items-center justify-start min-w-[60px]">
+              <Caption className="font-serif tracking-wider font-semibold text-secondary-500 leading-none">
+                {getStackedDate(event.event_date).month}
+              </Caption>
+              <BodyText className="font-serif font-semibold text-secondary-700 leading-none mt-1">
+                {getStackedDate(event.event_date).day}
+              </BodyText>
+              <BodyText className="font-serif text-secondary-500 text-xs leading-none mt-1">
+                {event.category}
+              </BodyText>
+              {/* <Badge className={`mt-2 ${
+                event.category === 'major' ? 'border-2 border-secondary-500 bg-secondary-200' :
+                event.category === 'minor' ? 'border-2 border-secondary-400 bg-secondary-100' :
+                'border-2 border-secondary-300 bg-transparent'
+              }`}>
+                {event.category}
+              </Badge> */}
+            </div>
 
-          {event.description && (
-            <SmallText 
-              className={`leading-relaxed mb-4 ${
-                isExpanded 
-                  ? 'whitespace-pre-wrap' 
-                  : 'line-clamp-1 overflow-hidden text-ellipsis'
-              }`}
-            >
-              {event.description}
-            </SmallText>
-          )}
+            {/* Content on the right */}
+            <div className="flex-1 min-w-0">
+              <BodyText className="font-semibold">{event.title}</BodyText>
 
-          {isExpanded && (
-            <>
-              {event.photos && event.photos.length > 0 && (
-                <div className="mb-4">
-                  <img
-                    src={event.photos[0]}
-                    alt={event.title}
-                    className="w-full h-48 object-cover rounded-md"
-                  />
-                </div>
-              )}
+              <div
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                  isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+                }`}
+              >
+                {event.description && (
+                  <SmallText className="leading-relaxed mb-4 whitespace-pre-wrap mt-2">
+                    {event.description}
+                  </SmallText>
+                )}
 
-              {event.notes && (
-                <div className="pt-4 border-t border-secondary-200">
-                  <Caption className="italic">{event.notes}</Caption>
-                </div>
-              )}
-            </>
-          )}
+                {event.photos && event.photos.length > 0 && (
+                  <div className="mb-4">
+                    <img
+                      src={event.photos[0]}
+                      alt={event.title}
+                      className="w-full h-48 object-cover rounded-md"
+                    />
+                  </div>
+                )}
+
+                {event.notes && (
+                  <div className="pt-4 border-t border-secondary-200">
+                    <Caption className="italic">{event.notes}</Caption>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </Card>
       </div>
     </div>
