@@ -20,7 +20,8 @@ export default function ExperimentalTimeline() {
   const [filters, setFilters] = useState<FilterOptions>({
     startDate: null,
     endDate: null,
-    category: 'all'
+    category: 'all',
+    privacy_level: 'all'
   });
 
   useEffect(() => {
@@ -167,7 +168,7 @@ export default function ExperimentalTimeline() {
               <div className="text-center py-10">
                 <BodyText>No events match your filters</BodyText>
                 <Button
-                  onClick={() => setFilters({ startDate: null, endDate: null, category: 'all' })}
+                  onClick={() => setFilters({ startDate: null, endDate: null, category: 'all', privacy_level: 'all' })}
                   variant="secondary"
                   className="mt-4"
                 >
@@ -200,7 +201,7 @@ export default function ExperimentalTimeline() {
               Showing {filteredEvents.length} of {events.length} events
             </SmallText>
             <Button
-              onClick={() => setFilters({ startDate: null, endDate: null, category: 'all' })}
+              onClick={() => setFilters({ startDate: null, endDate: null, category: 'all', privacy_level: 'all' })}
               variant="text"
               size="sm"
             >
