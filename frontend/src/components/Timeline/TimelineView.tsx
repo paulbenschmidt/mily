@@ -109,7 +109,7 @@ export function TimelineView({
   }
 
   return (
-    <main className="max-w-4xl mx-auto px-6 py-8" ref={timelineRef}>
+    <main className="max-w-4xl mx-auto px-4 py-6 md:px-6 md:py-8" ref={timelineRef}>
       {/* Timeline Progress Indicator */}
       {filteredEvents.length > 0 && (
         <div className="fixed left-8 top-1/2 transform -translate-y-1/2 hidden lg:block">
@@ -137,7 +137,7 @@ export function TimelineView({
 
       {/* Empty state - only show for owner */}
       {totalEventCount === 0 && mode === 'owner' ? (
-        <div className="text-center mt-20 flex flex-col items-center">
+        <div className="text-center mt-12 md:mt-20 flex flex-col items-center">
           <Button
             onClick={onAddEvent}
             size="lg"
@@ -147,7 +147,7 @@ export function TimelineView({
           </Button>
         </div>
       ) : totalEventCount === 0 && mode !== 'owner' ? (
-        <div className="text-center mt-20">
+        <div className="text-center mt-12 md:mt-20">
           <BodyText>This timeline is empty.</BodyText>
         </div>
       ) : (
@@ -192,7 +192,7 @@ export function TimelineView({
       )}
 
       {/* Bottom spacing for better scroll experience */}
-      <div className="h-32" />
+      <div className="h-16 md:h-32" />
     </main>
   );
 }
