@@ -12,6 +12,7 @@ interface TimelineEventProps {
 
 export function TimelineEvent({ event, isLast = false, onEditEvent }: TimelineEventProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const getCategoryColor = (category: string) => {
     switch (category) {
       case "major":
@@ -69,6 +70,8 @@ export function TimelineEvent({ event, isLast = false, onEditEvent }: TimelineEv
     }
   };
 
+  const hasExpandableContent = event.description || (event.photos && event.photos.length > 0) || event.notes;
+
   return (
     <div
       className="relative flex gap-6 pb-8"
@@ -108,7 +111,7 @@ export function TimelineEvent({ event, isLast = false, onEditEvent }: TimelineEv
             <Button
               variant="text"
               onClick={handleEdit}
-              className="absolute top-4 right-4 p-1.5 text-secondary-400 hover:text-secondary-600 hover:bg-secondary-100 rounded-full"
+              className="absolute top-4 right-16 p-1.5 text-secondary-400 hover:text-secondary-600 hover:bg-secondary-100 rounded-full"
               title="Edit Event"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -116,26 +119,58 @@ export function TimelineEvent({ event, isLast = false, onEditEvent }: TimelineEv
               </svg>
             </Button>
           )}
+
+          {/* Toggle button - visible when there's expandable content */}
+          {hasExpandableContent && (
+            <Button
+              variant="text"
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="absolute top-4 right-4 p-1.5 text-secondary-400 hover:text-secondary-600 hover:bg-secondary-100 rounded-full transition-transform"
+              title={isExpanded ? "Collapse" : "Expand"}
+            >
+              <svg
+                className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </Button>
+          )}
+
           <BodyText className="font-semibold mb-2">{event.title}</BodyText>
 
           {event.description && (
-            <SmallText className="leading-relaxed mb-4 whitespace-pre-wrap">{event.description}</SmallText>
+            <SmallText 
+              className={`leading-relaxed mb-4 ${
+                isExpanded 
+                  ? 'whitespace-pre-wrap' 
+                  : 'line-clamp-1 overflow-hidden text-ellipsis'
+              }`}
+            >
+              {event.description}
+            </SmallText>
           )}
 
-          {event.photos && event.photos.length > 0 && (
-            <div className="mb-4">
-              <img
-                src={event.photos[0]}
-                alt={event.title}
-                className="w-full h-48 object-cover rounded-md"
-              />
-            </div>
-          )}
+          {isExpanded && (
+            <>
+              {event.photos && event.photos.length > 0 && (
+                <div className="mb-4">
+                  <img
+                    src={event.photos[0]}
+                    alt={event.title}
+                    className="w-full h-48 object-cover rounded-md"
+                  />
+                </div>
+              )}
 
-          {event.notes && (
-            <div className="pt-4 border-t border-secondary-200">
-              <Caption className="italic">{event.notes}</Caption>
-            </div>
+              {event.notes && (
+                <div className="pt-4 border-t border-secondary-200">
+                  <Caption className="italic">{event.notes}</Caption>
+                </div>
+              )}
+            </>
           )}
         </Card>
       </div>
