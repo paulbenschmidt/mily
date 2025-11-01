@@ -84,11 +84,12 @@ export function TimelineEvent({ event, onEditEvent, previousEvent, nextEvent, is
       case "memory":
         return '[box-shadow:0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)]'; // Lighter shadow
       default:
-        return 'shadow-memory';
+        return '[box-shadow:0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)]';
     }
   };
 
   const getSpacerHeight = () => {
+    // Since Tailwind needs to render the height statically (i.e. no variables), we have to use a switch statement
     if (!nextEvent) {
       return isMobile && shouldShowYear() ? 'h-16' : 'h-4';
     }
