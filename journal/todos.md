@@ -1,25 +1,20 @@
 ## Now
-- How can I add age? Should I make it optional for users to add a birthday?
-    - If I add it as part of the profile, I can add a little blurb that says "this field will be used to calculate your age for each event". It'll also auto-add an event to the user's timeline for their birthday.
-- Optional to add major world events to the timeline
-- Make mobile browser UI better
-- Allow users ability to change password
+- Enable "Publicly Accessible" for "Share" button on event page
 
 ## Upcoming
+- How can I add age? Should I make it optional for users to add a birthday?
+    - If I add it as part of the profile, I can add a little blurb that says "this field will be used to calculate your age for each event". It'll also auto-add an event to the user's timeline for their birthday.
+- Make mobile browser UI better
+- [ ] Allow users to delete their accounts
+- [ ] Verify that users cannot see the years associated with any events (for privacy reasons)
+- [ ] Password reset via Django's built-in email system (Allow users ability to change password)
 - [ ] Look into serving photos through Railway buckets?
 - [ ] Add logo to loading spinners and to footer
-- [ ] Change it so that year is dynamic, to the left of the line (and remove year from the event date)
 - [ ] Add tags to events and allow users to filter by them
-- [ ] Password reset via Django's built-in email system
 - [ ] Go through packages and update any that are not needed
 - [ ] Update readmes/windsurfrules/roadmaps/comments/etc
 - [ ] Create front-end test to make sure that authenticated users get redirected to dashboard
 - [ ] Verify that you have 100% test coverage for backend views
-- [ ] Verify that users cannot see the years associated with any events (for privacy reasons)
-- [ ] Create side "scrollbar" that shows years as well as events in their chronological order with appropriate spacing
-- [ ] Create scrolling feature that "snaps" to the nearest event
-- [ ] Allow users to delete their accounts
-- [ ] Allow users to change the view of the timeline (toggling descriptions or notes, etc.)
 
 ### Pre-production
 - [ ] Validate all user inputs (names, dates, event descriptions)
@@ -39,6 +34,8 @@
 - [ ] Add timeline event share logic
 
 ### Optimizations
+- [ ] Create scrolling feature that "snaps" to the nearest event
+- UX: Offer optional world events that can be added to the timeline
 - UX: Create dotted line between events where the spacing is variable based on the distance between events
 - Modify filter to allow for multiple categories
 - Ability to select multiple events and update/delete them

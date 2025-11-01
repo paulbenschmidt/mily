@@ -19,26 +19,26 @@ export function TimelineEvent({ event, onEditEvent, previousEvent, nextEvent }: 
   const getCategorySize = (category: string) => {
     switch (category) {
       case "major":
-        return 'w-4 h-4';
+        return 'w-6 h-6';
       case "minor":
-        return 'w-3 h-3';
+        return 'w-4 h-4';
       case "memory":
         return 'w-2 h-2';
       default:
-        return 'w-3 h-3';
+        return 'w-2 h-2';
     }
   };
 
   const getBackgroundCircleSize = (category: string) => {
     switch (category) {
       case "major":
-        return 'w-6 h-6'; // Larger background for major events
+        return 'w-10 h-10'; // Larger background for major events
       case "minor":
-        return 'w-5 h-5'; // Medium background for minor events
+        return 'w-8 h-8'; // Medium background for minor events
       case "memory":
-        return 'w-4 h-4'; // Smaller background for memory events
+        return 'w-6 h-6'; // Smaller background for memory events
       default:
-        return 'w-5 h-5';
+        return 'w-6 h-6';
     }
   };
 
@@ -58,6 +58,7 @@ export function TimelineEvent({ event, onEditEvent, previousEvent, nextEvent }: 
     }
   };
 
+  // Check if there's expandable content (description, photos, or notes)
   const hasExpandableContent = event.description || (event.photos && event.photos.length > 0) || event.notes;
 
   const shouldShowYear = () => {
@@ -206,16 +207,23 @@ export function TimelineEvent({ event, onEditEvent, previousEvent, nextEvent }: 
             <div className="flex-1 min-w-0">
               <BodyText className="font-semibold">{event.title}</BodyText>
 
+              {/* Description with line-clamp when collapsed */}
+              {event.description && (
+                <SmallText 
+                  className={`leading-relaxed whitespace-pre-wrap mt-2 ${
+                    !isExpanded ? 'line-clamp-1' : ''
+                  }`}
+                >
+                  {event.description}
+                </SmallText>
+              )}
+
+              {/* Expandable content: photos and notes */}
               <div
                 className={`overflow-hidden transition-all duration-300 ease-in-out ${
                   isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
                 }`}
               >
-                {event.description && (
-                  <SmallText className="leading-relaxed mb-4 whitespace-pre-wrap mt-2">
-                    {event.description}
-                  </SmallText>
-                )}
 
                 {event.photos && event.photos.length > 0 && (
                   <div className="mb-4">
