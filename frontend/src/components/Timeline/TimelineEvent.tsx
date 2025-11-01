@@ -139,7 +139,7 @@ export function TimelineEvent({ event, onEditEvent, previousEvent, nextEvent, is
     <>
       <div className="relative">
         <div
-          className={`flex items-center gap-6`}
+          className={`flex items-center gap-3 md:gap-6`}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
@@ -180,13 +180,13 @@ export function TimelineEvent({ event, onEditEvent, previousEvent, nextEvent, is
 
         {/* Event content */}
         <div className="flex-1 min-w-0">
-          <Card className={`p-6 relative ${getCategoryShadow(event.category)}`}>
+          <Card className={`p-4 md:p-6 relative ${getCategoryShadow(event.category)}`}>
             {/* Edit button - only visible on hover */}
             {(isHovered || isMobile) && onEditEvent && (
               <Button
                 variant="text"
                 onClick={handleEdit}
-                className="absolute top-4 right-16 p-1.5 text-secondary-400 hover:text-secondary-600 hover:bg-secondary-100 rounded-full"
+                className="absolute top-3 right-12 md:top-4 md:right-16 p-1.5 text-secondary-400 hover:text-secondary-600 hover:bg-secondary-100 rounded-full"
                 title="Edit Event"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -200,7 +200,7 @@ export function TimelineEvent({ event, onEditEvent, previousEvent, nextEvent, is
               <Button
                 variant="text"
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="absolute top-4 right-4 p-1.5 text-secondary-400 hover:text-secondary-600 hover:bg-secondary-100 rounded-full transition-transform"
+                className="absolute top-3 right-3 md:top-4 md:right-4 p-1.5 text-secondary-400 hover:text-secondary-600 hover:bg-secondary-100 rounded-full transition-transform"
                 title={isExpanded ? "Collapse" : "Expand"}
               >
                 <svg
@@ -214,16 +214,16 @@ export function TimelineEvent({ event, onEditEvent, previousEvent, nextEvent, is
               </Button>
             )}
 
-            <div className="flex gap-4 items-center">
+            <div className="flex gap-3 md:gap-4 items-center">
               {/* Stacked date on the left */}
-              <div className="flex flex-col items-center justify-start min-w-[60px]">
+              <div className="flex flex-col items-center justify-start min-w-[40px] md:min-w-[50px]">
                 <Caption className="font-serif tracking-wider font-semibold text-secondary-500 leading-none">
                   {getStackedDate(event.event_date).month}
                 </Caption>
                 <BodyText className="font-serif font-semibold text-secondary-700 leading-none mt-1">
                   {getStackedDate(event.event_date).day}
                 </BodyText>
-                <BodyText className="font-serif text-secondary-500 text-xs leading-none mt-1">
+                <BodyText className="font-serif text-secondary-500 leading-none mt-0.5 md:mt-1" textClass="text-xs">
                   {event.category}
                 </BodyText>
               </div>
@@ -235,8 +235,8 @@ export function TimelineEvent({ event, onEditEvent, previousEvent, nextEvent, is
                 {/* Description with line-clamp when collapsed */}
                 {event.description && (
                   <SmallText
-                    className={`leading-relaxed whitespace-pre-wrap mt-2 ${
-                      !isExpanded ? 'line-clamp-1' : ''
+                    className={`leading-relaxed whitespace-pre-wrap mt-1.5 md:mt-2 ${
+                      !isExpanded ? 'line-clamp-2 md:line-clamp-1' : ''
                     }`}
                   >
                     {event.description}
@@ -255,7 +255,7 @@ export function TimelineEvent({ event, onEditEvent, previousEvent, nextEvent, is
                       <img
                         src={event.photos[0]}
                         alt={event.title}
-                        className="w-full h-48 object-cover rounded-md"
+                        className="w-full h-40 md:h-48 object-cover rounded-md"
                       />
                     </div>
                   )}
