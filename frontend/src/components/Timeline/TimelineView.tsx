@@ -6,9 +6,9 @@ import { TimelineEvent } from './TimelineEvent';
 import { SmallText, BodyText, Button } from '@/components/ui';
 
 interface TimelineViewProps {
-  events: TimelineEventType[];
-  filteredEvents: TimelineEventType[];
   mode: 'owner' | 'viewer';
+  filteredEvents: TimelineEventType[];
+  totalEventCount: number;
   loading: boolean;
   error: string | null;
   scrollProgress: number;
@@ -17,25 +17,20 @@ interface TimelineViewProps {
   onAddEvent?: () => void;
   onClearFilters?: () => void;
   hasActiveFilters: boolean;
-  ownerInfo?: {
-    name: string;
-    profilePicture?: string;
-  };
 }
 
 export function TimelineView({
-  events,
-  filteredEvents,
   mode,
+  filteredEvents,
+  totalEventCount,
   loading,
   error,
   scrollProgress,
   onScrollProgressChange,
-  onEditEvent,
   onAddEvent,
+  onEditEvent,
   onClearFilters,
   hasActiveFilters,
-  ownerInfo,
 }: TimelineViewProps) {
   const timelineRef = useRef<HTMLDivElement>(null);
 
@@ -139,7 +134,7 @@ export function TimelineView({
       )}
 
       {/* Empty state - only show for owner */}
-      {events.length === 0 && mode === 'owner' ? (
+      {totalEventCount === 0 && mode === 'owner' ? (
         <div className="text-center mt-20 flex flex-col items-center">
           <Button
             onClick={onAddEvent}
@@ -149,7 +144,7 @@ export function TimelineView({
             Begin
           </Button>
         </div>
-      ) : events.length === 0 && mode === 'viewer' ? (
+      ) : totalEventCount === 0 && mode !== 'owner' ? (
         <div className="text-center mt-20">
           <BodyText>This timeline is empty.</BodyText>
         </div>
@@ -182,10 +177,10 @@ export function TimelineView({
       )}
 
       {/* Filter status indicator */}
-      {hasActiveFilters && events.length > 0 && onClearFilters && (
+      {hasActiveFilters && totalEventCount > 0 && onClearFilters && (
         <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white px-4 py-2 rounded-full shadow-lg border border-secondary-200 flex items-center space-x-2">
           <SmallText>
-            Showing {filteredEvents.length} of {events.length} events
+            Showing {filteredEvents.length} of {totalEventCount} events
           </SmallText>
           <Button onClick={onClearFilters} variant="text" size="sm">
             Clear

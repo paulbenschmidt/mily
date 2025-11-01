@@ -1,6 +1,4 @@
 ## Now
-- Move all timeline components into dir
-
 - Enable "Publicly Accessible" for "Share" button on event page
 - Make mobile browser UI better
     - Conditionally show "Add Event", "Filter", and "Share" text

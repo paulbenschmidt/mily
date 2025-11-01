@@ -3,10 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { authApiClient } from '@/utils/auth-api';
 import { TimelineEventType } from '@/types/api';
-import { FilterOptions } from '@/components/Timeline/FilterDropdown';
-import { TimelineHeader } from '@/components/Timeline/TimelineHeader';
-import { TimelineView } from '@/components/Timeline';
-import { AddEventModal } from '@/components/Timeline/AddEventModal';
+import { AddEventModal, FilterOptions, TimelineView, TimelineHeader } from '@/components/Timeline';
 
 export default function Timeline() {
   const [events, setEvents] = useState<TimelineEventType[]>([]);
@@ -143,15 +140,15 @@ export default function Timeline() {
       />
 
       <TimelineView
-        events={events}
-        filteredEvents={filteredEvents}
         mode="owner"
+        filteredEvents={filteredEvents}
+        totalEventCount={events.length}
         loading={loading}
         error={error}
         scrollProgress={scrollProgress}
         onScrollProgressChange={setScrollProgress}
-        onEditEvent={handleEditEvent}
         onAddEvent={handleAddEvent}
+        onEditEvent={handleEditEvent}
         onClearFilters={handleClearFilters}
         hasActiveFilters={hasActiveFilters}
       />
