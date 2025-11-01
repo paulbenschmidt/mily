@@ -1,7 +1,5 @@
 ## Now
 - Show privacy level on events (and add filter for privacy level)
-- Add "expand" button to show the full description or notes
-- Ability to select multiple events and update/delete them
 - How can I add age? Should I make it optional for users to add a birthday?
     - If I add it as part of the profile, I can add a little blurb that says "this field will be used to calculate your age for each event". It'll also auto-add an event to the user's timeline for their birthday.
 - Show timeline on left of where you are relative to the first and last event
@@ -43,6 +41,7 @@
 - [ ] Add timeline event share logic
 
 ### Optimizations
+- Ability to select multiple events and update/delete them
 - [ ] Auto-generate requirements.txt from pyproject.toml so that you don't have to remember to export poetry when deploying to Railway
 - [ ] Implement OpenAPI schema generation so that frontend inherits data models from backend (DRY)
 - [ ] Change static/media to use S3
