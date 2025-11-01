@@ -10,9 +10,10 @@ interface TimelineEventProps {
   onEditEvent?: (event: TimelineEventType) => void;
   previousEvent?: TimelineEventType;
   nextEvent?: TimelineEventType;
+  isMobile: boolean;
 }
 
-export function TimelineEvent({ event, onEditEvent, previousEvent, nextEvent }: TimelineEventProps) {
+export function TimelineEvent({ event, onEditEvent, previousEvent, nextEvent, isMobile }: TimelineEventProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -87,164 +88,199 @@ export function TimelineEvent({ event, onEditEvent, previousEvent, nextEvent }: 
     }
   };
 
-  const getBottomPadding = () => {
-    if (!nextEvent) return 'pb-4'; // Default padding for last event
+  const getSpacerHeight = () => {
+    // Since Tailwind needs to render the height statically (i.e. no variables), we have to use a switch statement
+    if (!nextEvent) {
+      return isMobile && shouldShowYear() ? 'h-16' : 'h-4';
+    }
 
     const currentDate = new Date(event.event_date);
     const nextDate = new Date(nextEvent.event_date);
     const daysDiff = Math.abs(Math.floor((currentDate.getTime() - nextDate.getTime()) / (1000 * 60 * 60 * 24)));
 
-    // Scale padding based on time gap
-    if (daysDiff <= 90) return 'pb-4';
-    if (daysDiff <= 180) return 'pb-8';
-    if (daysDiff <= 365) return 'pb-12';
-    return 'pb-16';
+    // Determine base height based on time gap
+    // For mobile with year labels, add extra spacing
+    const hasYearLabel = isMobile && shouldShowYear();
+
+    if (daysDiff <= 90) {
+      return hasYearLabel ? 'h-16' : 'h-4';
+    } else if (daysDiff <= 180) {
+      return hasYearLabel ? 'h-20' : 'h-8';
+    } else if (daysDiff <= 365) {
+      return hasYearLabel ? 'h-24' : 'h-12';
+    } else {
+      return hasYearLabel ? 'h-28' : 'h-16';
+    }
   };
 
   const getLineHeight = () => {
-    if (!nextEvent) return 'h-0'; // No line for last event
+    if (!nextEvent) return 'h-0';
 
     const currentDate = new Date(event.event_date);
     const nextDate = new Date(nextEvent.event_date);
     const daysDiff = Math.abs(Math.floor((currentDate.getTime() - nextDate.getTime()) / (1000 * 60 * 60 * 24)));
 
-    // Match the padding values
-    if (daysDiff <= 90) return 'h-[calc(50%+1rem)]';
-    if (daysDiff <= 180) return 'h-[calc(50%+2rem)]';
-    if (daysDiff <= 365) return 'h-[calc(50%+3rem)]';
-    return 'h-[calc(50%+4rem)]';
+    const hasYearLabel = isMobile && shouldShowYear();
+
+    // Line extends from center of current dot (50%) through spacer to center of next dot (50%)
+    // Spacer heights: h-4=16px, h-8=32px, h-12=48px, h-16=64px, h-20=80px, h-24=96px, h-28=112px
+    if (daysDiff <= 90) {
+      return hasYearLabel ? 'h-[calc(50%+64px)]' : 'h-[calc(50%+16px)]';
+    } else if (daysDiff <= 180) {
+      return hasYearLabel ? 'h-[calc(50%+80px)]' : 'h-[calc(50%+32px)]';
+    } else if (daysDiff <= 365) {
+      return hasYearLabel ? 'h-[calc(50%+96px)]' : 'h-[calc(50%+48px)]';
+    } else {
+      return hasYearLabel ? 'h-[calc(50%+112px)]' : 'h-[calc(50%+64px)]';
+    }
   };
 
   return (
-    <div
-      className={`relative flex items-center gap-6 ${getBottomPadding()}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {/* Year label - only shown when year changes */}
-      <div className="w-16 flex items-center justify-end">
-        {shouldShowYear() && (
+    <>
+      <div className="relative">
+        <div
+          className={`flex items-center gap-6`}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+
+        {/* Year label - only shown when year changes and on desktop */}
+        {!isMobile && (
+          <div className="w-16 flex items-center justify-end">
+            {shouldShowYear() && (
+              <BodyText className="font-serif font-semibold text-secondary-600">
+                {getYear()}
+              </BodyText>
+            )}
+          </div>
+        )}
+
+        {/* Timeline line and dot */}
+        <div className="flex flex-col items-center justify-center relative self-stretch">
+          {/* Top line - only show if there's a previous event */}
+          {previousEvent && (
+            <div className="absolute top-0 bottom-1/2 left-1/2 transform -translate-x-[0.5px] w-px bg-secondary-300" />
+          )}
+
+          {/* Bottom line - extends dynamically based on time gap to next event */}
+          {nextEvent && (
+            <div className={`absolute top-1/2 left-1/2 transform -translate-x-[0.5px] w-px bg-secondary-300 ${getLineHeight()}`} />
+          )}
+
+          {/* Dot with background circle to separate from line */}
+          <div className="w-6 h-6 flex items-center justify-center relative z-1">
+            {/* Background circle to match background of page - sized based on category */}
+            <div className={`absolute bg-secondary-50 rounded-full ${getBackgroundCircleSize(event.category)}`} />
+            {/* Actual dot */}
+            <div
+              className={`rounded-full border-2 bg-muted-foreground border-muted-foreground ${getCategorySize(event.category)} ${getCategoryShadow(event.category)} flex-shrink-0 relative z-10`}
+            />
+          </div>
+        </div>
+
+        {/* Event content */}
+        <div className="flex-1 min-w-0">
+          <Card className={`p-6 relative ${getCategoryShadow(event.category)}`}>
+            {/* Edit button - only visible on hover */}
+            {(isHovered || isMobile) && onEditEvent && (
+              <Button
+                variant="text"
+                onClick={handleEdit}
+                className="absolute top-4 right-16 p-1.5 text-secondary-400 hover:text-secondary-600 hover:bg-secondary-100 rounded-full"
+                title="Edit Event"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+              </Button>
+            )}
+
+            {/* Toggle button - visible when there's expandable content */}
+            {hasExpandableContent && (
+              <Button
+                variant="text"
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="absolute top-4 right-4 p-1.5 text-secondary-400 hover:text-secondary-600 hover:bg-secondary-100 rounded-full transition-transform"
+                title={isExpanded ? "Collapse" : "Expand"}
+              >
+                <svg
+                  className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </Button>
+            )}
+
+            <div className="flex gap-4 items-center">
+              {/* Stacked date on the left */}
+              <div className="flex flex-col items-center justify-start min-w-[60px]">
+                <Caption className="font-serif tracking-wider font-semibold text-secondary-500 leading-none">
+                  {getStackedDate(event.event_date).month}
+                </Caption>
+                <BodyText className="font-serif font-semibold text-secondary-700 leading-none mt-1">
+                  {getStackedDate(event.event_date).day}
+                </BodyText>
+                <BodyText className="font-serif text-secondary-500 text-xs leading-none mt-1">
+                  {event.category}
+                </BodyText>
+              </div>
+
+              {/* Content on the right */}
+              <div className="flex-1 min-w-0">
+                <BodyText className="font-semibold">{event.title}</BodyText>
+
+                {/* Description with line-clamp when collapsed */}
+                {event.description && (
+                  <SmallText
+                    className={`leading-relaxed whitespace-pre-wrap mt-2 ${
+                      !isExpanded ? 'line-clamp-1' : ''
+                    }`}
+                  >
+                    {event.description}
+                  </SmallText>
+                )}
+
+                {/* Expandable content: photos and notes */}
+                <div
+                  className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                    isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+                  }`}
+                >
+
+                  {event.photos && event.photos.length > 0 && (
+                    <div className="mb-4">
+                      <img
+                        src={event.photos[0]}
+                        alt={event.title}
+                        className="w-full h-48 object-cover rounded-md"
+                      />
+                    </div>
+                  )}
+
+                  {event.notes && (
+                    <div className="pt-4 border-t border-secondary-200">
+                      <Caption className="italic">{event.notes}</Caption>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </div>
+
+      {/* Spacer with year label for mobile */}
+      <div className={`flex items-center justify-center ${getSpacerHeight()}`}>
+        {isMobile && shouldShowYear() && (
           <BodyText className="font-serif font-semibold text-secondary-600">
             {getYear()}
           </BodyText>
         )}
       </div>
-
-      {/* Timeline line and dot */}
-      <div className="flex flex-col items-center justify-center relative self-stretch">
-        {/* Top line - only show if there's a previous event */}
-        {previousEvent && (
-          <div className="absolute top-0 bottom-1/2 left-1/2 transform -translate-x-[0.5px] w-px bg-secondary-300" />
-        )}
-
-        {/* Bottom line - extends dynamically based on time gap to next event */}
-        {nextEvent && (
-          <div className={`absolute top-1/2 left-1/2 transform -translate-x-[0.5px] w-px bg-secondary-300 ${getLineHeight()}`} />
-        )}
-
-        {/* Dot with background circle to separate from line */}
-        <div className="w-6 h-6 flex items-center justify-center relative z-1">
-          {/* Background circle to match background of page - sized based on category */}
-          <div className={`absolute bg-secondary-50 rounded-full ${getBackgroundCircleSize(event.category)}`} />
-          {/* Actual dot */}
-          <div
-            className={`rounded-full border-2 bg-muted-foreground border-muted-foreground ${getCategorySize(event.category)} ${getCategoryShadow(event.category)} flex-shrink-0 relative z-10`}
-          />
-        </div>
-      </div>
-
-      {/* Event content */}
-      <div className="flex-1 min-w-0">
-        <Card className={`p-6 relative ${getCategoryShadow(event.category)}`}>
-          {/* Edit button - only visible on hover */}
-          {isHovered && onEditEvent && (
-            <Button
-              variant="text"
-              onClick={handleEdit}
-              className="absolute top-4 right-16 p-1.5 text-secondary-400 hover:text-secondary-600 hover:bg-secondary-100 rounded-full"
-              title="Edit Event"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
-            </Button>
-          )}
-
-          {/* Toggle button - visible when there's expandable content */}
-          {hasExpandableContent && (
-            <Button
-              variant="text"
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="absolute top-4 right-4 p-1.5 text-secondary-400 hover:text-secondary-600 hover:bg-secondary-100 rounded-full transition-transform"
-              title={isExpanded ? "Collapse" : "Expand"}
-            >
-              <svg
-                className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </Button>
-          )}
-
-          <div className="flex gap-4 items-center">
-            {/* Stacked date on the left */}
-            <div className="flex flex-col items-center justify-start min-w-[60px]">
-              <Caption className="font-serif tracking-wider font-semibold text-secondary-500 leading-none">
-                {getStackedDate(event.event_date).month}
-              </Caption>
-              <BodyText className="font-serif font-semibold text-secondary-700 leading-none mt-1">
-                {getStackedDate(event.event_date).day}
-              </BodyText>
-              <BodyText className="font-serif text-secondary-500 text-xs leading-none mt-1">
-                {event.category}
-              </BodyText>
-            </div>
-
-            {/* Content on the right */}
-            <div className="flex-1 min-w-0">
-              <BodyText className="font-semibold">{event.title}</BodyText>
-
-              {/* Description with line-clamp when collapsed */}
-              {event.description && (
-                <SmallText
-                  className={`leading-relaxed whitespace-pre-wrap mt-2 ${
-                    !isExpanded ? 'line-clamp-1' : ''
-                  }`}
-                >
-                  {event.description}
-                </SmallText>
-              )}
-
-              {/* Expandable content: photos and notes */}
-              <div
-                className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                  isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
-                }`}
-              >
-
-                {event.photos && event.photos.length > 0 && (
-                  <div className="mb-4">
-                    <img
-                      src={event.photos[0]}
-                      alt={event.title}
-                      className="w-full h-48 object-cover rounded-md"
-                    />
-                  </div>
-                )}
-
-                {event.notes && (
-                  <div className="pt-4 border-t border-secondary-200">
-                    <Caption className="italic">{event.notes}</Caption>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </Card>
-      </div>
     </div>
+    </>
   );
 }

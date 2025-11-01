@@ -1,9 +1,5 @@
 ## Now
 - Enable "Publicly Accessible" for "Share" button on event page
-- Make mobile browser UI better
-    - Conditionally show "Add Event", "Filter", and "Share" text
-    - Move year labels underneath event
-
 
 ## Upcoming
 - How can I add age? Should I make it optional for users to add a birthday?

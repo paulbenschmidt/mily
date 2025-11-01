@@ -71,7 +71,7 @@ export function FilterDropdown({
   return (
     <div
       ref={dropdownRef}
-      className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg z-20 border border-secondary-200"
+      className="bg-white rounded-md shadow-lg z-20 border border-secondary-200 fixed md:absolute left-4 right-4 md:left-auto md:right-0 top-20 md:top-auto mt-0 md:mt-2 w-auto md:w-80"
     >
       <div className="p-4">
         <Subheading className="mb-4">Filter Timeline</Subheading>

@@ -17,6 +17,7 @@ interface TimelineViewProps {
   onAddEvent?: () => void;
   onClearFilters?: () => void;
   hasActiveFilters: boolean;
+  isMobile: boolean;
 }
 
 export function TimelineView({
@@ -31,6 +32,7 @@ export function TimelineView({
   onEditEvent,
   onClearFilters,
   hasActiveFilters,
+  isMobile,
 }: TimelineViewProps) {
   const timelineRef = useRef<HTMLDivElement>(null);
 
@@ -169,6 +171,7 @@ export function TimelineView({
                   onEditEvent={mode === 'owner' ? onEditEvent : undefined}
                   previousEvent={filteredEvents[index - 1]}
                   nextEvent={filteredEvents[index + 1]}
+                  isMobile={isMobile}
                 />
               </div>
             ))

@@ -12,6 +12,7 @@ export default function Timeline() {
   const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
   const [eventToEdit, setEventToEdit] = useState<TimelineEventType | undefined>(undefined);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Filter state
   const [filters, setFilters] = useState<FilterOptions>({
@@ -23,6 +24,18 @@ export default function Timeline() {
 
   useEffect(() => {
     fetchEvents();
+  }, []);
+
+  // Mobile detection
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   const fetchEvents = async () => {
@@ -137,6 +150,7 @@ export default function Timeline() {
         onShare={handleShare}
         hasEvents={events.length > 0}
         currentFilters={filters}
+        isMobile={isMobile}
       />
 
       <TimelineView
@@ -151,6 +165,7 @@ export default function Timeline() {
         onEditEvent={handleEditEvent}
         onClearFilters={handleClearFilters}
         hasActiveFilters={hasActiveFilters}
+        isMobile={isMobile}
       />
 
       {/* Add/Edit Event Modal */}
