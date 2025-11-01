@@ -5,20 +5,38 @@ import { FilterDropdown, FilterOptions } from './FilterDropdown';
 import { SmallText, Button } from '@/components/ui';
 
 interface TimelineHeaderProps {
+  mode?: 'owner' | 'viewer';
   onAddEvent?: () => void;
   onFilter?: (filters: FilterOptions) => void;
   onShare?: () => void;
   hasEvents?: boolean;
   currentFilters: FilterOptions;
+  title?: string;
+  ownerInfo?: {
+    name: string;
+    profilePicture?: string;
+  };
 }
 
-export function TimelineHeader({ onAddEvent, onFilter, onShare, hasEvents = false, currentFilters }: TimelineHeaderProps) {
+export function TimelineHeader({
+  onAddEvent,
+  onFilter,
+  onShare,
+  hasEvents = false,
+  currentFilters,
+  mode = 'owner',
+  title,
+  ownerInfo,
+}: TimelineHeaderProps) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  const displayTitle = title || (mode === 'owner' ? 'My Timeline' : `${ownerInfo?.name || 'User'}'s Timeline`);
+
   return (
     <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-secondary-200/50 px-6 py-4">
       <div className="max-w-4xl mx-auto flex items-center justify-between">
         <div>
-          <SmallText className="font-semibold">My Timeline</SmallText>
+          <SmallText className="font-semibold">{displayTitle}</SmallText>
         </div>
 
         <div className="flex items-center gap-2">
@@ -47,20 +65,23 @@ export function TimelineHeader({ onAddEvent, onFilter, onShare, hasEvents = fals
                   currentFilters={currentFilters}
                 />
               </div>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={onShare}
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-                </svg>
-                Share
-              </Button>
+              {/* Share button - only in owner mode */}
+              {mode === 'owner' && onShare && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={onShare}
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                  </svg>
+                  Share
+                </Button>
+              )}
             </>
           )}
-          {/* Add Event button only shown when there are events */}
-          {hasEvents && (
+          {/* Add Event button - only in owner mode and when there are events */}
+          {hasEvents && mode === 'owner' && onAddEvent && (
             <Button
               size="sm"
               onClick={onAddEvent}

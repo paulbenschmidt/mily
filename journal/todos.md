@@ -1,10 +1,13 @@
 ## Now
 - Enable "Publicly Accessible" for "Share" button on event page
+- Make mobile browser UI better
+    - Conditionally show "Add Event", "Filter", and "Share" text
+    - Move year labels underneath event
+
 
 ## Upcoming
 - How can I add age? Should I make it optional for users to add a birthday?
     - If I add it as part of the profile, I can add a little blurb that says "this field will be used to calculate your age for each event". It'll also auto-add an event to the user's timeline for their birthday.
-- Make mobile browser UI better
 - [ ] Allow users to delete their accounts
 - [ ] Verify that users cannot see the years associated with any events (for privacy reasons)
 - [ ] Password reset via Django's built-in email system (Allow users ability to change password)

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { TimelineEventType } from '@/types/api';
-import { SmallText, Caption, Button, Card, Badge, BodyText } from '@/components/ui';
+import { SmallText, Caption, Button, Card, BodyText } from '@/components/ui';
 
 interface TimelineEventProps {
   event: TimelineEventType;
@@ -209,7 +209,7 @@ export function TimelineEvent({ event, onEditEvent, previousEvent, nextEvent }: 
 
               {/* Description with line-clamp when collapsed */}
               {event.description && (
-                <SmallText 
+                <SmallText
                   className={`leading-relaxed whitespace-pre-wrap mt-2 ${
                     !isExpanded ? 'line-clamp-1' : ''
                   }`}
