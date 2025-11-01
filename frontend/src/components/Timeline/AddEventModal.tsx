@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { TimelineEventType, EventCategory, EventPrivacyLevel, EVENT_CATEGORIES, EVENT_PRIVACY_LEVELS } from '@/types/api';
 import { authApiClient } from '@/utils/auth-api';
 import { Input, Button, Subheading, BodyText, Alert, Textarea } from '@/components/ui';
-import { ToggleButtonGroup } from '@/components/ToggleButtonGroup';
+import { ToggleButtonGroup } from '@/components/Timeline/ToggleButtonGroup';
 import { useAutoFocus } from '@/hooks/useAutoFocus';
 import { useModalKeyboardShortcuts } from '@/hooks/useModalKeyboardShortcuts';
 import { useDisableBodyScroll } from '@/hooks/disableBodyScroll';
