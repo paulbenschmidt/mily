@@ -200,13 +200,6 @@ export function TimelineEvent({ event, onEditEvent, previousEvent, nextEvent }: 
               <BodyText className="font-serif text-secondary-500 text-xs leading-none mt-1">
                 {event.category}
               </BodyText>
-              {/* <Badge className={`mt-2 ${
-                event.category === 'major' ? 'border-2 border-secondary-500 bg-secondary-200' :
-                event.category === 'minor' ? 'border-2 border-secondary-400 bg-secondary-100' :
-                'border-2 border-secondary-300 bg-transparent'
-              }`}>
-                {event.category}
-              </Badge> */}
             </div>
 
             {/* Content on the right */}

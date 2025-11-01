@@ -224,7 +224,7 @@ export default function Timeline() {
             <div className="flex flex-col items-center gap-2">
               {/* First event year */}
               <SmallText className="font-serif font-semibold text-secondary-500 text-xs">
-                {new Date(filteredEvents[0].event_date).getFullYear()}
+                {filteredEvents[0].event_date.split('-')[0]}
               </SmallText>
               
               {/* Progress bar */}
@@ -237,7 +237,7 @@ export default function Timeline() {
               
               {/* Last event year */}
               <SmallText className="font-serif font-semibold text-secondary-500 text-xs">
-                {new Date(filteredEvents[filteredEvents.length - 1].event_date).getFullYear()}
+                {filteredEvents[filteredEvents.length - 1].event_date.split('-')[0]}
               </SmallText>
             </div>
           </div>
