@@ -223,9 +223,9 @@ export function TimelineEvent({ event, onEditEvent, previousEvent, nextEvent, is
                 <BodyText className="font-serif font-semibold text-secondary-700 leading-none mt-1">
                   {getStackedDate(event.event_date).day}
                 </BodyText>
-                <Caption className="font-serif text-secondary-500 leading-none mt-0.5 md:mt-1">
+                <BodyText className="font-serif text-secondary-500 leading-none mt-0.5 md:mt-1" textClass="text-xs">
                   {event.category}
-                </Caption>
+                </BodyText>
               </div>
 
               {/* Content on the right */}

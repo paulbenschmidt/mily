@@ -2,6 +2,7 @@ import { HTMLAttributes, ReactNode } from 'react';
 
 interface TypographyProps extends HTMLAttributes<HTMLElement> {
   children: ReactNode;
+  textClass?: string;
 }
 
 export function PageHeading({ className = '', children, ...props }: TypographyProps) {
@@ -28,9 +29,9 @@ export function Subheading({ className = '', children, ...props }: TypographyPro
   );
 }
 
-export function BodyText({ className = '', children, ...props }: TypographyProps) {
+export function BodyText({ className = '', textClass = 'text-base md:text-lg', children, ...props }: TypographyProps) {
   return (
-    <p className={`text-base md:text-lg text-secondary-700 ${className}`} {...props}>
+    <p className={`text-secondary-700 ${textClass} ${className}`} {...props}>
       {children}
     </p>
   );
