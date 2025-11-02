@@ -4,8 +4,10 @@ import { useState, useEffect, useMemo } from 'react';
 import { authApiClient } from '@/utils/auth-api';
 import { TimelineEventType } from '@/types/api';
 import { AddEventModal, DeleteConfirmationModal, FilterOptions, TimelineView, TimelineHeader } from '@/components/Timeline';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Timeline() {
+  const { isMobile } = useAuth();
   const [events, setEvents] = useState<TimelineEventType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -15,7 +17,6 @@ export default function Timeline() {
   const [eventToDelete, setEventToDelete] = useState<TimelineEventType | undefined>(undefined);
   const [isDeleting, setIsDeleting] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
 
   // Filter state
   const [filters, setFilters] = useState<FilterOptions>({
@@ -27,18 +28,6 @@ export default function Timeline() {
 
   useEffect(() => {
     fetchEvents();
-  }, []);
-
-  // Mobile detection
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-
-    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   const fetchEvents = async () => {
@@ -109,7 +98,6 @@ export default function Timeline() {
     }
   };
 
-
   const handleFilter = (newFilters: FilterOptions) => {
     setFilters(newFilters);
   };
@@ -124,23 +112,12 @@ export default function Timeline() {
       const eventDate = new Date(event.event_date);
 
       // Filter by date range
-      if (filters.startDate && new Date(filters.startDate) > eventDate) {
-        return false;
-      }
-
-      if (filters.endDate && new Date(filters.endDate) < eventDate) {
-        return false;
-      }
-
+      if (filters.startDate && new Date(filters.startDate) > eventDate) {return false;}
+      if (filters.endDate && new Date(filters.endDate) < eventDate) {return false;}
       // Filter by category
-      if (filters.category !== 'all' && event.category !== filters.category) {
-        return false;
-      }
-
+      if (filters.category !== 'all' && event.category !== filters.category) {return false;}
       // Filter by privacy level
-      if (filters.privacy_level !== 'all' && event.privacy_level !== filters.privacy_level) {
-        return false;
-      }
+      if (filters.privacy_level !== 'all' && event.privacy_level !== filters.privacy_level) {return false;}
 
       return true;
     });
