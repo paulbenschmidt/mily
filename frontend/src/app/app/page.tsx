@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { authApiClient } from '@/utils/auth-api';
 import { TimelineEventType } from '@/types/api';
-import { AddEventModal, FilterOptions, TimelineView, TimelineHeader } from '@/components/Timeline';
+import { AddEventModal, DeleteConfirmationModal, FilterOptions, TimelineView, TimelineHeader } from '@/components/Timeline';
 
 export default function Timeline() {
   const [events, setEvents] = useState<TimelineEventType[]>([]);
@@ -11,6 +11,9 @@ export default function Timeline() {
   const [error, setError] = useState<string | null>(null);
   const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
   const [eventToEdit, setEventToEdit] = useState<TimelineEventType | undefined>(undefined);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState<TimelineEventType | undefined>(undefined);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -65,6 +68,11 @@ export default function Timeline() {
     setIsAddEventModalOpen(true);
   };
 
+  const handleDeleteEvent = (event: TimelineEventType) => {
+    setEventToDelete(event);
+    setIsDeleteModalOpen(true);
+  };
+
   const handleEventAdded = (newEvent: TimelineEventType) => {
     // Add the new event to the timeline and sort by date (newest first)
     const updatedEvents = [newEvent, ...events].sort((a, b) =>
@@ -83,11 +91,24 @@ export default function Timeline() {
     setEvents(updatedEvents);
   };
 
-  const handleEventDeleted = (eventId: string) => {
-    // Remove the deleted event from the timeline
-    const updatedEvents = events.filter(event => event.id !== eventId);
-    setEvents(updatedEvents);
+  const handleDeleteConfirm = async () => {
+    if (!eventToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      await authApiClient.deleteEvent(eventToDelete.id);
+      // Remove the deleted event from the timeline
+      const updatedEvents = events.filter(e => e.id !== eventToDelete.id);
+      setEvents(updatedEvents);
+      setIsDeleteModalOpen(false);
+      setEventToDelete(undefined);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to delete event');
+    } finally {
+      setIsDeleting(false);
+    }
   };
+
 
   const handleFilter = (newFilters: FilterOptions) => {
     setFilters(newFilters);
@@ -163,6 +184,7 @@ export default function Timeline() {
         onScrollProgressChange={setScrollProgress}
         onAddEvent={handleAddEvent}
         onEditEvent={handleEditEvent}
+        onDeleteEvent={handleDeleteEvent}
         onClearFilters={handleClearFilters}
         hasActiveFilters={hasActiveFilters}
         isMobile={isMobile}
@@ -175,7 +197,15 @@ export default function Timeline() {
         onEventAdded={handleEventAdded}
         eventToEdit={eventToEdit}
         onEventUpdated={handleEventUpdated}
-        onEventDeleted={handleEventDeleted}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        eventTitle={eventToDelete?.title || ''}
+        isDeleting={isDeleting}
       />
     </div>
   );
