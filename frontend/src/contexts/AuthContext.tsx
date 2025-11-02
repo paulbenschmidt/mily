@@ -8,6 +8,7 @@ import { UserType } from '@/types/api';
 interface AuthContextType {
   user: UserType | null;
   loading: boolean;
+  isMobile: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   signup: (userData: {
@@ -33,6 +34,7 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const router = useRouter();
 
   const checkAuth = async () => {
@@ -111,9 +113,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initialize();
   }, []);
 
+  // Mobile detection
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const value: AuthContextType = {
     user,
     loading,
+    isMobile,
     login,
     logout,
     signup,

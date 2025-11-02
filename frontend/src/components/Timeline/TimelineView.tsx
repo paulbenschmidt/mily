@@ -14,6 +14,7 @@ interface TimelineViewProps {
   scrollProgress: number;
   onScrollProgressChange: (progress: number) => void;
   onEditEvent?: (event: TimelineEventType) => void;
+  onDeleteEvent?: (event: TimelineEventType) => void;
   onAddEvent?: () => void;
   onClearFilters?: () => void;
   hasActiveFilters: boolean;
@@ -28,6 +29,7 @@ export function TimelineView({
   error,
   scrollProgress,
   onScrollProgressChange,
+  onDeleteEvent,
   onAddEvent,
   onEditEvent,
   onClearFilters,
@@ -169,6 +171,7 @@ export function TimelineView({
                 <TimelineEvent
                   event={event}
                   onEditEvent={mode === 'owner' ? onEditEvent : undefined}
+                  onDeleteEvent={mode === 'owner' ? onDeleteEvent : undefined}
                   previousEvent={filteredEvents[index - 1]}
                   nextEvent={filteredEvents[index + 1]}
                   isMobile={isMobile}

@@ -3,16 +3,20 @@
 import { useState, useEffect, useMemo } from 'react';
 import { authApiClient } from '@/utils/auth-api';
 import { TimelineEventType } from '@/types/api';
-import { AddEventModal, FilterOptions, TimelineView, TimelineHeader } from '@/components/Timeline';
+import { AddEventModal, DeleteConfirmationModal, FilterOptions, TimelineView, TimelineHeader } from '@/components/Timeline';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Timeline() {
+  const { isMobile } = useAuth();
   const [events, setEvents] = useState<TimelineEventType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
   const [eventToEdit, setEventToEdit] = useState<TimelineEventType | undefined>(undefined);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState<TimelineEventType | undefined>(undefined);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
 
   // Filter state
   const [filters, setFilters] = useState<FilterOptions>({
@@ -24,18 +28,6 @@ export default function Timeline() {
 
   useEffect(() => {
     fetchEvents();
-  }, []);
-
-  // Mobile detection
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-
-    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   const fetchEvents = async () => {
@@ -65,6 +57,11 @@ export default function Timeline() {
     setIsAddEventModalOpen(true);
   };
 
+  const handleDeleteEvent = (event: TimelineEventType) => {
+    setEventToDelete(event);
+    setIsDeleteModalOpen(true);
+  };
+
   const handleEventAdded = (newEvent: TimelineEventType) => {
     // Add the new event to the timeline and sort by date (newest first)
     const updatedEvents = [newEvent, ...events].sort((a, b) =>
@@ -83,10 +80,22 @@ export default function Timeline() {
     setEvents(updatedEvents);
   };
 
-  const handleEventDeleted = (eventId: string) => {
-    // Remove the deleted event from the timeline
-    const updatedEvents = events.filter(event => event.id !== eventId);
-    setEvents(updatedEvents);
+  const handleDeleteConfirm = async () => {
+    if (!eventToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      await authApiClient.deleteEvent(eventToDelete.id);
+      // Remove the deleted event from the timeline
+      const updatedEvents = events.filter(e => e.id !== eventToDelete.id);
+      setEvents(updatedEvents);
+      setIsDeleteModalOpen(false);
+      setEventToDelete(undefined);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to delete event');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const handleFilter = (newFilters: FilterOptions) => {
@@ -103,23 +112,12 @@ export default function Timeline() {
       const eventDate = new Date(event.event_date);
 
       // Filter by date range
-      if (filters.startDate && new Date(filters.startDate) > eventDate) {
-        return false;
-      }
-
-      if (filters.endDate && new Date(filters.endDate) < eventDate) {
-        return false;
-      }
-
+      if (filters.startDate && new Date(filters.startDate) > eventDate) {return false;}
+      if (filters.endDate && new Date(filters.endDate) < eventDate) {return false;}
       // Filter by category
-      if (filters.category !== 'all' && event.category !== filters.category) {
-        return false;
-      }
-
+      if (filters.category !== 'all' && event.category !== filters.category) {return false;}
       // Filter by privacy level
-      if (filters.privacy_level !== 'all' && event.privacy_level !== filters.privacy_level) {
-        return false;
-      }
+      if (filters.privacy_level !== 'all' && event.privacy_level !== filters.privacy_level) {return false;}
 
       return true;
     });
@@ -163,6 +161,7 @@ export default function Timeline() {
         onScrollProgressChange={setScrollProgress}
         onAddEvent={handleAddEvent}
         onEditEvent={handleEditEvent}
+        onDeleteEvent={handleDeleteEvent}
         onClearFilters={handleClearFilters}
         hasActiveFilters={hasActiveFilters}
         isMobile={isMobile}
@@ -175,7 +174,15 @@ export default function Timeline() {
         onEventAdded={handleEventAdded}
         eventToEdit={eventToEdit}
         onEventUpdated={handleEventUpdated}
-        onEventDeleted={handleEventDeleted}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        eventTitle={eventToDelete?.title || ''}
+        isDeleting={isDeleting}
       />
     </div>
   );

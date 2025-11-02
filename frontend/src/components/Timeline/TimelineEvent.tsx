@@ -8,13 +8,13 @@ interface TimelineEventProps {
   event: TimelineEventType;
   isLast?: boolean;
   onEditEvent?: (event: TimelineEventType) => void;
+  onDeleteEvent?: (event: TimelineEventType) => void;
   previousEvent?: TimelineEventType;
   nextEvent?: TimelineEventType;
   isMobile: boolean;
 }
 
-export function TimelineEvent({ event, onEditEvent, previousEvent, nextEvent, isMobile }: TimelineEventProps) {
-  const [isHovered, setIsHovered] = useState(false);
+export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent, nextEvent, isMobile }: TimelineEventProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const getCategorySize = (category: string) => {
@@ -53,9 +53,24 @@ export function TimelineEvent({ event, onEditEvent, previousEvent, nextEvent, is
     };
   };
 
-  const handleEdit = () => {
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (onEditEvent) {
       onEditEvent(event);
+    }
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onDeleteEvent) {
+      onDeleteEvent(event);
+    }
+  };
+
+  const handleCardClick = () => {
+    // Allow expansion if there's content to show OR if edit/delete is available
+    if (hasExpandableContent || onEditEvent || onDeleteEvent) {
+      setIsExpanded(!isExpanded);
     }
   };
 
@@ -138,11 +153,7 @@ export function TimelineEvent({ event, onEditEvent, previousEvent, nextEvent, is
   return (
     <>
       <div className="relative">
-        <div
-          className={`flex items-center gap-3 md:gap-6`}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
+        <div className={`flex items-center gap-3 md:gap-6`}>
 
         {/* Year label - only shown when year changes and on desktop */}
         {!isMobile && (
@@ -180,39 +191,10 @@ export function TimelineEvent({ event, onEditEvent, previousEvent, nextEvent, is
 
         {/* Event content */}
         <div className="flex-1 min-w-0">
-          <Card className={`p-4 md:p-6 relative ${getCategoryShadow(event.category)}`}>
-            {/* Edit button - only visible on hover */}
-            {(isHovered || isMobile) && onEditEvent && (
-              <Button
-                variant="text"
-                onClick={handleEdit}
-                className="absolute top-3 right-12 md:top-4 md:right-16 p-1.5 text-secondary-400 hover:text-secondary-600 hover:bg-secondary-100 rounded-full"
-                title="Edit Event"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
-              </Button>
-            )}
-
-            {/* Toggle button - visible when there's expandable content */}
-            {hasExpandableContent && (
-              <Button
-                variant="text"
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="absolute top-3 right-3 md:top-4 md:right-4 p-1.5 text-secondary-400 hover:text-secondary-600 hover:bg-secondary-100 rounded-full transition-transform"
-                title={isExpanded ? "Collapse" : "Expand"}
-              >
-                <svg
-                  className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </Button>
-            )}
+          <Card
+            className={`p-4 md:p-6 relative ${getCategoryShadow(event.category)} cursor-pointer`}
+            onClick={handleCardClick}
+          >
 
             <div className="flex gap-3 md:gap-4 items-center">
               {/* Stacked date on the left */}
@@ -232,23 +214,23 @@ export function TimelineEvent({ event, onEditEvent, previousEvent, nextEvent, is
               <div className="flex-1 min-w-0">
                 <BodyText className="font-semibold">{event.title}</BodyText>
 
-                {/* Description with line-clamp when collapsed */}
-                {event.description && (
-                  <SmallText
-                    className={`leading-relaxed whitespace-pre-wrap mt-1.5 md:mt-2 ${
-                      !isExpanded ? 'line-clamp-2 md:line-clamp-1' : ''
-                    }`}
-                  >
+                {/* Description preview when collapsed */}
+                {event.description && !isExpanded && (
+                  <SmallText className="leading-relaxed whitespace-pre-wrap mt-1.5 md:mt-2 line-clamp-2 md:line-clamp-1">
                     {event.description}
                   </SmallText>
                 )}
 
-                {/* Expandable content: photos and notes */}
-                <div
-                  className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                    isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
-                  }`}
-                >
+                {/* Expandable content: full description, photos, notes, and buttons */}
+                {isExpanded && (
+                <div className="overflow-hidden transition-all duration-300 ease-in-out animate-in slide-in-from-top-2">
+
+                  {/* Full description when expanded */}
+                  {event.description && (
+                    <SmallText className="leading-relaxed whitespace-pre-wrap mt-1.5 md:mt-2">
+                      {event.description}
+                    </SmallText>
+                  )}
 
                   {event.photos && event.photos.length > 0 && (
                     <div className="mb-4">
@@ -261,11 +243,44 @@ export function TimelineEvent({ event, onEditEvent, previousEvent, nextEvent, is
                   )}
 
                   {event.notes && (
-                    <div className="pt-4 border-t border-secondary-200">
+                    <div className="pt-4">
                       <Caption className="italic">{event.notes}</Caption>
                     </div>
                   )}
+
+                  {/* Action buttons - shown when expanded */}
+                  {(onEditEvent || onDeleteEvent) && (
+                    <div className="flex gap-6 justify-center pt-4 mt-4 border-t border-secondary-200">
+                      {onEditEvent && (
+                        <Button
+                          variant="secondary"
+                          onClick={handleEdit}
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-sm"
+                          title="Edit Event"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                          </svg>
+                          Edit
+                        </Button>
+                      )}
+                      {onDeleteEvent && (
+                        <Button
+                          variant="secondary"
+                          onClick={handleDelete}
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 border-red-200"
+                          title="Delete Event"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          Delete
+                        </Button>
+                      )}
+                    </div>
+                  )}
                 </div>
+                )}
               </div>
             </div>
           </Card>

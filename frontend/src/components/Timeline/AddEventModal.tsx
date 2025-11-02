@@ -18,7 +18,6 @@ interface AddEventModalProps {
   onEventAdded: (event: TimelineEventType) => void;
   eventToEdit?: TimelineEventType;
   onEventUpdated?: (event: TimelineEventType) => void;
-  onEventDeleted?: (eventId: string) => void;
 }
 
 export function AddEventModal({
@@ -26,8 +25,7 @@ export function AddEventModal({
   onClose,
   onEventAdded,
   eventToEdit,
-  onEventUpdated,
-  onEventDeleted
+  onEventUpdated
 }: AddEventModalProps) {
   const isEditMode = !!eventToEdit;
   const [title, setTitle] = useState('');
@@ -38,8 +36,6 @@ export function AddEventModal({
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [isSelectionsLoaded, setIsSelectionsLoaded] = useState(false);
 
   // Load event data when in edit mode
@@ -66,30 +62,9 @@ export function AddEventModal({
 
   const onModalClose = () => {
     resetForm();
-    setShowDeleteConfirmation(false);
     onClose();
   };
 
-  const handleDelete = async () => {
-    if (!eventToEdit) return;
-
-    setIsDeleting(true);
-    setError(null);
-
-    try {
-      await authApiClient.deleteEvent(eventToEdit.id);
-      if (onEventDeleted) {
-        onEventDeleted(eventToEdit.id);
-      }
-      setShowDeleteConfirmation(false);
-      resetForm();
-      onModalClose();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete event');
-    } finally {
-      setIsDeleting(false);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -145,16 +120,16 @@ export function AddEventModal({
   };
 
   // Auto-focus the title input when the modal opens
-  const titleInputRef = useAutoFocus<HTMLInputElement>(isOpen && !showDeleteConfirmation);
+  const titleInputRef = useAutoFocus<HTMLInputElement>(isOpen);
 
   // Allow CMD+Enter to submit the form and Escape to close
   useModalKeyboardShortcuts({
     isOpen,
-    showDeleteConfirmation,
-    isDeleting,
+    showDeleteConfirmation: false,
+    isDeleting: false,
     isSubmitting,
     onSubmit: () => handleSubmit({ preventDefault: () => {} } as React.FormEvent),
-    onDelete: handleDelete,
+    onDelete: () => {},
     onClose: onModalClose,
   });
 
@@ -178,7 +153,7 @@ export function AddEventModal({
     >
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
         <div className="flex justify-between items-center border-b border-secondary-200 px-6 py-4">
-          <Subheading>{showDeleteConfirmation ? 'Delete Event' : (isEditMode ? 'Edit Event' : 'Add New Event')}</Subheading>
+          <Subheading>{isEditMode ? 'Edit Event' : 'Add New Event'}</Subheading>
           <Button
             variant="text"
             onClick={onModalClose}
@@ -190,37 +165,7 @@ export function AddEventModal({
           </Button>
         </div>
 
-        {showDeleteConfirmation ? (
-          // Show delete confirmation content
-          <div className="px-6 py-4">
-            <BodyText className="mb-6">Are you sure you want to delete this event? This action cannot be undone.</BodyText>
-
-            {error && (
-              <Alert variant="error" className="mb-4">
-                {error}
-              </Alert>
-            )}
-
-            <div className="flex justify-end gap-3">
-              <Button
-                variant="secondary"
-                onClick={() => setShowDeleteConfirmation(false)}
-                disabled={isDeleting}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="danger"
-                onClick={handleDelete}
-                loading={isDeleting}
-              >
-                {isDeleting ? 'Deleting...' : 'Delete'}
-              </Button>
-            </div>
-          </div>
-        ) : (
-          // Show normal form content
-          <form onSubmit={handleSubmit} className="px-6 py-4">
+        <form onSubmit={handleSubmit} className="px-6 py-4">
           {error && (
             <Alert variant="error" className="mb-4">
               {error}
@@ -296,16 +241,6 @@ export function AddEventModal({
           </div>
 
           <div className="flex justify-end gap-3 mt-6">
-            {isEditMode && (
-              <Button
-                variant="danger"
-                onClick={() => setShowDeleteConfirmation(true)}
-                disabled={isSubmitting}
-                className="mr-auto"
-              >
-                Delete
-              </Button>
-            )}
             <Button
               variant="secondary"
               onClick={onModalClose}
@@ -317,11 +252,10 @@ export function AddEventModal({
               type="submit"
               loading={isSubmitting}
             >
-              {isSubmitting ? (isEditMode ? 'Saving...' : 'Adding...') : (isEditMode ? 'Save Changes' : 'Add Event')}
+              {isSubmitting ? (isEditMode ? 'Saving...' : 'Adding...') : (isEditMode ? 'Save' : 'Add')}
             </Button>
           </div>
         </form>
-        )}
       </div>
     </div>
   );
