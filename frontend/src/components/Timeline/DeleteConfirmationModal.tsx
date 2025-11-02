@@ -51,7 +51,7 @@ export function DeleteConfirmationModal({
 
         <div className="px-6 py-4">
           <BodyText className="mb-6">
-            Are you sure you want to delete <span className="font-semibold">"{eventTitle}"</span>? This action cannot be undone.
+            Are you sure you want to delete <span className="font-semibold">&ldquo;{eventTitle}&rdquo;</span>? This action cannot be undone.
           </BodyText>
 
           <div className="flex justify-end gap-3">
