@@ -115,9 +115,9 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
   const yearLabel = yearsToReturn();
 
   const getMonthSpacerHeight = () => {
-    // Since Tailwind needs to render the height statically (i.e. no variables), we have to use a switch statement
+    // Exit early if there is no next event
     if (!nextEvent) {
-      return 'h-4';
+      return '';
     }
 
     const currentDate = new Date(event.event_date);
@@ -138,9 +138,10 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
   };
 
   const getYearSpacerHeight = () => {
-    // Since Tailwind needs to render the height statically (i.e. no variables), we have to use a switch statement
+    // Exit early if there is no next event
+    const defaultHeight = 'h-6';
     if (!nextEvent) {
-      return 'h-4';
+      return defaultHeight;
     }
 
     const currentDate = new Date(event.event_date);
@@ -148,7 +149,7 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
     const yearsDiff = Math.abs(Math.floor((currentDate.getTime() - nextDate.getTime()) / (1000 * 60 * 60 * 24 * 365)));
 
     if (yearsDiff <= 1) {
-      return 'h-6';
+      return defaultHeight;
     } else if (yearsDiff <= 2) {
       return 'h-10';
     } else if (yearsDiff <= 5) {
