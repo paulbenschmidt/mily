@@ -103,7 +103,7 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
     if (currentYear === nextYear) {
       return null; // If the next event is in the same year, don't show a year
     } else if (yearsDiff === 1) {
-      return nextYear.toString(); // If the next event is in the next year, show the next year
+      return currentYear.toString(); // If the next event is in the next year, show the next year
     } else if (yearsDiff > 1) {
       return `${yearsDiff} years`; // If the next event is more than a year away, show the number of years
     } else {
