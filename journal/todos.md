@@ -33,6 +33,7 @@
 - [ ] Add timeline event share logic
 
 ### Optimizations
+- UI: Currently, for the top event, the line extends above the dot. I should probably just hide the top part of the line for the first event.
 - UI: Make the date stuck in the top-left corner (so that it doesn't move when the card is expanded). The dot should be stuck in the top-left corner as well. This way the timeline extends downward, without the date moving.
 - UI: Change design to be Neumorphism? or Soft Brutalism?
 - [ ] Create scrolling feature that "snaps" to the nearest event
