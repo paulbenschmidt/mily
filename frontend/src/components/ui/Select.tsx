@@ -11,7 +11,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
     const baseStyles = 'w-full px-3 py-2 border rounded-md transition-colors focus:outline-none';
     const normalStyles = 'border-secondary-300 focus:ring-primary-500 focus:border-primary-500';
     const errorStyles = 'border-danger-300 focus:ring-danger-500 focus:border-danger-500';
-    
+
     return (
       <div className="w-full">
         {label && (

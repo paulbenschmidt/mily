@@ -11,24 +11,11 @@ interface TimelineEventProps {
   onDeleteEvent?: (event: TimelineEventType) => void;
   previousEvent?: TimelineEventType;
   nextEvent?: TimelineEventType;
-  isMobile: boolean;
+  hasActiveFilters: boolean;
 }
 
-export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent, nextEvent, isMobile }: TimelineEventProps) {
+export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent, nextEvent, hasActiveFilters }: TimelineEventProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-
-  const getCategorySize = (category: string) => {
-    switch (category) {
-      case "major":
-        return 'w-6 h-6';
-      case "minor":
-        return 'w-4 h-4';
-      case "memory":
-        return 'w-2 h-2';
-      default:
-        return 'w-2 h-2';
-    }
-  };
 
   const getBackgroundCircleSize = (category: string) => {
     switch (category) {
@@ -40,6 +27,32 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
         return 'w-6 h-6'; // Smaller background for memory events
       default:
         return 'w-6 h-6';
+    }
+  };
+
+  const getCategoryDotStyling = (category: string) => {
+    switch (category) {
+      case "major":
+        return 'w-6 h-6 bg-primary-500 border-primary-500';
+      case "minor":
+        return 'w-4 h-4 bg-primary-400 border-primary-400';
+      case "memory":
+        return 'w-2 h-2 bg-primary-300 border-primary-300';
+      default:
+        return 'w-2 h-2 bg-primary-300 border-primary-300';
+    }
+  };
+
+  const getCategoryShadow = (category: string) => {
+    switch (category) {
+      case "major":
+        return '[box-shadow:0_10px_15px_-3px_rgba(0,0,0,0.25),0_4px_6px_-4px_rgba(0,0,0,0.25)]'; // Darker shadow
+      case "minor":
+        return '[box-shadow:0_10px_15px_-3px_rgba(0,0,0,0.15),0_4px_6px_-4px_rgba(0,0,0,0.15)]'; // Medium shadow
+      case "memory":
+        return '[box-shadow:0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)]'; // Lighter shadow
+      default:
+        return '[box-shadow:0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)]';
     }
   };
 
@@ -77,114 +90,95 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
   // Check if there's expandable content (description, photos, or notes)
   const hasExpandableContent = event.description || (event.photos && event.photos.length > 0) || event.notes;
 
-  const shouldShowYear = () => {
-    if (!nextEvent) return true; // Always show year for last event
+  const yearsToReturn = (): string[] => {
     // Parse year directly from date string to avoid timezone issues
     const currentYear = parseInt(event.event_date.split('-')[0]);
-    const nextYear = parseInt(nextEvent.event_date.split('-')[0]);
-    return currentYear !== nextYear;
-  };
 
-  const getYear = () => {
-    // Parse year directly from date string to avoid timezone issues
-    return event.event_date.split('-')[0];
-  };
-
-  const getCategoryShadow = (category: string) => {
-    switch (category) {
-      case "major":
-        return '[box-shadow:0_10px_15px_-3px_rgba(0,0,0,0.25),0_4px_6px_-4px_rgba(0,0,0,0.25)]'; // Darker shadow
-      case "minor":
-        return '[box-shadow:0_10px_15px_-3px_rgba(0,0,0,0.15),0_4px_6px_-4px_rgba(0,0,0,0.15)]'; // Medium shadow
-      case "memory":
-        return '[box-shadow:0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)]'; // Lighter shadow
-      default:
-        return '[box-shadow:0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)]';
+    if (!nextEvent) {
+      return [currentYear.toString()]; // Return current year for last event
     }
+
+    const nextYear = parseInt(nextEvent.event_date.split('-')[0]);
+
+    // If same year, return empty array
+    if (currentYear === nextYear) {
+      return [];
+    }
+
+    // Build list of years from current to next (exclusive of nextYear)
+    const yearsDiff = Math.abs(currentYear - nextYear);
+
+    // If more than 3 years apart, return a range string
+    if (yearsDiff > 3) {
+      return [`${yearsDiff} years`];
+      // return [`${currentYear} - ${nextYear + 1}`];
+    }
+
+    // Otherwise, build list of individual years
+    const years: string[] = [];
+    const step = currentYear > nextYear ? -1 : 1;
+
+    for (let year = currentYear; year !== nextYear; year += step) {
+      years.push(year.toString());
+    }
+
+    return years;
   };
 
   const getSpacerHeight = () => {
     // Since Tailwind needs to render the height statically (i.e. no variables), we have to use a switch statement
     if (!nextEvent) {
-      return isMobile && shouldShowYear() ? 'h-16' : 'h-4';
+      return 'h-4';
     }
 
     const currentDate = new Date(event.event_date);
     const nextDate = new Date(nextEvent.event_date);
     const daysDiff = Math.abs(Math.floor((currentDate.getTime() - nextDate.getTime()) / (1000 * 60 * 60 * 24)));
 
-    // Determine base height based on time gap
-    // For mobile with year labels, add extra spacing
-    const hasYearLabel = isMobile && shouldShowYear();
-
-    if (daysDiff <= 90) {
-      return hasYearLabel ? 'h-16' : 'h-4';
+    if (daysDiff <= 30) {
+      return 'h-2';
+    } else if (daysDiff <= 60) {
+      return 'h-4';
+    } else if (daysDiff <= 120) {
+      return 'h-6';
     } else if (daysDiff <= 180) {
-      return hasYearLabel ? 'h-20' : 'h-8';
+      return 'h-10';
     } else if (daysDiff <= 365) {
-      return hasYearLabel ? 'h-24' : 'h-12';
+      return 'h-12';
     } else {
-      return hasYearLabel ? 'h-28' : 'h-16';
-    }
-  };
-
-  const getLineHeight = () => {
-    if (!nextEvent) return 'h-0';
-
-    const currentDate = new Date(event.event_date);
-    const nextDate = new Date(nextEvent.event_date);
-    const daysDiff = Math.abs(Math.floor((currentDate.getTime() - nextDate.getTime()) / (1000 * 60 * 60 * 24)));
-
-    const hasYearLabel = isMobile && shouldShowYear();
-
-    // Line extends from center of current dot (50%) through spacer to center of next dot (50%)
-    // Spacer heights: h-4=16px, h-8=32px, h-12=48px, h-16=64px, h-20=80px, h-24=96px, h-28=112px
-    if (daysDiff <= 90) {
-      return hasYearLabel ? 'h-[calc(50%+64px)]' : 'h-[calc(50%+16px)]';
-    } else if (daysDiff <= 180) {
-      return hasYearLabel ? 'h-[calc(50%+80px)]' : 'h-[calc(50%+32px)]';
-    } else if (daysDiff <= 365) {
-      return hasYearLabel ? 'h-[calc(50%+96px)]' : 'h-[calc(50%+48px)]';
-    } else {
-      return hasYearLabel ? 'h-[calc(50%+112px)]' : 'h-[calc(50%+64px)]';
+      return 'h-2';
     }
   };
 
   return (
-    <>
+    <div className="relative flex flex-col">
+      {/* Line connecting to next event - positioned at parent level to extend through everything */}
+      {/* TODO: Find a way to hide the top part of the line for the first event */}
+      {nextEvent && (
+        <div className="absolute left-0 w-px bg-secondary-300" style={{
+          top: '0.75rem', // Center of the dot (half of 1.5rem dot container)
+          bottom: '0',
+          left: 'calc(0.75rem - 0.5px)'
+        }} />
+      )}
+
       <div className="relative">
         <div className={`flex items-center gap-3 md:gap-6`}>
 
-        {/* Year label - only shown when year changes and on desktop */}
-        {!isMobile && (
-          <div className="w-16 flex items-center justify-end">
-            {shouldShowYear() && (
-              <BodyText className="font-serif font-semibold text-secondary-600">
-                {getYear()}
-              </BodyText>
-            )}
-          </div>
-        )}
-
-        {/* Timeline line and dot */}
+        {/* Timeline dot with connecting line */}
         <div className="flex flex-col items-center justify-center relative self-stretch">
-          {/* Top line - only show if there's a previous event */}
+          {/* Line connecting to previous event - only show if there's a previous event */}
           {previousEvent && (
             <div className="absolute top-0 bottom-1/2 left-1/2 transform -translate-x-[0.5px] w-px bg-secondary-300" />
           )}
 
-          {/* Bottom line - extends dynamically based on time gap to next event */}
-          {nextEvent && (
-            <div className={`absolute top-1/2 left-1/2 transform -translate-x-[0.5px] w-px bg-secondary-300 ${getLineHeight()}`} />
-          )}
-
           {/* Dot with background circle to separate from line */}
-          <div className="w-6 h-6 flex items-center justify-center relative z-1">
+          <div className="w-6 h-6 flex items-center justify-center relative">
             {/* Background circle to match background of page - sized based on category */}
             <div className={`absolute bg-secondary-50 rounded-full ${getBackgroundCircleSize(event.category)}`} />
             {/* Actual dot */}
             <div
-              className={`rounded-full border-2 bg-muted-foreground border-muted-foreground ${getCategorySize(event.category)} ${getCategoryShadow(event.category)} flex-shrink-0 relative z-10`}
+              className={`rounded-full border-2 ${getCategoryDotStyling(event.category)} ${getCategoryShadow(event.category)} flex-shrink-0 relative`}
             />
           </div>
         </div>
@@ -206,13 +200,16 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
                   {getStackedDate(event.event_date).day}
                 </BodyText>
                 <BodyText className="font-serif text-secondary-500 leading-none mt-0.5 md:mt-1" textClass="text-xs">
-                  {event.category}
+                  {/* {event.category} */}
+                  {getStackedDate(event.event_date).year}
                 </BodyText>
               </div>
 
               {/* Content on the right */}
               <div className="flex-1 min-w-0">
-                <BodyText className="font-semibold">{event.title}</BodyText>
+                <div className="flex items-center justify-between gap-2">
+                  <BodyText className="font-semibold flex-1">{event.title}</BodyText>
+                </div>
 
                 {/* Description preview when collapsed */}
                 {event.description && !isExpanded && (
@@ -287,15 +284,30 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
         </div>
       </div>
 
-      {/* Spacer with year label for mobile */}
-      <div className={`flex items-center justify-center ${getSpacerHeight()}`}>
-        {isMobile && shouldShowYear() && (
-          <BodyText className="font-serif font-semibold text-secondary-600">
-            {getYear()}
-          </BodyText>
-        )}
+      {/* Spacer for intra-year events */}
+      <div className={`flex items-center justify-center ${getSpacerHeight()}`} />
+
+      {/* Year labels between events */}
+      {yearsToReturn().length > 0 && (
+        <div className="flex flex-col gap-4 my-6">
+          {yearsToReturn().map((year, index) => (
+            <div key={index} className="flex items-center gap-3 md:gap-6">
+              {/* Ghost spacer to match the timeline dot width */}
+              <div className="w-6 flex-shrink-0" />
+
+              {/* Year label with lines */}
+              <div className="flex-1 flex items-center gap-3 px-8 md:px-16">
+                <div className="flex-1 h-px bg-secondary-300" />
+                <BodyText className="font-serif font-semibold text-secondary-600 whitespace-nowrap">
+                  {year}
+                </BodyText>
+                <div className="flex-1 h-px bg-secondary-300" />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
       </div>
     </div>
-    </>
   );
 }

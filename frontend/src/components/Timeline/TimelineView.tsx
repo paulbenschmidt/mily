@@ -1,8 +1,9 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { TimelineEventType } from '@/types/api';
 import { TimelineEvent } from './TimelineEvent';
+import { FilterDropdown, FilterOptions } from './FilterDropdown';
 import { SmallText, BodyText, Button } from '@/components/ui';
 
 interface TimelineViewProps {
@@ -11,13 +12,19 @@ interface TimelineViewProps {
   totalEventCount: number;
   loading: boolean;
   error: string | null;
-  scrollProgress: number;
-  onScrollProgressChange: (progress: number) => void;
   onEditEvent?: (event: TimelineEventType) => void;
   onDeleteEvent?: (event: TimelineEventType) => void;
   onAddEvent?: () => void;
+  onFilter?: (filters: FilterOptions) => void;
+  onShare?: () => void;
   onClearFilters?: () => void;
   hasActiveFilters: boolean;
+  currentFilters: FilterOptions;
+  title?: string;
+  ownerInfo?: {
+    name: string;
+    profilePicture?: string;
+  };
   isMobile: boolean;
 }
 
@@ -27,16 +34,23 @@ export function TimelineView({
   totalEventCount,
   loading,
   error,
-  scrollProgress,
-  onScrollProgressChange,
   onDeleteEvent,
   onAddEvent,
   onEditEvent,
+  onFilter,
+  onShare,
   onClearFilters,
   hasActiveFilters,
+  currentFilters,
+  title,
+  ownerInfo,
   isMobile,
 }: TimelineViewProps) {
   const timelineRef = useRef<HTMLDivElement>(null);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  const displayTitle = title || (mode === 'owner' ? 'My Timeline' : `${ownerInfo?.name || 'User'}'s Timeline`);
 
   // Track scroll progress based on the event in the center of the viewport
   useEffect(() => {
@@ -48,13 +62,13 @@ export function TimelineView({
 
       // If at the very top, show 0%
       if (scrollTop <= 10) {
-        onScrollProgressChange(0);
+        setScrollProgress(0);
         return;
       }
 
       // If at the very bottom, show 100%
       if (scrollTop >= docHeight - 10) {
-        onScrollProgressChange(100);
+        setScrollProgress(100);
         return;
       }
 
@@ -84,7 +98,7 @@ export function TimelineView({
         const currentTimeSpan = Math.abs(firstEventDate - currentEventDate);
 
         const progress = totalTimeSpan > 0 ? (currentTimeSpan / totalTimeSpan) * 100 : 0;
-        onScrollProgressChange(Math.min(100, Math.max(0, progress)));
+        setScrollProgress(Math.min(100, Math.max(0, progress)));
       }
     };
 
@@ -92,7 +106,7 @@ export function TimelineView({
     handleScroll(); // Initial calculation
 
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [filteredEvents, onScrollProgressChange]);
+  }, [filteredEvents]);
 
   if (loading) {
     return (
@@ -111,31 +125,95 @@ export function TimelineView({
   }
 
   return (
-    <main className="max-w-4xl mx-auto px-4 py-6 md:px-6 md:py-8" ref={timelineRef}>
-      {/* Timeline Progress Indicator */}
-      {filteredEvents.length > 0 && (
-        <div className="fixed left-8 top-1/2 transform -translate-y-1/2 hidden lg:block">
-          <div className="flex flex-col items-center gap-2">
-            {/* First event year */}
-            <SmallText className="font-serif font-semibold text-secondary-500 text-xs">
-              {filteredEvents[0].event_date.split('-')[0]}
+    <>
+      {/* Timeline Header */}
+      <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-secondary-200/50 px-6 py-4">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div>
+            <SmallText className="font-semibold">{displayTitle}</SmallText>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {totalEventCount > 0 && (
+              <>
+                <div className="relative">
+                  <Button
+                    variant={(currentFilters.startDate || currentFilters.endDate || currentFilters.category !== 'all') ? 'primary' : 'secondary'}
+                    size="sm"
+                    onClick={() => setIsFilterOpen(!isFilterOpen)}
+                  >
+                    <svg className={`w-4 h-4 ${!isMobile ? 'mr-2' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.707A1 1 0 013 7V4z" />
+                    </svg>
+                    {!isMobile && 'Filter'}
+                  </Button>
+
+                  {/* Filter Dropdown */}
+                  {isFilterOpen && onFilter && (
+                    <FilterDropdown
+                      isOpen={isFilterOpen}
+                      onClose={() => setIsFilterOpen(false)}
+                      onApplyFilters={onFilter}
+                      currentFilters={currentFilters}
+                    />
+                  )}
+                </div>
+
+                {mode === 'owner' && onShare && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={onShare}
+                  >
+                    <svg className={`w-4 h-4 ${!isMobile ? 'mr-2' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                    </svg>
+                    {!isMobile && 'Share'}
+                  </Button>
+                )}
+              </>
+            )}
+            {/* Add Event button - only in owner mode and when there are events */}
+            {totalEventCount > 0 && mode === 'owner' && onAddEvent && (
+              <Button
+                size="sm"
+                onClick={onAddEvent}
+              >
+                <svg className={`w-4 h-4 ${!isMobile ? 'mr-2' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                {!isMobile && 'Add Event'}
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Timeline Progress Indicator */}
+        {filteredEvents.length > 0 && (
+          <div className="max-w-4xl mx-auto flex items-center gap-3 pt-3">
+            {/* Last event year (on left) */}
+            <SmallText className="font-serif font-semibold text-secondary-500 text-xs whitespace-nowrap">
+              {filteredEvents[filteredEvents.length - 1].event_date.split('-')[0]}
             </SmallText>
 
-            {/* Progress bar */}
-            <div className="relative w-1 h-64 bg-secondary-200 rounded-full overflow-hidden">
+            {/* Progress line with moving dot */}
+            <div className="relative flex-1 h-1 bg-secondary-200 rounded-full">
+              {/* Moving dot */}
               <div
-                className="absolute top-0 left-0 w-full bg-secondary-500 transition-all duration-300 ease-out"
-                style={{ height: `${scrollProgress}%` }}
+                className="absolute top-1/2 w-2 h-2 bg-secondary-500 rounded-full transition-all duration-300 ease-out shadow-sm"
+                style={{ left: `${100 - scrollProgress}%`, transform: 'translate(-50%, -50%)' }}
               />
             </div>
 
-            {/* Last event year */}
-            <SmallText className="font-serif font-semibold text-secondary-500 text-xs">
-              {filteredEvents[filteredEvents.length - 1].event_date.split('-')[0]}
+            {/* First event year (on right) */}
+            <SmallText className="font-serif font-semibold text-secondary-500 text-xs whitespace-nowrap">
+              {filteredEvents[0].event_date.split('-')[0]}
             </SmallText>
           </div>
-        </div>
-      )}
+        )}
+      </div>
+
+      <main className="max-w-4xl mx-auto px-4 py-6 md:px-6 md:py-8" ref={timelineRef}>
 
       {/* Empty state - only show for owner */}
       {totalEventCount === 0 && mode === 'owner' ? (
@@ -174,7 +252,7 @@ export function TimelineView({
                   onDeleteEvent={mode === 'owner' ? onDeleteEvent : undefined}
                   previousEvent={filteredEvents[index - 1]}
                   nextEvent={filteredEvents[index + 1]}
-                  isMobile={isMobile}
+                  hasActiveFilters={hasActiveFilters}
                 />
               </div>
             ))
@@ -195,7 +273,8 @@ export function TimelineView({
       )}
 
       {/* Bottom spacing for better scroll experience */}
-      <div className="h-16 md:h-32" />
+      <div className="h-8 md:h-16" />
     </main>
+    </>
   );
 }

@@ -1,11 +1,4 @@
 ## Now
-- UI: For mobile, make adding/editing event have less top-bottom padding
-- UI: Make the date stuck in the top-left corner (so that it doesn't move when the card is expanded). The dot should be stuck in the top-left corner as well. This way the timeline extends downward, without the date moving.
-- UI: Move scrollbar to top so that it's visible on mobile, and make it a dot that moves
-- UI: I'm kinda bummed that I don't know how to fit the year to the left of the timeline on the mobile. I like how it looks on the desktop version. Maybe I could put it on the timeline itself? I'd love to not have different layouts for mobile and desktop.
-    - Besides, if I'm being honest, the current layout is not very intuitive: it's hard to know the year of the event. It's impossible to tell what the year of the event BELOW the year is.
-    - So I guess this needs improving either way.
-- UI: On mobile, fix where the filter event/privacy selections appear, since they're slightly off.
 - Enable "Publicly Accessible" for "Share" button on event page
 
 ## Upcoming
@@ -40,6 +33,7 @@
 - [ ] Add timeline event share logic
 
 ### Optimizations
+- UI: Make the date stuck in the top-left corner (so that it doesn't move when the card is expanded). The dot should be stuck in the top-left corner as well. This way the timeline extends downward, without the date moving.
 - UI: Change design to be Neumorphism? or Soft Brutalism?
 - [ ] Create scrolling feature that "snaps" to the nearest event
 - UX: Offer optional world events that can be added to the timeline
@@ -54,3 +48,7 @@
 - [ ] Set up MCP for Context7
 - [ ] Refactor views to be either class-based or function-based
 - [ ] Implement cron job to clear out blacklisted tokens
+
+### Other
+- UI: On mobile, fix where the filter event/privacy selections appear, since they're slightly off.
+    - Note: this currently only happens on the browser for iPhones like iPhone 14 Pro Max. For some reason, the dropdown shifts farther away. This might not be too big of a concern since this is on mobile browsers, and the future app will have a different layout.
