@@ -11,10 +11,9 @@ interface TimelineEventProps {
   onDeleteEvent?: (event: TimelineEventType) => void;
   previousEvent?: TimelineEventType;
   nextEvent?: TimelineEventType;
-  hasActiveFilters: boolean;
 }
 
-export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent, nextEvent, hasActiveFilters }: TimelineEventProps) {
+export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent, nextEvent }: TimelineEventProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const getBackgroundCircleSize = (category: string) => {
@@ -90,42 +89,32 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
   // Check if there's expandable content (description, photos, or notes)
   const hasExpandableContent = event.description || (event.photos && event.photos.length > 0) || event.notes;
 
-  const yearsToReturn = (): string[] => {
+  const yearsToReturn = (): string | null => {
     // Parse year directly from date string to avoid timezone issues
     const currentYear = parseInt(event.event_date.split('-')[0]);
 
+    // If there is no next, return the current year
     if (!nextEvent) {
-      return [currentYear.toString()]; // Return current year for last event
+      return currentYear.toString();
     }
 
     const nextYear = parseInt(nextEvent.event_date.split('-')[0]);
-
-    // If same year, return empty array
-    if (currentYear === nextYear) {
-      return [];
-    }
-
-    // Build list of years from current to next (exclusive of nextYear)
     const yearsDiff = Math.abs(currentYear - nextYear);
-
-    // If more than 3 years apart, return a range string
-    if (yearsDiff > 3) {
-      return [`${yearsDiff} years`];
-      // return [`${currentYear} - ${nextYear + 1}`];
+    if (currentYear === nextYear) {
+      return null; // If the next event is in the same year, don't show a year
+    } else if (yearsDiff === 1) {
+      return nextYear.toString(); // If the next event is in the next year, show the next year
+    } else if (yearsDiff > 1) {
+      return `${yearsDiff} years`; // If the next event is more than a year away, show the number of years
+    } else {
+      return null; // Fallback
     }
-
-    // Otherwise, build list of individual years
-    const years: string[] = [];
-    const step = currentYear > nextYear ? -1 : 1;
-
-    for (let year = currentYear; year !== nextYear; year += step) {
-      years.push(year.toString());
-    }
-
-    return years;
   };
 
-  const getSpacerHeight = () => {
+  // Calculate year label once to avoid calling function twice
+  const yearLabel = yearsToReturn();
+
+  const getMonthSpacerHeight = () => {
     // Since Tailwind needs to render the height statically (i.e. no variables), we have to use a switch statement
     if (!nextEvent) {
       return 'h-4';
@@ -137,16 +126,37 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
 
     if (daysDiff <= 30) {
       return 'h-2';
-    } else if (daysDiff <= 60) {
+    } else if (daysDiff <= 90) {
       return 'h-4';
-    } else if (daysDiff <= 120) {
-      return 'h-6';
     } else if (daysDiff <= 180) {
-      return 'h-10';
+      return 'h-6';
     } else if (daysDiff <= 365) {
-      return 'h-12';
+      return 'h-8';
     } else {
       return 'h-2';
+    }
+  };
+
+  const getYearSpacerHeight = () => {
+    // Since Tailwind needs to render the height statically (i.e. no variables), we have to use a switch statement
+    if (!nextEvent) {
+      return 'h-4';
+    }
+
+    const currentDate = new Date(event.event_date);
+    const nextDate = new Date(nextEvent.event_date);
+    const yearsDiff = Math.abs(Math.floor((currentDate.getTime() - nextDate.getTime()) / (1000 * 60 * 60 * 24 * 365)));
+
+    if (yearsDiff <= 1) {
+      return 'h-6';
+    } else if (yearsDiff <= 2) {
+      return 'h-10';
+    } else if (yearsDiff <= 5) {
+      return 'h-14';
+    } else if (yearsDiff <= 10) {
+      return 'h-18';
+    } else {
+      return 'h-24';
     }
   };
 
@@ -220,7 +230,7 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
 
                 {/* Expandable content: full description, photos, notes, and buttons */}
                 {isExpanded && (
-                <div className="overflow-hidden transition-all duration-300 ease-in-out animate-in slide-in-from-top-2">
+                  <div className="overflow-hidden transition-all duration-300 ease-in-out animate-in slide-in-from-top-2">
 
                   {/* Full description when expanded */}
                   {event.description && (
@@ -276,38 +286,38 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
                       )}
                     </div>
                   )}
-                </div>
+                  </div>
                 )}
               </div>
             </div>
           </Card>
         </div>
+        </div>
       </div>
 
-      {/* Spacer for intra-year events */}
-      <div className={`flex items-center justify-center ${getSpacerHeight()}`} />
+      {/* Spacer for events that are months apart and not broken by a year */}
+      {yearLabel === null && (
+        <div className={`flex items-center justify-center ${getMonthSpacerHeight()}`} />
+      )}
 
       {/* Year labels between events */}
-      {yearsToReturn().length > 0 && (
-        <div className="flex flex-col gap-4 my-6">
-          {yearsToReturn().map((year, index) => (
-            <div key={index} className="flex items-center gap-3 md:gap-6">
-              {/* Ghost spacer to match the timeline dot width */}
-              <div className="w-6 flex-shrink-0" />
+      {yearLabel !== null && (
+        <div className={`flex flex-col gap-4 my-6 items-center justify-center ${getYearSpacerHeight()}`}>
+          <div className="flex items-center gap-3 md:gap-6 w-full">
+            {/* Ghost spacer to match the timeline dot width */}
+            <div className="w-6 flex-shrink-0" />
 
-              {/* Year label with lines */}
-              <div className="flex-1 flex items-center gap-3 px-8 md:px-16">
-                <div className="flex-1 h-px bg-secondary-300" />
-                <BodyText className="font-serif font-semibold text-secondary-600 whitespace-nowrap">
-                  {year}
-                </BodyText>
-                <div className="flex-1 h-px bg-secondary-300" />
-              </div>
+            {/* Year label with lines */}
+            <div className="flex-1 flex items-center gap-3 px-8 md:px-16">
+              <div className="flex-1 h-px bg-secondary-300" />
+              <BodyText className="font-serif font-semibold text-secondary-600 whitespace-nowrap">
+                {yearLabel}
+              </BodyText>
+              <div className="flex-1 h-px bg-secondary-300" />
             </div>
-          ))}
+          </div>
         </div>
       )}
-      </div>
     </div>
   );
 }

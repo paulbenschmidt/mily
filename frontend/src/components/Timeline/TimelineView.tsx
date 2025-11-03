@@ -252,7 +252,6 @@ export function TimelineView({
                   onDeleteEvent={mode === 'owner' ? onDeleteEvent : undefined}
                   previousEvent={filteredEvents[index - 1]}
                   nextEvent={filteredEvents[index + 1]}
-                  hasActiveFilters={hasActiveFilters}
                 />
               </div>
             ))
