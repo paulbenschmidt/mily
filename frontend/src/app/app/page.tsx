@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { authApiClient } from '@/utils/auth-api';
 import { TimelineEventType } from '@/types/api';
-import { AddEventModal, DeleteConfirmationModal, FilterOptions, TimelineView, TimelineHeader } from '@/components/Timeline';
+import { AddEventModal, DeleteConfirmationModal, FilterOptions, TimelineView } from '@/components/Timeline';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function Timeline() {
@@ -16,7 +16,6 @@ export default function Timeline() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<TimelineEventType | undefined>(undefined);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
 
   // Filter state
   const [filters, setFilters] = useState<FilterOptions>({
@@ -141,29 +140,20 @@ export default function Timeline() {
 
   return (
     <div className="min-h-screen bg-secondary-50">
-      <TimelineHeader
-        mode="owner"
-        onAddEvent={handleAddEvent}
-        onFilter={handleFilter}
-        onShare={handleShare}
-        hasEvents={events.length > 0}
-        currentFilters={filters}
-        isMobile={isMobile}
-      />
-
       <TimelineView
         mode="owner"
         filteredEvents={filteredEvents}
         totalEventCount={events.length}
         loading={loading}
         error={error}
-        scrollProgress={scrollProgress}
-        onScrollProgressChange={setScrollProgress}
         onAddEvent={handleAddEvent}
         onEditEvent={handleEditEvent}
         onDeleteEvent={handleDeleteEvent}
+        onFilter={handleFilter}
+        onShare={handleShare}
         onClearFilters={handleClearFilters}
         hasActiveFilters={hasActiveFilters}
+        currentFilters={filters}
         isMobile={isMobile}
       />
 

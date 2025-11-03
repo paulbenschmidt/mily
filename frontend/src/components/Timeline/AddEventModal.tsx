@@ -148,11 +148,11 @@ export function AddEventModal({
 
   return (
     <div
-      className="fixed inset-0 bg-secondary-500/30 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-secondary-500/30 backdrop-blur-sm flex items-start sm:items-center justify-center z-50 p-4 overflow-y-auto"
       onClick={handleBackdropClick}
     >
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
-        <div className="flex justify-between items-center border-b border-secondary-200 px-6 py-4">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-md my-2 sm:my-0">
+        <div className="flex justify-between items-center border-b border-secondary-200 px-6 py-3">
           <Subheading>{isEditMode ? 'Edit Event' : 'Add New Event'}</Subheading>
           <Button
             variant="text"

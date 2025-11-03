@@ -1,5 +1,7 @@
 # Development Journey
 
+- 2025-11-02:
+    - For my timeline app, I'm trying to figure out the most intuitive way to display years between events. I've considered adding the years to ALL dates, but I don't like that (1) it is redundant for nearby dates of the same year and (2) that it doesn't provide a visual differentiator when jumping from one year to the next. I also need to be mindful of how to handle when a gap of greater than one year exists. In this case, should I include the current year below the event before it transitions and then the year _after_ the event below that?
 - 2025-11-01:
     - Another very productive Saturday. I significantly improved the UI of the timeline, both for mobile and desktop. I'm learning how to avoid extra work by keeping the layout consistent between the two, but I'm realizing that I should lean into being mobile-first and prioritize that layout.
 - 2025-10-25:
