@@ -194,8 +194,39 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20
 }
 
-# Simple JWT settings
+# Email settings for password reset and verification
+# Use console backend for local development, Resend API for production
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
+
+# Frontend URL for password reset links and email verification
+FRONTEND_URL = os.getenv('FRONTEND_URL')
+
+# CORS settings for frontend integration
+CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '').split(',')
+CORS_ALLOW_CREDENTIALS = True  # Allow cookies for admin panel
+
+# General cookie settings
+COOKIE_SECURE = os.getenv('COOKIE_SECURE', 'False').lower() == 'true'
+COOKIE_HTTPONLY = True
+COOKIE_SAMESITE = 'Lax'
+
+# Session configuration (only needed for admin panel)
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_NAME = 'sessionid'
+SESSION_COOKIE_AGE = 86400  # 24 hours
+SESSION_COOKIE_DOMAIN = os.getenv('SESSION_COOKIE_DOMAIN')
+SESSION_COOKIE_SECURE = COOKIE_SECURE
+SESSION_COOKIE_HTTPONLY = COOKIE_HTTPONLY
+SESSION_COOKIE_SAMESITE = COOKIE_SAMESITE
+
+# JWT settings
 SIMPLE_JWT = {
+    'COOKIE_DOMAIN': os.getenv('JWT_COOKIE_DOMAIN'),
+    'COOKIE_SECURE': COOKIE_SECURE,
+    'COOKIE_HTTPONLY': COOKIE_HTTPONLY,
+    'COOKIE_SAMESITE': COOKIE_SAMESITE,
+
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=90),
     'ROTATE_REFRESH_TOKENS': True,  # Generate new refresh token on refresh (throttled to 20/hour)
@@ -215,27 +246,6 @@ SIMPLE_JWT = {
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'TOKEN_TYPE_CLAIM': 'token_type',
 }
-
-# Email settings for password reset and verification
-# Use console backend for local development, Resend API for production
-EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
-
-# Frontend URL for password reset links and email verification
-FRONTEND_URL = os.getenv('FRONTEND_URL')
-
-# CORS settings for frontend integration
-CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '').split(',')
-CORS_ALLOW_CREDENTIALS = True  # Allow cookies for admin panel
-
-# Session configuration (only needed for admin panel)
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-SESSION_COOKIE_NAME = 'sessionid'
-SESSION_COOKIE_AGE = 86400  # 24 hours
-SESSION_COOKIE_DOMAIN = os.getenv('COOKIE_DOMAIN')
-SESSION_COOKIE_SECURE = os.getenv('COOKIE_SECURE', 'False').lower() == 'true'
-SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SAMESITE = 'Lax'
 
 # CSRF configuration
 CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
