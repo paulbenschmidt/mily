@@ -1,9 +1,8 @@
 ## Now
 - Enable "Publicly Accessible" for "Share" button on event page
+- Fix Django Admin on Railway
 
 ## Upcoming
-- How can I add age? Should I make it optional for users to add a birthday?
-    - If I add it as part of the profile, I can add a little blurb that says "this field will be used to calculate your age for each event". It'll also auto-add an event to the user's timeline for their birthday.
 - [ ] Allow users to delete their accounts
 - [ ] Verify that users cannot see the years associated with any events (for privacy reasons)
 - [ ] Password reset via Django's built-in email system (Allow users ability to change password)
@@ -26,12 +25,6 @@
 - [ ] Security: Regular Security Updates via Dependabot or something similar
 - [ ] Backend: Move on from Nixpacks to current best practices (I'm getting a deprecation warning)
 
-### Features
-- [ ] Eventually, add AI-generated "tags" to events so that users can auto-filter events
-- [ ] Create a feature requests page so that users can suggest and upvote features
-- [ ] Enable photos on events
-- [ ] Add timeline event share logic
-
 ### Optimizations
 - UI: Currently, for the top event, the line extends above the dot. I should probably just hide the top part of the line for the first event.
 - UI: Make the date stuck in the top-left corner (so that it doesn't move when the card is expanded). The dot should be stuck in the top-left corner as well. This way the timeline extends downward, without the date moving.
@@ -50,6 +43,14 @@
 - [ ] Refactor views to be either class-based or function-based
 - [ ] Implement cron job to clear out blacklisted tokens
 
+### Features that should be polled
+- How can I add age? Should I make it optional for users to add a birthday?
+    - If I add it as part of the profile, I can add a little blurb that says "this field will be used to calculate your age for each event". It'll also auto-add an event to the user's timeline for their birthday.
+
 ### Other
 - UI: On mobile, fix where the filter event/privacy selections appear, since they're slightly off.
     - Note: this currently only happens on the browser for iPhones like iPhone 14 Pro Max. For some reason, the dropdown shifts farther away. This might not be too big of a concern since this is on mobile browsers, and the future app will have a different layout.
+- [ ] Eventually, add AI-generated "tags" to events so that users can auto-filter events
+- [ ] Create a feature requests page so that users can suggest and upvote features
+- [ ] Enable photos on events
+- [ ] Add timeline event share logic (sharing individual events)

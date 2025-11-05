@@ -23,15 +23,8 @@ from .throttling import AuthRateThrottle
 
 from config.settings import (
     DEFAULT_FROM_EMAIL,
-    SESSION_COOKIE_DOMAIN,
-    SESSION_COOKIE_HTTPONLY,
-    SESSION_COOKIE_SAMESITE,
-    SESSION_COOKIE_SECURE,
     SIMPLE_JWT,
 )
-
-ACCESS_TOKEN_EXPIRE = int(SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds())
-REFRESH_TOKEN_EXPIRE = int(SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'].total_seconds())
 
 User = get_user_model()
 
@@ -41,11 +34,11 @@ def set_access_token_cookie(response: Response, access_token: str) -> Response:
     response.set_cookie(
         key='access_token',
         value=access_token,
-        max_age=ACCESS_TOKEN_EXPIRE,
-        domain=SESSION_COOKIE_DOMAIN,
-        httponly=SESSION_COOKIE_HTTPONLY,
-        secure=SESSION_COOKIE_SECURE,
-        samesite=SESSION_COOKIE_SAMESITE,
+        max_age=int(SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds()),
+        domain=SIMPLE_JWT['COOKIE_DOMAIN'],
+        httponly=SIMPLE_JWT['COOKIE_HTTPONLY'],
+        secure=SIMPLE_JWT['COOKIE_SECURE'],
+        samesite=SIMPLE_JWT['COOKIE_SAMESITE'],
         path='/',
     )
     return response
@@ -55,11 +48,11 @@ def set_refresh_token_cookie(response: Response, refresh_token: str) -> Response
     response.set_cookie(
         key='refresh_token',
         value=refresh_token,
-        max_age=REFRESH_TOKEN_EXPIRE,
-        domain=SESSION_COOKIE_DOMAIN,
-        httponly=SESSION_COOKIE_HTTPONLY,
-        secure=SESSION_COOKIE_SECURE,
-        samesite=SESSION_COOKIE_SAMESITE,
+        max_age=int(SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'].total_seconds()),
+        domain=SIMPLE_JWT['COOKIE_DOMAIN'],
+        httponly=SIMPLE_JWT['COOKIE_HTTPONLY'],
+        secure=SIMPLE_JWT['COOKIE_SECURE'],
+        samesite=SIMPLE_JWT['COOKIE_SAMESITE'],
         path='/',
     )
     return response
@@ -202,14 +195,14 @@ def logout_view(request):
     response.delete_cookie(
         'access_token',
         path='/',
-        domain=SESSION_COOKIE_DOMAIN,
-        samesite=SESSION_COOKIE_SAMESITE,
+        domain=SIMPLE_JWT['COOKIE_DOMAIN'],
+        samesite=SIMPLE_JWT['COOKIE_SAMESITE'],
     )
     response.delete_cookie(
         'refresh_token',
         path='/',
-        domain=SESSION_COOKIE_DOMAIN,
-        samesite=SESSION_COOKIE_SAMESITE,
+        domain=SIMPLE_JWT['COOKIE_DOMAIN'],
+        samesite=SIMPLE_JWT['COOKIE_SAMESITE'],
     )
 
     return response
