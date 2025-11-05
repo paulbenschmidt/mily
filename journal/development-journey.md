@@ -1,5 +1,7 @@
 # Development Journey
 
+- 2025-11-04:
+    - I wanted to bulk create events for a test user, so I created a management command, but then I realized that Django Admin wasn't working on Railway. After some digging, I found that it was related to the cookie domains being limited to the `mily.bio` domain, so I refactored the cookie env variables to account for the different domain depending on whether it was a JWT or a session cookie.
 - 2025-11-02:
     - For my timeline app, I'm trying to figure out the most intuitive way to display years between events. I've considered adding the years to ALL dates, but I don't like that (1) it is redundant for nearby dates of the same year and (2) that it doesn't provide a visual differentiator when jumping from one year to the next. I also need to be mindful of how to handle when a gap of greater than one year exists. In this case, should I include the current year below the event before it transitions and then the year _after_ the event below that?
 - 2025-11-01:

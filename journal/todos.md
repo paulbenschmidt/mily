@@ -1,6 +1,5 @@
 ## Now
 - Enable "Publicly Accessible" for "Share" button on event page
-- Fix Django Admin on Railway
 
 ## Upcoming
 - [ ] Allow users to delete their accounts

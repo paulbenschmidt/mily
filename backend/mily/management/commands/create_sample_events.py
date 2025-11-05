@@ -14,7 +14,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # Get the test user
-        user_id = '77b6ff3c-d9e5-4bfb-bf59-6b234061ed91'
+        user_id = '77b6ff3c-d9e5-4bfb-bf59-6b234061ed91' # staging ID
         user_email = 'testing.mily@gmail.com'
 
         try:
