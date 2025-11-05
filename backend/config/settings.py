@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load environment variables from .env file
 # Look for .env files in the .env/ directory at project root
-env_path = BASE_DIR.parent / '.env' / f'.env.{os.getenv("MILY_ENV", "local")}'
+env_path = BASE_DIR.parent / '.env' / f'.env.{os.getenv("MILY_ENV", "production")}'
 # Load dotenv but don't override existing environment variables
 load_dotenv(dotenv_path=env_path, override=False)
 

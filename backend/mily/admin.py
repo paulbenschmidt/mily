@@ -27,7 +27,7 @@ class UserAdmin(BaseUserAdmin):
 class EventAdmin(admin.ModelAdmin):
     """Admin interface for Event model"""
     list_display = ('title', 'user', 'category', 'event_date', 'created_at')
-    list_filter = ('category', 'privacy_level', 'created_at')
+    list_filter = ('category', 'privacy_level', 'created_at', 'user')
     search_fields = ('title', 'description', 'user__username', 'location')
     readonly_fields = ('id', 'created_at', 'updated_at')
     date_hierarchy = 'event_date'
