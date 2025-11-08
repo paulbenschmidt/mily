@@ -28,7 +28,7 @@
     - In the end, it was between Gochi Hand, Reenie Beanie, and Yellowtail. And Yellowtail won! It was purely accidental, but the M extended beyond the circle, and I thought it looked powerful. When I asked Claude for his thoughts, he agreed that this version was the best (I also gave Claude the option of Yellowtail within the circle). Claude responded with the following, and I love it:
         - Life doesn't fit neatly into boxes (or circles), and neither should your logo
         - This "life overflowing the boundaries" concept actually reinforces your core message about discovering the richness of your experiences. It suggests that people's stories are too vibrant to be contained.
-    - For the favicon, I tried creating it using `favicon.io`, but they compressed it so that it was narrower. So, instead, I went to Figma, exported a 512x512 PNG (so that it would be a square image) and then went to `convertico.com` to convert it to an ICO file.
+    - For the favicon, I tried creating it using `favicon.io`, but the logo is slightly rectangular, so they compressed it into a square so that it was narrower. Because of this, I went to Figma, exported a 512x512 PNG (so that it would be a square image) and then went to `convertico.com` to convert it to an ICO file.
 - 2025-11-04:
     - I wanted to bulk create events for a test user, so I created a management command, but then I realized that Django Admin wasn't working on Railway. After some digging, I found that it was related to the cookie domains being limited to the `mily.bio` domain, so I refactored the cookie env variables to account for the different domain depending on whether it was a JWT or a session cookie.
 - 2025-11-02:
