@@ -20,7 +20,7 @@ export function ToggleButton({
       disabled={disabled}
       className={`min-w-[90px] px-4 py-2 rounded-full text-sm font-medium transition-colors capitalize ${
         disabled
-          ? 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
+          ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
           : isSelected
           ? 'bg-primary-550 text-white'
           : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
