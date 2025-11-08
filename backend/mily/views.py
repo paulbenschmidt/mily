@@ -1,5 +1,6 @@
 import logging
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.utils import timezone
@@ -71,10 +72,25 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
             logger.info(f"User account deactivated: {user.email} (ID: {user.id})")
 
-            return Response(
-                {"message": "Account successfully deleted"},
-                status=status.HTTP_200_OK
+            response = Response({
+                'message': 'Account successfully deleted'
+            })
+
+            # Clear httpOnly cookies (must match: key, path, domain, samesite)
+            response.delete_cookie(
+                'access_token',
+                path='/',
+                domain=settings.SIMPLE_JWT['COOKIE_DOMAIN'],
+                samesite=settings.SIMPLE_JWT['COOKIE_SAMESITE'],
             )
+            response.delete_cookie(
+                'refresh_token',
+                path='/',
+                domain=settings.SIMPLE_JWT['COOKIE_DOMAIN'],
+                samesite=settings.SIMPLE_JWT['COOKIE_SAMESITE'],
+            )
+
+            return response
 
         # GET request
         serializer = UserPrivateSerializer(request.user)

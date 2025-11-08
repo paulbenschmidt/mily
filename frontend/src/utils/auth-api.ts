@@ -255,6 +255,7 @@ class AuthApiClient {
   }
 
   async deleteAccount(): Promise<{ message: string }> {
+    // Backend is responsible for clearing cookies since they are httpOnly
     return this.request<{ message: string }>({
       endpoint: '/users/me/',
       options: {

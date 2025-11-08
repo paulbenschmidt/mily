@@ -138,7 +138,7 @@ export function TimelineView({
               <>
                 <div className="relative">
                   <Button
-                    variant={(currentFilters.startDate || currentFilters.endDate || currentFilters.category !== 'all') ? 'primary' : 'secondary'}
+                    variant={hasActiveFilters ? 'primary' : 'secondary'}
                     size="sm"
                     onClick={() => setIsFilterOpen(!isFilterOpen)}
                   >

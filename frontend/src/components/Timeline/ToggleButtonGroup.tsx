@@ -1,5 +1,7 @@
 'use client';
 
+import { ToggleButton } from './ToggleButton';
+
 interface ToggleButtonGroupProps<T extends string> {
   label: string;
   options: readonly T[];
@@ -24,21 +26,13 @@ export function ToggleButtonGroup<T extends string>({
       </label>
       <div className="flex gap-2">
         {options.map((option) => (
-          <button
+          <ToggleButton
             key={option}
-            type="button"
+            option={option}
+            isSelected={value === option}
             onClick={() => onChange(option)}
             disabled={disabled}
-            className={`min-w-[90px] px-4 py-2 rounded-full text-sm font-medium transition-colors capitalize ${
-              disabled
-                ? 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
-                : value === option
-                ? 'bg-primary-600 text-white'
-                : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
-            }`}
-          >
-            {option}
-          </button>
+          />
         ))}
       </div>
     </div>
