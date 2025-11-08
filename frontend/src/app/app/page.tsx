@@ -21,8 +21,8 @@ export default function Timeline() {
   const [filters, setFilters] = useState<FilterOptions>({
     startDate: null,
     endDate: null,
-    category: 'all',
-    privacy_level: 'all'
+    categories: [], // Empty = All selected
+    privacyLevels: [] // Empty = All selected
   });
 
   useEffect(() => {
@@ -98,7 +98,16 @@ export default function Timeline() {
   };
 
   const handleFilter = (newFilters: FilterOptions) => {
-    setFilters(newFilters);
+    // If all categories are selected, clear the array (empty = all)
+    const categories = newFilters.categories.length === 3 ? [] : newFilters.categories;
+    // If all privacy levels are selected, clear the array (empty = all)
+    const privacyLevels = newFilters.privacyLevels.length === 3 ? [] : newFilters.privacyLevels;
+    
+    setFilters({
+      ...newFilters,
+      categories,
+      privacyLevels,
+    });
   };
 
   const handleShare = () => {
@@ -113,10 +122,10 @@ export default function Timeline() {
       // Filter by date range
       if (filters.startDate && new Date(filters.startDate) > eventDate) {return false;}
       if (filters.endDate && new Date(filters.endDate) < eventDate) {return false;}
-      // Filter by category
-      if (filters.category !== 'all' && event.category !== filters.category) {return false;}
-      // Filter by privacy level
-      if (filters.privacy_level !== 'all' && event.privacy_level !== filters.privacy_level) {return false;}
+      // Filter by category - empty array means "All" (show all categories)
+      if (filters.categories.length > 0 && filters.categories.length < 3 && !filters.categories.includes(event.category)) {return false;}
+      // Filter by privacy level - empty array means "All" (show all levels)
+      if (filters.privacyLevels.length > 0 && filters.privacyLevels.length < 3 && !filters.privacyLevels.includes(event.privacy_level)) {return false;}
 
       return true;
     });
@@ -126,15 +135,15 @@ export default function Timeline() {
   const hasActiveFilters =
     filters.startDate !== null ||
     filters.endDate !== null ||
-    filters.category !== 'all' ||
-    filters.privacy_level !== 'all';
+    (filters.categories.length > 0 && filters.categories.length < 3) ||
+    (filters.privacyLevels.length > 0 && filters.privacyLevels.length < 3);
 
   const handleClearFilters = () => {
     setFilters({
       startDate: null,
       endDate: null,
-      category: 'all',
-      privacy_level: 'all'
+      categories: [], // Empty = All selected
+      privacyLevels: [] // Empty = All selected
     });
   };
 

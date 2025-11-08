@@ -1,13 +1,15 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Input, Select, Button, Subheading } from '@/components/ui';
+import { Input, Button, Subheading } from '@/components/ui';
+import { MultiToggleButtonGroup } from './MultiToggleButtonGroup';
+import { EVENT_CATEGORIES, EVENT_PRIVACY_LEVELS } from '@/types/api';
 
 export interface FilterOptions {
   startDate: string | null;
   endDate: string | null;
-  category: 'all' | 'major' | 'minor' | 'memory';
-  privacy_level: 'all' | 'public' | 'friends' | 'private';
+  categories: ('major' | 'minor' | 'memory')[];
+  privacyLevels: ('public' | 'friends' | 'private')[];
 }
 
 interface FilterDropdownProps {
@@ -58,13 +60,14 @@ export function FilterDropdown({
     const resetFilters: FilterOptions = {
       startDate: null,
       endDate: null,
-      category: 'all',
-      privacy_level: 'all',
+      categories: [], // Empty = All selected
+      privacyLevels: [], // Empty = All selected
     };
     setFilters(resetFilters);
     onApplyFilters(resetFilters);
     onClose();
   };
+
 
   if (!isOpen) return null;
 
@@ -96,38 +99,20 @@ export function FilterDropdown({
         </div>
 
         {/* Category Filter */}
-        <div className="mb-4">
-          <Select
-            label="Event Category"
-            value={filters.category}
-            onChange={(e) => setFilters({
-              ...filters,
-              category: e.target.value as 'all' | 'major' | 'minor' | 'memory'
-            })}
-          >
-            <option value="all">All Categories</option>
-            <option value="major">Major Events</option>
-            <option value="minor">Minor Events</option>
-            <option value="memory">Memories</option>
-          </Select>
-        </div>
+        <MultiToggleButtonGroup
+          label="Event Categories"
+          options={EVENT_CATEGORIES}
+          values={filters.categories}
+          onChange={(categories) => setFilters({ ...filters, categories })}
+        />
 
         {/* Privacy Level Filter */}
-        <div className="mb-4">
-          <Select
-            label="Privacy Level"
-            value={filters.privacy_level}
-            onChange={(e) => setFilters({
-              ...filters,
-              privacy_level: e.target.value as 'all' | 'public' | 'friends' | 'private'
-            })}
-          >
-            <option value="all">All Privacy Levels</option>
-            <option value="public">Public</option>
-            <option value="friends">Friends</option>
-            <option value="private">Private</option>
-          </Select>
-        </div>
+        <MultiToggleButtonGroup
+          label="Privacy Levels"
+          options={EVENT_PRIVACY_LEVELS}
+          values={filters.privacyLevels}
+          onChange={(privacyLevels) => setFilters({ ...filters, privacyLevels })}
+        />
 
         {/* Action Buttons */}
         <div className="flex justify-end gap-2 mt-6">

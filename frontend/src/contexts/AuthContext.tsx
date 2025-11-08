@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { authApiClient } from '@/utils/auth-api';
 import { UserType } from '@/types/api';
@@ -37,7 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isMobile, setIsMobile] = useState(false);
   const router = useRouter();
 
-  const checkAuth = useCallback(async () => {
+  const checkAuth = async () => {
     try {
       // Check authentication with JWT token
       const authStatus = await authApiClient.getAuthStatus();
@@ -57,7 +57,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setLoading(false);
     }
-  }, [router]);
+  };
 
   const login = async (email: string, password: string) => {
     try {
@@ -111,7 +111,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     };
     initialize();
-  }, [checkAuth]);
+  }, []);
 
   // Mobile detection
   useEffect(() => {

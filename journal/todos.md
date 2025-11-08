@@ -3,7 +3,6 @@
 - Create `example/` page with the testing.mily example and add link to landing page
 - Password reset
 - BUG: Clicking on the Get Started/Login link on Landing Page with a valid token creates a white screen that requires refresh
-- Change filters to be multi-selectable
 - Set up Google Analytics on website?
 - Find ~50 solid users to test the web app, once it's been thoroughly tested, find a way to add charges then create a mobile app
     - Pursue older generation

@@ -21,10 +21,6 @@ from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from .serializers import UserPrivateSerializer
 from .throttling import AuthRateThrottle
 
-from config.settings import (
-    DEFAULT_FROM_EMAIL,
-    SIMPLE_JWT,
-)
 
 User = get_user_model()
 
@@ -34,11 +30,11 @@ def set_access_token_cookie(response: Response, access_token: str) -> Response:
     response.set_cookie(
         key='access_token',
         value=access_token,
-        max_age=int(SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds()),
-        domain=SIMPLE_JWT['COOKIE_DOMAIN'],
-        httponly=SIMPLE_JWT['COOKIE_HTTPONLY'],
-        secure=SIMPLE_JWT['COOKIE_SECURE'],
-        samesite=SIMPLE_JWT['COOKIE_SAMESITE'],
+        max_age=int(settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds()),
+        domain=settings.SIMPLE_JWT['COOKIE_DOMAIN'],
+        httponly=settings.SIMPLE_JWT['COOKIE_HTTPONLY'],
+        secure=settings.SIMPLE_JWT['COOKIE_SECURE'],
+        samesite=settings.SIMPLE_JWT['COOKIE_SAMESITE'],
         path='/',
     )
     return response
@@ -48,11 +44,11 @@ def set_refresh_token_cookie(response: Response, refresh_token: str) -> Response
     response.set_cookie(
         key='refresh_token',
         value=refresh_token,
-        max_age=int(SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'].total_seconds()),
-        domain=SIMPLE_JWT['COOKIE_DOMAIN'],
-        httponly=SIMPLE_JWT['COOKIE_HTTPONLY'],
-        secure=SIMPLE_JWT['COOKIE_SECURE'],
-        samesite=SIMPLE_JWT['COOKIE_SAMESITE'],
+        max_age=int(settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'].total_seconds()),
+        domain=settings.SIMPLE_JWT['COOKIE_DOMAIN'],
+        httponly=settings.SIMPLE_JWT['COOKIE_HTTPONLY'],
+        secure=settings.SIMPLE_JWT['COOKIE_SECURE'],
+        samesite=settings.SIMPLE_JWT['COOKIE_SAMESITE'],
         path='/',
     )
     return response
@@ -195,14 +191,14 @@ def logout_view(request):
     response.delete_cookie(
         'access_token',
         path='/',
-        domain=SIMPLE_JWT['COOKIE_DOMAIN'],
-        samesite=SIMPLE_JWT['COOKIE_SAMESITE'],
+        domain=settings.SIMPLE_JWT['COOKIE_DOMAIN'],
+        samesite=settings.SIMPLE_JWT['COOKIE_SAMESITE'],
     )
     response.delete_cookie(
         'refresh_token',
         path='/',
-        domain=SIMPLE_JWT['COOKIE_DOMAIN'],
-        samesite=SIMPLE_JWT['COOKIE_SAMESITE'],
+        domain=settings.SIMPLE_JWT['COOKIE_DOMAIN'],
+        samesite=settings.SIMPLE_JWT['COOKIE_SAMESITE'],
     )
 
     return response
@@ -249,7 +245,7 @@ def password_reset_request_view(request):
         send_mail(
             subject,
             message,
-            DEFAULT_FROM_EMAIL,
+            settings.DEFAULT_FROM_EMAIL,
             [user.email],
             fail_silently=False,
         )
