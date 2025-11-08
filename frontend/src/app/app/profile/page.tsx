@@ -1,10 +1,10 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
-import { SectionHeading, Subheading, SmallText, Caption, Card, Button, BodyText } from '@/components/ui';
+import { SectionHeading, Subheading, Caption, Card, Button, BodyText } from '@/components/ui';
 
 export default function ProfilePage() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   if (!user) {
     return null; // ProtectedRoute should handle this

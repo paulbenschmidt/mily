@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { PageHeading, SmallText, Alert, Button } from '@/components/ui';
+import { AuthLayout } from '@/components/AuthLayout';
 
 function VerifyEmailContent() {
   const router = useRouter();
@@ -58,7 +59,7 @@ function VerifyEmailContent() {
   }, [searchParams, router]); // checkAuth excluded to prevent re-runs after successful verification
 
   return (
-    <div className="min-h-screen bg-secondary-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <AuthLayout>
       <div className="max-w-md w-full space-y-8 text-center">
         {status === 'verifying' && (
           <>
@@ -128,21 +129,21 @@ function VerifyEmailContent() {
           </>
         )}
       </div>
-    </div>
+    </AuthLayout>
   );
 }
 
 export default function VerifyEmailPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-secondary-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <AuthLayout>
         <div className="max-w-md w-full space-y-8 text-center">
           <div className="animate-pulse">
             <div className="w-16 h-16 bg-primary-200 rounded-full mx-auto mb-4"></div>
           </div>
           <PageHeading>Loading...</PageHeading>
         </div>
-      </div>
+      </AuthLayout>
     }>
       <VerifyEmailContent />
     </Suspense>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { TimelineEventType, EventCategory, EventPrivacyLevel, EVENT_CATEGORIES, EVENT_PRIVACY_LEVELS } from '@/types/api';
 import { authApiClient } from '@/utils/auth-api';
-import { Input, Button, Subheading, BodyText, Alert, Textarea } from '@/components/ui';
+import { Input, Button, Subheading, Alert, Textarea } from '@/components/ui';
 import { ToggleButtonGroup } from '@/components/Timeline';
 import { useAutoFocus } from '@/hooks/useAutoFocus';
 import { useModalKeyboardShortcuts } from '@/hooks/useModalKeyboardShortcuts';

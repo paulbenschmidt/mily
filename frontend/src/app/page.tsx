@@ -2,53 +2,56 @@
 
 import { Button } from "@/components/ui/Button"
 import Link from "next/link"
+import { MarketingHeader } from "@/components/MarketingHeader"
+import { MarketingFooter } from "@/components/MarketingFooter"
 
 export default function Home() {
+
   return (
     <div className="min-h-screen bg-background">
-
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-sm">
-        <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
-          <button
-            // On click, scroll to top of page smoothly
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="font-serif text-2xl font-medium text-foreground cursor-pointer bg-transparent border-none p-0"
-          >
-            Mily
-          </button>
-          <div className="flex items-center gap-6">
-            <Link
-              href="#features"
-              className="hidden text-sm text-muted-foreground transition-colors hover:text-foreground md:inline-block"
-            >
-              Features
-            </Link>
-            <Link
-              href="#about"
-              className="hidden text-sm text-muted-foreground transition-colors hover:text-foreground md:inline-block"
-            >
-              About
-            </Link>
-            <Link
-              href="/login"
-              className="text-sm text-foreground transition-colors hover:text-muted-foreground"
-            >
-              Log in
-            </Link>
-            <Link
-              href="/signup"
-              className="text-sm text-foreground transition-colors hover:text-muted-foreground"
-            >
-              Get started
-            </Link>
-          </div>
-        </nav>
-      </header>
+      <MarketingHeader showNavLinks />
 
       {/* Hero Section */}
-      <section id="hero" className="relative px-6 pt-32 pb-20 lg:px-8 lg:pt-40 lg:pb-28">
-        <div className="mx-auto max-w-4xl text-center">
+      <section id="hero" className="relative flex min-h-screen flex-col justify-center px-6 lg:px-8 overflow-hidden bg-white">
+        {/* Wave Background */}
+<div className="absolute inset-0">
+  <svg className="absolute inset-0 h-full w-full" preserveAspectRatio="none" viewBox="0 0 1440 800" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="wave-gradient-1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#eef2ff', stopOpacity: 0.5 }} />
+        <stop offset="100%" style={{ stopColor: '#e0e7ff', stopOpacity: 0.4 }} />
+      </linearGradient>
+      <linearGradient id="wave-gradient-2" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#e0e7ff', stopOpacity: 0.45 }} />
+        <stop offset="100%" style={{ stopColor: '#c7d2fe', stopOpacity: 0.35 }} />
+      </linearGradient>
+      <linearGradient id="wave-gradient-3" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#c7d2fe', stopOpacity: 0.4 }} />
+        <stop offset="100%" style={{ stopColor: '#a5b4fc', stopOpacity: 0.3 }} />
+      </linearGradient>
+    </defs>
+
+    {/* First wave - gentle, starts higher left, smooth gradual curl upward to top right */}
+    <path
+      d="M0,520 C200,500 350,480 550,450 C750,420 950,370 1150,300 C1280,250 1380,210 1440,180 L1440,800 L0,800 Z"
+      fill="url(#wave-gradient-1)"
+    />
+
+    {/* Second wave - more pronounced swell, ends center-right slightly below center */}
+    <path
+      d="M0,640 C200,620 340,580 540,555 C780,525 1020,510 1240,520 C1350,525 1410,530 1440,535 L1440,800 L0,800 Z"
+      fill="url(#wave-gradient-2)"
+    />
+
+    {/* Third wave - deep, organic curve with dramatic right swell */}
+    <path
+      d="M0,720 C280,690 420,650 640,630 C900,605 1140,635 1320,710 C1390,745 1425,775 1440,795 L1440,800 L0,800 Z"
+      fill="url(#wave-gradient-3)"
+    />
+  </svg>
+</div>
+
+        <div className="mx-auto max-w-4xl text-center relative z-10 mt-12 lg:mt-16">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-muted/30 px-4 py-1.5 text-sm text-muted-foreground">
             <span className="h-1.5 w-1.5 rounded-full bg-brand" />
             Your life, visualized
@@ -57,8 +60,7 @@ export default function Home() {
             Rediscover your life
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground lg:text-xl">
-            Record and reflect on life events in a visual timeline. Deepen relationships by sharing your experiences
-            with those who matter most.
+            Your life is a story worth sharing. <br /> Remember and celebrate with those who matter.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link href="/signup">
@@ -79,37 +81,39 @@ export default function Home() {
         </div>
 
         {/* Timeline visualization */}
-        <div className="mx-auto mt-20 max-w-5xl">
-          <div className="relative pt-4 pb-12">
+        <div className="mx-auto mt-16 max-w-5xl lg:mt-24">
+          <div className="relative pt-8 pb-4">
             {/* Horizontal timeline line */}
             <div className="absolute left-0 right-0 top-10 h-px bg-border" />
 
             {/* Timeline points */}
-            <div className="relative flex justify-between px-8">
+            {/* <div className="relative flex justify-between gap-4 px-8 sm:gap-8 lg:gap-12">
               {[
-                { year: "1990", label: "Born", type: "major" },
-                { year: "2008", label: "College", type: "minor" },
-                { year: "2015", label: "Moved", type: "major" },
-                { year: "2023", label: "Married", type: "major" },
-                { year: "2025", label: "Today", type: "minor" },
+                { year: "1980", label: "Born", type: "major" },
+                { year: "2000", label: "College", type: "minor" },
+                { year: "2010", label: "Moved", type: "major" },
+                { year: "2020", label: "Married", type: "major" },
+                { year: currentYear.toString(), label: "Today", type: "minor" },
               ].map((event, i) => (
                 <div key={i} className="flex flex-col items-center">
-                  <div
-                    className={`mb-6 rounded-full border-2 border-background ${
-                      event.type === "major"
-                        ? "h-4 w-4 bg-brand"
-                        : event.type === "minor"
-                          ? "h-3 w-3 bg-muted-foreground"
-                          : "h-2.5 w-2.5 bg-muted"
-                    }`}
-                  />
-                  <div className="mt-2 text-center">
-                    <div className="font-mono text-xs text-muted-foreground">{event.year}</div>
-                    <div className="mt-1 text-sm text-foreground">{event.label}</div>
+                  <div className="mb-6 flex h-4 w-4 items-center justify-center">
+                    <div
+                      className={`rounded-full border-2 border-background ${
+                        event.type === "major"
+                          ? "h-4 w-4 bg-brand"
+                          : event.type === "minor"
+                            ? "h-3 w-3 bg-muted-foreground"
+                            : "h-2.5 w-2.5 bg-muted"
+                      }`}
+                    />
+                  </div>
+                  <div className="mt-2 flex flex-col items-center text-center">
+                    <div className="font-mono text-xs text-muted-foreground leading-tight">{event.year}</div>
+                    <div className="mt-1 text-sm text-foreground leading-tight whitespace-nowrap">{event.label}</div>
                   </div>
                 </div>
               ))}
-            </div>
+            </div> */}
           </div>
         </div>
       </section>
@@ -216,7 +220,7 @@ export default function Home() {
             Life is richer when we remember
           </h2>
           <p className="mt-6 leading-relaxed text-muted-foreground lg:text-lg">
-            Mily helps you appreciate the depth of your experiences and the multi-faceted lives of others. By
+            Mily helps you appreciate the depth of your experiences and the lives of others. By
             visualizing life spatially, you gain perspective on what truly matters—and discover new dimensions in the
             people you care about.
           </p>
@@ -233,27 +237,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border px-6 py-12 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-            <div className="font-serif text-xl font-medium text-foreground">Mily</div>
-            <div className="flex gap-8 text-sm text-muted-foreground">
-              {/* TODO: Add links */}
-              <Link href="/privacy" className="transition-colors hover:text-foreground">
-                Privacy
-              </Link>
-              <Link href="/terms" className="transition-colors hover:text-foreground">
-                Terms
-              </Link>
-              <Link href="/contact" className="transition-colors hover:text-foreground">
-                Contact
-              </Link>
-            </div>
-          </div>
-          <div className="mt-8 text-center text-sm text-muted-foreground">© 2025 Mily. Your stories, your life.</div>
-        </div>
-      </footer>
+      <MarketingFooter />
     </div>
   )
 }
