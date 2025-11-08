@@ -2,6 +2,7 @@ import logging
 
 from django.contrib.auth import get_user_model
 from django.db.models import Q
+from django.utils import timezone
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -58,9 +59,24 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     throttle_classes = [UserReadRateThrottle]
 
-    @action(detail=False, methods=["get"], url_path="me")
+    @action(detail=False, methods=["get", "delete"], url_path="me")
     def me(self, request, *args, **kwargs):
-        """Get current authenticated user's profile."""
+        """Get or delete current authenticated user's profile."""
+        if request.method == "DELETE":
+            # Soft delete by setting is_active to False
+            user = request.user
+            user.is_active = False
+            user.deactivated_at = timezone.now()
+            user.save()
+
+            logger.info(f"User account deactivated: {user.email} (ID: {user.id})")
+
+            return Response(
+                {"message": "Account successfully deleted"},
+                status=status.HTTP_200_OK
+            )
+
+        # GET request
         serializer = UserPrivateSerializer(request.user)
         return Response(serializer.data)
 

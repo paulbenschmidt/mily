@@ -7,17 +7,17 @@ from .models import User, Event, Friendship
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
     """Admin interface for User model"""
-    list_display = ('username', 'email', 'handle', 'first_name', 'last_name', 'is_email_verified', 'created_at')
-    list_filter = ('is_staff', 'is_active', 'created_at', 'is_email_verified')
+    list_display = ('username', 'email', 'handle', 'first_name', 'last_name', 'is_active', 'is_email_verified', 'created_at')
+    list_filter = ('is_staff', 'is_active', 'created_at', 'is_email_verified', 'deactivated_at')
     search_fields = ('username', 'email', 'handle', 'first_name', 'last_name')
-    readonly_fields = ('id', 'created_at', 'updated_at')
+    readonly_fields = ('id', 'created_at', 'updated_at', 'deactivated_at')
 
     fieldsets = BaseUserAdmin.fieldsets + (
         ('Additional Info', {
             'fields': ('handle', 'profile_picture')
         }),
         ('Timestamps', {
-            'fields': ('created_at', 'updated_at', 'email_verification_sent_at'),
+            'fields': ('created_at', 'updated_at', 'email_verification_sent_at', 'deactivated_at'),
             'classes': ('collapse',)
         }),
     )

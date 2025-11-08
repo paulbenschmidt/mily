@@ -1,7 +1,5 @@
 ## Now
 - [ ] Create paul@joinmily.com email with Cloudflare Email Routing
-- Remove profile page and add settings page
-    - [ ] Allow users to delete their accounts and export their events data
 - Create `example/` page with the testing.mily example and add link to landing page
 - Password reset
 - BUG: Clicking on the Get Started/Login link on Landing Page with a valid token creates a white screen that requires refresh
@@ -84,6 +82,7 @@
     - If I add it as part of the profile, I can add a little blurb that says "this field will be used to calculate your age for each event". It'll also auto-add an event to the user's timeline for their birthday.
 
 ### Other
+- Set up cron job to delete users after 30 days of `deactivated_at` and `is_active=False`
 - UI: On mobile, fix where the filter event/privacy selections appear, since they're slightly off.
     - Note: this currently only happens on the browser for iPhones like iPhone 14 Pro Max. For some reason, the dropdown shifts farther away. This might not be too big of a concern since this is on mobile browsers, and the future app will have a different layout.
 - [ ] Eventually, add AI-generated "tags" to events so that users can auto-filter events

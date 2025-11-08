@@ -254,6 +254,15 @@ class AuthApiClient {
     });
   }
 
+  async deleteAccount(): Promise<{ message: string }> {
+    return this.request<{ message: string }>({
+      endpoint: '/users/me/',
+      options: {
+        method: 'DELETE',
+      },
+    });
+  }
+
   // Events endpoints
   async getEvents(): Promise<TimelineEventType[]> {
     return this.request<TimelineEventType[]>({
