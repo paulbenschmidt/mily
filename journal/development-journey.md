@@ -1,5 +1,33 @@
 # Development Journey
 
+- 2025-11-08:
+    Significantly improved the landing page. Then spent time revising the logo, since the SVG was a little blurry/fuzzy. I went to Figma and looked through all Google Fonts and landed on the following for the simple M (scores are out of 10):
+        - Montez - 8
+        - Reenie Beanie - 8
+        - Sarina - 8
+        - Yellowtail - 8
+        - Birthstone - 7
+        - Gochi Hand - 7
+        - Kaushan Script - 7
+        - Vujahday Script - 7
+        - La Belle Aurore - 6
+        - Grechen Fuemen - 6
+        - Marck Script - 6
+        - Pecita - 6
+        - The Nautigal - 6
+        - Comforter - 5
+        - Qwitcher Grypen - 5
+        - Smooch - 5
+        - Corinthia - 4
+        - Ephesis - 4
+        - Island Moments - 4 (would be higher if it was solid instead of patchy)
+        - Norican - 4
+        - Ooh Baby - 3
+        - Over the Rainbow - 3
+        - Puppies Play - 3
+    - In the end, it was between Gochi Hand, Reenie Beanie, and Yellowtail. And Yellowtail won! It was purely accidental, but the M extended beyond the circle, and I thought it looked powerful. When I asked Claude for his thoughts, he agreed that this version was the best (I also gave Claude the option of Yellowtail within the circle). Claude responded with the following, and I love it:
+        - Life doesn't fit neatly into boxes (or circles), and neither should your logo
+        - This "life overflowing the boundaries" concept actually reinforces your core message about discovering the richness of your experiences. It suggests that people's stories are too vibrant to be contained.
 - 2025-11-04:
     - I wanted to bulk create events for a test user, so I created a management command, but then I realized that Django Admin wasn't working on Railway. After some digging, I found that it was related to the cookie domains being limited to the `mily.bio` domain, so I refactored the cookie env variables to account for the different domain depending on whether it was a JWT or a session cookie.
 - 2025-11-02:
