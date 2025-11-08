@@ -15,11 +15,13 @@ export function Logo({ onClick, href, size = 'md' }: LogoProps) {
     xl: 'w-10 h-10'
   }
 
+  // Icon sizes multiplied by 3 for high-DPI mobile displays (Retina screens)
+  // This prevents fuzziness on mobile devices with 2x-3x pixel density
   const iconSizes = {
-    sm: 20,
-    md: 24,
-    lg: 28,
-    xl: 32
+    sm: 60,   // 20 * 3
+    md: 72,   // 24 * 3
+    lg: 84,   // 28 * 3
+    xl: 96    // 32 * 3
   }
 
   const logoContent = (
