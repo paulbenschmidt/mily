@@ -56,7 +56,7 @@ function VerifyEmailContent() {
     };
 
     verifyEmail();
-  }, [searchParams, router, checkAuth]);
+  }, [searchParams, router]); // checkAuth excluded to prevent re-runs after successful verification
 
   return (
     <AuthLayout>
