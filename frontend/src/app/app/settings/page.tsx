@@ -1,0 +1,232 @@
+'use client';
+
+import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { authApiClient } from '@/utils/auth-api';
+import { PageHeading, SectionHeading, BodyText, Button, Alert } from '@/components/ui';
+
+export default function SettingsPage() {
+  const { user, logout } = useAuth();
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportSuccess, setExportSuccess] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleExportEvents = async () => {
+    setIsExporting(true);
+    setError('');
+    setExportSuccess(false);
+
+    try {
+      const events = await authApiClient.getEvents();
+
+      // Convert events to CSV format
+      const headers = ['Date', 'Title', 'Category', 'Description', 'Notes', 'Privacy'];
+      const csvRows = [
+        headers.join(','),
+        ...events.map(event => [
+          event.event_date,
+          `"${event.title.replace(/"/g, '""')}"`,
+          event.category,
+          `"${(event.description || '').replace(/"/g, '""')}"`,
+          `"${(event.notes || '').replace(/"/g, '""')}"`,
+          event.privacy_level
+        ].join(','))
+      ];
+
+      const csvContent = csvRows.join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+
+      link.setAttribute('href', url);
+      link.setAttribute('download', `mily_timeline_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      setExportSuccess(true);
+      setTimeout(() => setExportSuccess(false), 3000);
+    } catch (err) {
+      setError('Failed to export events. Please try again.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== 'DELETE') {
+      setError('Please type DELETE to confirm account deletion.');
+      return;
+    }
+
+    setIsDeleting(true);
+    setError('');
+
+    try {
+      // Call delete account API endpoint
+      await authApiClient.deleteAccount();
+
+      // Logout and redirect to home
+      await logout();
+      window.location.href = '/';
+    } catch (err) {
+      setError('Failed to delete account. Please try again or contact support.');
+      setIsDeleting(false);
+    }
+  };
+
+  if (!user) {
+    return null;
+  }
+
+  return (
+    <div className="min-h-screen bg-secondary-50 py-8 px-4">
+      <div className="max-w-2xl mx-auto">
+        <PageHeading className="mb-8">Settings</PageHeading>
+
+        {/* Account Information */}
+        <section className="bg-white rounded-lg border border-secondary-200 p-6 mb-6">
+          <SectionHeading className="mb-4">Account Information</SectionHeading>
+          <div className="space-y-3">
+            <div>
+              <BodyText className="text-secondary-600 text-sm">Email</BodyText>
+              <BodyText className="font-medium">{user.email}</BodyText>
+            </div>
+            <div>
+              <BodyText className="text-secondary-600 text-sm">Name</BodyText>
+              <BodyText className="font-medium">{user.first_name} {user.last_name}</BodyText>
+            </div>
+            <div>
+              <BodyText className="text-secondary-600 text-sm">Handle</BodyText>
+              <BodyText className="font-medium">@{user.handle}</BodyText>
+            </div>
+          </div>
+        </section>
+
+        {/* Data Export */}
+        <section className="bg-white rounded-lg border border-secondary-200 p-6 mb-6">
+          <SectionHeading className="mb-2">Export Your Data</SectionHeading>
+          <BodyText className="text-secondary-600 mb-4">
+            Download all your timeline events as a CSV file. This includes event dates, titles, notes, and other details.
+          </BodyText>
+          {exportSuccess && (
+            <Alert variant="success" className="mb-4">
+              Your timeline has been exported successfully!
+            </Alert>
+          )}
+          <Button
+            onClick={handleExportEvents}
+            disabled={isExporting}
+            variant="secondary"
+            size="md"
+          >
+            {isExporting ? 'Exporting...' : 'Export Timeline as CSV'}
+          </Button>
+        </section>
+
+        {/* Privacy Settings */}
+        <section className="bg-white rounded-lg border border-secondary-200 p-6 mb-6">
+          <SectionHeading className="mb-2">Privacy</SectionHeading>
+          <BodyText className="text-secondary-600 mb-4">
+            Your timeline is private by default. You can control visibility for individual events and share your timeline with specific people.
+          </BodyText>
+          <BodyText className="text-secondary-600">
+            Manage event privacy settings from your timeline by editing individual events.
+          </BodyText>
+        </section>
+
+        {/* Notifications */}
+        {/* <section className="bg-white rounded-lg border border-secondary-200 p-6 mb-6">
+          <SectionHeading className="mb-2">Notifications</SectionHeading>
+          <BodyText className="text-secondary-600 mb-4">
+            Email notifications for timeline activity and reminders.
+          </BodyText>
+          <div className="space-y-3">
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                defaultChecked
+                className="mr-3 h-4 w-4 rounded border-secondary-300 text-brand focus:ring-brand"
+              />
+              <BodyText>Email me when someone views my shared timeline</BodyText>
+            </label>
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                defaultChecked
+                className="mr-3 h-4 w-4 rounded border-secondary-300 text-brand focus:ring-brand"
+              />
+              <BodyText>Send me monthly reflection reminders</BodyText>
+            </label>
+          </div>
+        </section> */}
+
+        {/* Delete Account */}
+        <section className="bg-white rounded-lg border-3 border-danger-400 p-6">
+          <SectionHeading className="mb-2 text-danger-600">Delete Account</SectionHeading>
+          <BodyText className="text-secondary-600 mb-4">
+            Permanently delete your account and all associated data. This action cannot be undone.
+          </BodyText>
+
+          {!showDeleteConfirm ? (
+            <Button
+              onClick={() => setShowDeleteConfirm(true)}
+              variant="secondary"
+              size="md"
+              className="bg-danger-600 hover:bg-danger-700 text-secondary-600 border-danger-600"
+            >
+              Delete My Account
+            </Button>
+          ) : (
+            <div className="space-y-4">
+              <Alert variant="error">
+                <strong>Warning:</strong> This will permanently delete your account, timeline, and all events. This action cannot be undone.
+              </Alert>
+              <div>
+                <BodyText className="mb-2">
+                  Type <strong>DELETE</strong> to confirm:
+                </BodyText>
+                <input
+                  type="text"
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand"
+                  placeholder="Type DELETE"
+                />
+              </div>
+              {error && (
+                <Alert variant="error">{error}</Alert>
+              )}
+              <div className="flex gap-3">
+                <Button
+                  onClick={handleDeleteAccount}
+                  disabled={isDeleting || deleteConfirmText !== 'DELETE'}
+                  variant="secondary"
+                  size="md"
+                  className="bg-danger-600 hover:bg-danger-700 text-secondary-700 border-danger-600 disabled:opacity-50"
+                >
+                  {isDeleting ? 'Deleting...' : 'Confirm Delete Account'}
+                </Button>
+                <Button
+                  onClick={() => {
+                    setShowDeleteConfirm(false);
+                    setDeleteConfirmText('');
+                    setError('');
+                  }}
+                  variant="secondary"
+                  size="md"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
+        </section>
+      </div>
+    </div>
+  );
+}

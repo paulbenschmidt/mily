@@ -4,7 +4,7 @@ import { useRef, useEffect, useState } from 'react';
 import { TimelineEventType } from '@/types/api';
 import { TimelineEvent } from './TimelineEvent';
 import { FilterDropdown, FilterOptions } from './FilterDropdown';
-import { SmallText, BodyText, Button } from '@/components/ui';
+import { SmallText, BodyText, Button, Spinner } from '@/components/ui';
 
 interface TimelineViewProps {
   mode: 'owner' | 'viewer';
@@ -111,7 +111,7 @@ export function TimelineView({
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-120px)]">
-        <BodyText>Loading timeline...</BodyText>
+        <Spinner size="lg" />
       </div>
     );
   }
@@ -127,7 +127,7 @@ export function TimelineView({
   return (
     <>
       {/* Timeline Header */}
-      <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-secondary-200/50 px-6 py-4">
+      <div className="sticky z-10 bg-white/80 backdrop-blur-md border-b border-secondary-200/50 px-6 py-4" style={{ top: 'var(--app-header-height, 69px)' }}>
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div>
             <SmallText className="font-semibold">{displayTitle}</SmallText>
@@ -217,7 +217,7 @@ export function TimelineView({
 
       {/* Empty state - only show for owner */}
       {totalEventCount === 0 && mode === 'owner' ? (
-        <div className="text-center mt-12 md:mt-20 flex flex-col items-center">
+        <div className="text-center flex flex-col items-center justify-center min-h-[calc(100vh-200px)]">
           <Button
             onClick={onAddEvent}
             size="lg"
@@ -225,6 +225,9 @@ export function TimelineView({
           >
             Begin
           </Button>
+          <p className="mt-6 text-muted-foreground text-sm">
+            What&apos;s one moment you&apos;d like to remember?
+          </p>
         </div>
       ) : totalEventCount === 0 && mode !== 'owner' ? (
         <div className="text-center mt-12 md:mt-20">

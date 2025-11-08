@@ -21,6 +21,7 @@ class User(AbstractUser):
     is_email_verified = models.BooleanField(default=False)
     email_verification_token = models.CharField(max_length=64, null=True, blank=True)
     email_verification_sent_at = models.DateTimeField(null=True, blank=True)
+    deactivated_at = models.DateTimeField(null=True, blank=True, help_text="When the account was marked for deletion")
 
     # Use email as the username field for login
     USERNAME_FIELD = 'email'
