@@ -1,7 +1,11 @@
 # Development Journey
 
 - 2025-11-08:
-    Significantly improved the landing page. Then spent time revising the logo, since the SVG was a little blurry/fuzzy. I went to Figma and looked through all Google Fonts and landed on the following for the simple M (scores are out of 10):
+    - I learned about nameservers and how they work.
+        - I initially configured `joinmily.com` to redirect to `mily.bio` using a temporary (302) redirect through Porkbun, but then I learned that Cloudflare's email forwarding required me to change the authoritative nameservers to Cloudflare, which means that any URL forwarding or DNS management would need to be done through Cloudflare. (If I ever want to change the nameservers back to Porkbun, I can do that. Also, I have the flexibility to move the ownership of the domain to another registrar if I want to.). Something interesting that I learned is that businesses might update the authoritative nameservers to a new service to test speed, so that's a fun thought experiment.
+        - I updated the authoritative nameservers on Porkbun to point to Cloudflare, and now I have to wait for 24-48 hours while the DNS propagates.
+        - For my email, I'll use `paul@joinmily.com` for initial user emails to build trust with early adopters. Once I have 100 users, I'll switch to `hello@joinmily.com`... maybe. I think having the name will be helpful for building trust early on.
+    - Significantly improved the landing page. Then spent time revising the logo, since the SVG was a little blurry/fuzzy. I went to Figma and looked through all Google Fonts and landed on the following for the simple M (scores are out of 10):
         - Montez - 8
         - Reenie Beanie - 8
         - Sarina - 8

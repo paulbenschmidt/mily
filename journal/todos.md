@@ -1,9 +1,7 @@
 ## Now
 - [ ] Create paul@joinmily.com email with Cloudflare Email Routing
 - Create `example/` page with the testing.mily example and add link to landing page
-- Password reset
 - BUG: Clicking on the Get Started/Login link on Landing Page with a valid token creates a white screen that requires refresh
-- Set up Google Analytics on website?
 - Find ~50 solid users to test the web app, once it's been thoroughly tested, find a way to add charges then create a mobile app
     - Pursue older generation
     - Look at people who have reviewed previous apps or are active on mental health forums
@@ -23,6 +21,11 @@
             - Find blogs and websites that discuss mental health and therapy and reach out to them
 
 ## Upcoming
+- [ ] Look into serving photos through Railway buckets? Vercel Blob is probably a better way to go.
+    - AWS S3 + CloudFront would be most cost-effective at scale but is more complicated to set up.
+    - Actually, let's make it so that users can add 10 photos before getting paywalled.
+    - $24/year ($2/month) or $5/month
+- Password reset
 - [ ] Enable photos on events
 - [ ] Enable voice recording on events (so that users could record their thoughts and experiences). I'm imagining a grandparent who leaves stories for their grandchildren, or a parent who leaves stories for their children. It would be a very personal way to share your story.
 - Add search bar to timeline page to help people easily dig up events (when clicking on an event, it should center the timeline on that event)
@@ -34,7 +37,6 @@
     - You could have two different weave versions: one is just showing two timelines on the same year, the other could be showing two timelines relative to the ages. The second one sounds novel and unique: you could look at what a parent and child experienced in the same year, or two friends of different ages experienced in the same year. <3. I thought of this when I was thinking about seeing the difference between my timeline and Jackson's timeline.
 - [ ] Verify that users cannot see the years associated with any events (for privacy reasons)
 - [ ] Password reset via Django's built-in email system (Allow users ability to change password)
-- [ ] Look into serving photos through Railway buckets?
 - [ ] Add logo to loading spinners and to footer
 - [ ] Add tags to events and allow users to filter by them
 - [ ] Go through packages and update any that are not needed
@@ -81,6 +83,7 @@
     - If I add it as part of the profile, I can add a little blurb that says "this field will be used to calculate your age for each event". It'll also auto-add an event to the user's timeline for their birthday.
 
 ### Other
+- Set up Google Analytics once I have many more users or I want to track specific features
 - Set up cron job to delete users after 30 days of `deactivated_at` and `is_active=False`
 - UI: On mobile, fix where the filter event/privacy selections appear, since they're slightly off.
     - Note: this currently only happens on the browser for iPhones like iPhone 14 Pro Max. For some reason, the dropdown shifts farther away. This might not be too big of a concern since this is on mobile browsers, and the future app will have a different layout.
