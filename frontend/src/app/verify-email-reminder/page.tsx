@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { PageHeading, SmallText, Alert, Button } from '@/components/ui';
+import { AuthLayout } from '@/components/AuthLayout';
 
 function VerifyEmailReminderContent() {
   const searchParams = useSearchParams();
@@ -46,7 +47,7 @@ function VerifyEmailReminderContent() {
   };
 
   return (
-    <div className="min-h-screen bg-secondary-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <AuthLayout>
       <div className="max-w-md w-full space-y-8 text-center">
         <div className="w-16 h-16 bg-secondary-100 rounded-full mx-auto mb-4 flex items-center justify-center">
           <svg
@@ -109,21 +110,21 @@ function VerifyEmailReminderContent() {
           </>
         )}
       </div>
-    </div>
+    </AuthLayout>
   );
 }
 
 export default function VerifyEmailReminderPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-secondary-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <AuthLayout>
         <div className="max-w-md w-full space-y-8 text-center">
           <div className="animate-pulse">
             <div className="w-16 h-16 bg-secondary-200 rounded-full mx-auto mb-4"></div>
           </div>
           <PageHeading>Loading...</PageHeading>
         </div>
-      </div>
+      </AuthLayout>
     }>
       <VerifyEmailReminderContent />
     </Suspense>

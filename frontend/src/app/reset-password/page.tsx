@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { authApiClient } from '@/utils/auth-api';
 import { Input, Button, PageHeading, SmallText, Alert, Link } from '@/components/ui';
+import { AuthLayout } from '@/components/AuthLayout';
 
 // Create a client component that uses useSearchParams
 function ResetPasswordContent() {
@@ -73,7 +74,7 @@ function ResetPasswordContent() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-secondary-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <AuthLayout>
         <div className="max-w-md w-full space-y-8">
           <div className="text-center space-y-4">
             <PageHeading className="mt-6">
@@ -91,12 +92,12 @@ function ResetPasswordContent() {
             </div>
           </div>
         </div>
-      </div>
+      </AuthLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-secondary-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <AuthLayout>
       <div className="max-w-md w-full space-y-8">
         <div>
           <PageHeading className="mt-6 text-center">
@@ -156,16 +157,16 @@ function ResetPasswordContent() {
           </div>
         </form>
       </div>
-    </div>
+    </AuthLayout>
   );
 }
 
 // Loading fallback for Suspense
 function LoadingFallback() {
   return (
-    <div className="min-h-screen bg-secondary-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <AuthLayout>
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-    </div>
+    </AuthLayout>
   );
 }
 
