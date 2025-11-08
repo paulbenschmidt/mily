@@ -23,7 +23,7 @@ export default function ContactPage() {
               Contact Us
             </h1>
             <p className="mt-4 text-lg text-muted-foreground">
-              We'd love to hear from you. Whether you have questions, feedback, or need support, we're here to help.
+              We&#x27;d love to hear from you. Whether you have questions, feedback, or need support, we&#x27;re here to help.
             </p>
           </div>
 

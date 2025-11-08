@@ -1,12 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Input, Button, PageHeading, SmallText, Alert, Link } from '@/components/ui';
 import { AuthLayout } from '@/components/AuthLayout';
 
 export default function SignupPage() {
-  const router = useRouter();
   const [formData, setFormData] = useState({
     email: '',
     password: '',

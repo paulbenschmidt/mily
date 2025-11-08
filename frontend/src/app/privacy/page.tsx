@@ -107,7 +107,7 @@ export default function PrivacyPage() {
               Our commitment
             </h2>
             <p className="leading-relaxed text-muted-foreground">
-              We're building Mily to be sustainable without being extractive. If we ever face a choice between growth and our mission to help people reflect and connect authentically, we choose the mission.
+              We&#x27;re building Mily to be sustainable without being extractive. If we ever face a choice between growth and our mission to help people reflect and connect authentically, we choose the mission.
             </p>
           </section>
 

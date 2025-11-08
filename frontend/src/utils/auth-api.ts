@@ -194,7 +194,7 @@ class AuthApiClient {
     try {
       const user = await this.getCurrentUser();
       return { authenticated: true, user };
-    } catch (error) {
+    } catch {
       return { authenticated: false };
     }
   }

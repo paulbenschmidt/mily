@@ -23,7 +23,7 @@ export default function TermsPage() {
               Terms of Service
             </h1>
             <p className="mt-4 text-lg text-muted-foreground">
-              By using Mily, you agree to these terms. We've written them to be clear and fair.
+              By using Mily, you agree to these terms. We&#x27;ve written them to be clear and fair.
             </p>
           </div>
 
@@ -52,7 +52,7 @@ export default function TermsPage() {
             </h2>
             <div className="space-y-4 text-muted-foreground leading-relaxed">
               <p>
-                <strong className="text-foreground">You own your content.</strong> The timeline events, notes, photos, and reflections you create on Mily belong to you. We don't claim any ownership over your content.
+                <strong className="text-foreground">You own your content.</strong> The timeline events, notes, photos, and reflections you create on Mily belong to you. We don&apos;t claim any ownership over your content.
               </p>
               <p>
                 By using Mily, you grant us permission to store and display your content as necessary to provide the service. This includes:
@@ -63,7 +63,7 @@ export default function TermsPage() {
                 <li>Creating backups to protect your data</li>
               </ul>
               <p>
-                You can export or delete your content at any time. When you delete content, we'll remove it from our active systems, though backup copies may persist for a reasonable period.
+                You can export or delete your content at any time. When you delete content, we&apos;ll remove it from our active systems, though backup copies may persist for a reasonable period.
               </p>
             </div>
           </section>
@@ -81,7 +81,7 @@ export default function TermsPage() {
                 When you share your timeline with others:
               </p>
               <ul className="ml-6 space-y-2 list-disc">
-                <li>Only events you've marked as shareable will be visible</li>
+                <li>Only events you&apos;ve marked as shareable will be visible</li>
                 <li>You can revoke access at any time</li>
                 <li>Shared viewers cannot edit or export your content</li>
               </ul>
@@ -98,12 +98,12 @@ export default function TermsPage() {
             </h2>
             <div className="space-y-4 text-muted-foreground leading-relaxed">
               <p>
-                Mily is designed for personal reflection and authentic connection. Please don't:
+                Mily is designed for personal reflection and authentic connection. Please don&apos;t:
               </p>
               <ul className="ml-6 space-y-2 list-disc">
-                <li>Share content that violates others' privacy or rights</li>
+                <li>Share content that violates others&apos; privacy or rights</li>
                 <li>Use the service to harass, abuse, or harm others</li>
-                <li>Attempt to access other users' accounts or data</li>
+                <li>Attempt to access other users&apos; accounts or data</li>
                 <li>Use automated tools to scrape or collect data from Mily</li>
                 <li>Upload malicious code or attempt to disrupt the service</li>
               </ul>
@@ -120,7 +120,7 @@ export default function TermsPage() {
             </h2>
             <div className="space-y-4 text-muted-foreground leading-relaxed">
               <p>
-                We work hard to keep Mily available and reliable, but we can't guarantee uninterrupted service. We may:
+                We work hard to keep Mily available and reliable, but we can&apos;t guarantee uninterrupted service. We may:
               </p>
               <ul className="ml-6 space-y-2 list-disc">
                 <li>Perform maintenance that temporarily affects availability</li>
@@ -128,7 +128,7 @@ export default function TermsPage() {
                 <li>Discontinue features with reasonable notice</li>
               </ul>
               <p>
-                We'll always give you the ability to export your data before making significant changes.
+                We&apos;ll always give you the ability to export your data before making significant changes.
               </p>
             </div>
           </section>
@@ -145,11 +145,11 @@ export default function TermsPage() {
               <ul className="ml-6 space-y-2 list-disc">
                 <li>Payments are processed securely through our payment provider</li>
                 <li>Subscriptions renew automatically unless you cancel</li>
-                <li>You can cancel anytime; you'll retain access through the end of your billing period</li>
+                <li>You can cancel anytime; you&apos;ll retain access through the end of your billing period</li>
                 <li>Refunds at our discretion</li>
               </ul>
               <p>
-                <strong className="text-foreground">Core privacy features are always free.</strong> We'll never put privacy controls behind a paywall.
+                <strong className="text-foreground">Core privacy features are always free.</strong> We&apos;ll never put privacy controls behind a paywall.
               </p>
             </div>
           </section>
@@ -161,7 +161,7 @@ export default function TermsPage() {
             </h2>
             <div className="space-y-4 text-muted-foreground leading-relaxed">
               <p>
-                Mily is provided "as is" without warranties of any kind. We're not liable for:
+                Mily is provided &quot;as is&quot; without warranties of any kind. We&apos;re not liable for:
               </p>
               <ul className="ml-6 space-y-2 list-disc">
                 <li>Loss of data (though we work hard to prevent this)</li>
@@ -181,7 +181,7 @@ export default function TermsPage() {
             </h2>
             <div className="space-y-4 text-muted-foreground leading-relaxed">
               <p>
-                We may update these terms from time to time. If we make significant changes, we'll notify you via email or through the app. Continued use of Mily after changes means you accept the updated terms.
+                We may update these terms from time to time. If we make significant changes, we&apos;ll notify you via email or through the app. Continued use of Mily after changes means you accept the updated terms.
               </p>
             </div>
           </section>
@@ -192,7 +192,7 @@ export default function TermsPage() {
               Questions?
             </h2>
             <p className="text-muted-foreground leading-relaxed">
-              If you have questions about these terms, please <Link href="/contact" className="text-brand hover:underline">contact us</Link>. We're here to help.
+              If you have questions about these terms, please <Link href="/contact" className="text-brand hover:underline">contact us</Link>. We&apos;re here to help.
             </p>
           </section>
 

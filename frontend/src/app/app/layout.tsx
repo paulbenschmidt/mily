@@ -9,7 +9,7 @@ export default function AppLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
 
   const handleLogout = async () => {
     await logout();

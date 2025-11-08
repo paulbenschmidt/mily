@@ -242,6 +242,7 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
 
                   {event.photos && event.photos.length > 0 && (
                     <div className="mb-4">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={event.photos[0]}
                         alt={event.title}

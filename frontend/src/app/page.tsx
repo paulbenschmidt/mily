@@ -6,7 +6,6 @@ import { MarketingHeader } from "@/components/MarketingHeader"
 import { MarketingFooter } from "@/components/MarketingFooter"
 
 export default function Home() {
-  const currentYear = new Date().getFullYear()
 
   return (
     <div className="min-h-screen bg-background">
