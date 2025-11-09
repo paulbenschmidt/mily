@@ -84,7 +84,7 @@ export default function ExcludeAnalytics() {
         <section className="bg-white rounded-lg border border-secondary-200 p-6 mb-6">
           <SectionHeading className="mb-4">Manage Your Preference</SectionHeading>
           <BodyText className="text-secondary-600 mb-6">
-            You can opt out of analytics tracking at any time. This setting is stored in your device's browser and will persist across sessions.
+            You can opt out of analytics tracking at any time. This setting is stored in your device&apos;s browser and will persist across sessions.
           </BodyText>
           <div className="flex flex-col sm:flex-row gap-3">
             {status === 'included' ? (
