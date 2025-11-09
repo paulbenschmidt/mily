@@ -1,7 +1,9 @@
 ## Now
 - [ ] Create paul@joinmily.com email with Cloudflare Email Routing
-- Create `example/` page with the testing.mily example and add link to landing page
+- Exclude my personal activity from Vercel Analytics
+- Handle login for users who have deactivated their account
 - BUG: Clicking on the Get Started/Login link on Landing Page with a valid token creates a white screen that requires refresh
+- Create UTM parameters when sharing out different pages
 - Find ~50 solid users to test the web app, once it's been thoroughly tested, find a way to add charges then create a mobile app
     - Pursue older generation
     - Look at people who have reviewed previous apps or are active on mental health forums
