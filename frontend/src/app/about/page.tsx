@@ -28,13 +28,13 @@ export default function AboutPage() {
           {/* Origin Story */}
           <section className="mb-12">
             <p className="mb-4 leading-relaxed text-muted-foreground lg:text-lg">
-              I grew up around the world, living in several countries and attending even more schools, so the idea for Mily originally came from wanting to remember my life better.
+              I grew up around the world, living in several countries, so the idea for Mily originally came from wanting to remember my life better.
             </p>
             <p className="mb-4 leading-relaxed text-muted-foreground lg:text-lg">
               But then I started to wonder about the lives of others: what if there was a way that I could learn about the past life of a new friend or passerby and get a glimpse into what they&apos;ve been through and what they value?
             </p>
             <p className="leading-relaxed text-muted-foreground lg:text-lg">
-              This idea came together while listening to Greg McKeown (author of a great book called <i>Essentialism</i>) as he talked about an idea called <strong className="text-brand">sonder</strong>: the realization that every person—whether friend, acquaintance, or stranger—has a life that is just as complicated, nuanced, and beautiful as one&apos;s own. This concept is at the root of Mily: to appreciate the lives of those around us as much (or maybe more!) as we appreciate our own.
+              This idea came together while listening to Greg McKeown (author of a great book called <i>Essentialism</i>) as he talked about an idea called <strong className="text-brand">sonder</strong>: the realization that every person—whether friend, acquaintance, or stranger—has a life that is just as complicated, nuanced, and beautiful as one&apos;s own. This concept is at the root of Mily: to appreciate the lives of those around us as much as we appreciate our own.
             </p>
           </section>
 
