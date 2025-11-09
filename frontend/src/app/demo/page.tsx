@@ -1,14 +1,17 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { TimelineView } from '@/components/Timeline/TimelineView';
 import { TimelineEventType } from '@/types/api';
 import demoData from '@/data/demo-timeline.json';
 import Link from 'next/link';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useTimelineFilters } from '@/hooks/useTimelineFilters';
+import { WelcomeModal } from '@/components/WelcomeModal';
 
 export default function DemoPage() {
   const isMobile = useIsMobile();
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
   // Load demo events from JSON
   const events = demoData as TimelineEventType[];
@@ -16,8 +19,24 @@ export default function DemoPage() {
   // Use timeline filters hook
   const { filters, filteredEvents, hasActiveFilters, handleFilter, handleClearFilters } = useTimelineFilters(events);
 
+  useEffect(() => {
+    // Check if user has seen the welcome modal this session
+    const hasSeenThisSession = sessionStorage.getItem('mily_hasSeenWelcomeModal');
+    console.log('Session storage value:', hasSeenThisSession);
+    console.log('Will show modal:', !hasSeenThisSession);
+    if (!hasSeenThisSession) {
+      setShowWelcomeModal(true);
+    }
+  }, []);
+
+  const handleCloseWelcomeModal = () => {
+    setShowWelcomeModal(false);
+    sessionStorage.setItem('mily_hasSeenWelcomeModal', 'true');
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <WelcomeModal isOpen={showWelcomeModal} onClose={handleCloseWelcomeModal} />
       {/* Demo Header */}
       <header className="sticky top-0 z-20 border-b border-border bg-white/95 backdrop-blur-sm">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 lg:px-8">
