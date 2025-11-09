@@ -42,7 +42,7 @@ export default function ContactPage() {
                     Email
                   </h2>
                   <p className="mb-3 text-muted-foreground">
-                    Send me an email—I'll get back to you within a day or two
+                    Send me an email—I&#x27;ll get back to you within a day or two
                   </p>
                   <a
                     href="mailto:paul@joinmily.com"

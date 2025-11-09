@@ -31,10 +31,10 @@ export default function AboutPage() {
               I grew up around the world, living in several countries and attending even more schools, so the idea for Mily originally came from wanting to remember my life better.
             </p>
             <p className="mb-4 leading-relaxed text-muted-foreground lg:text-lg">
-              But then I started to wonder about the lives of others: what if there was a way that I could learn about the past life of a new friend or passerby and get a glimpse into what they've been through and what they value?
+              But then I started to wonder about the lives of others: what if there was a way that I could learn about the past life of a new friend or passerby and get a glimpse into what they&apos;ve been through and what they value?
             </p>
             <p className="leading-relaxed text-muted-foreground lg:text-lg">
-              This idea came together while listening to Greg McKeown (author of a great book called <i>Essentialism</i>) as he talked about an idea called <strong className="text-brand">sonder</strong>: the realization that every person—whether friend, acquaintance, or stranger—has a life that is just as complicated, nuanced, and beautiful as one's own. This concept is at the root of Mily: to appreciate the lives of those around us as much (or maybe more!) as we appreciate our own.
+              This idea came together while listening to Greg McKeown (author of a great book called <i>Essentialism</i>) as he talked about an idea called <strong className="text-brand">sonder</strong>: the realization that every person—whether friend, acquaintance, or stranger—has a life that is just as complicated, nuanced, and beautiful as one&apos;s own. This concept is at the root of Mily: to appreciate the lives of those around us as much (or maybe more!) as we appreciate our own.
             </p>
           </section>
 
@@ -44,7 +44,7 @@ export default function AboutPage() {
               What Makes Mily Different
             </h2>
             <p className="mb-4 leading-relaxed text-muted-foreground">
-              This isn't another social media app designed to keep you scrolling. Mily is built for reflection and genuine connection with those closest to you: grandparents sharing stories with grandchildren, couples on dates just getting to know each other, friends learning new and interesting histories about each other. I wanted something that felt more like rediscovering old photos in a shoebox than maintaining an online presence.
+              This isn&apos;t another social media app designed to keep you scrolling. Mily is built for reflection and genuine connection with those closest to you: grandparents sharing stories with grandchildren, couples on dates just getting to know each other, friends learning new and interesting histories about each other. I wanted something that felt more like rediscovering old photos in a shoebox than maintaining an online presence.
             </p>
             <p className="mb-4 leading-relaxed text-muted-foreground">
               Your stories belong to you—export them, delete them, share them as you choose. Your timeline and reflections are private by default and will never be sold to advertisers or data brokers.
@@ -70,10 +70,10 @@ export default function AboutPage() {
           {/* What's Next */}
           <section className="mb-12 rounded-2xl border-2 border-brand/20 bg-brand/5 p-8">
             <h2 className="mb-4 font-serif text-2xl font-medium text-foreground">
-              What's Next
+              What&apos;s Next
             </h2>
             <p className="mb-4 leading-relaxed text-muted-foreground">
-              Mily is just getting started. I'm continuing to work on features that make it even easier to capture meaningful moments and share them with the people you care about. If you have thoughts, feedback, or just want to say hello, I'd love to hear from you!
+              Mily is just getting started. I&apos;m continuing to work on features that make it even easier to capture meaningful moments and share them with the people you care about. If you have thoughts, feedback, or just want to say hello, I&apos;d love to hear from you!
             </p>
             <div className="mt-6 flex flex-col items-center text-center">
               <div>
