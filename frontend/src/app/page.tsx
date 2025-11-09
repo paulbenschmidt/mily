@@ -150,9 +150,8 @@ export default function Home() {
             Life is richer when we remember
           </h2>
           <p className="mt-6 leading-relaxed text-muted-foreground lg:text-lg">
-            Mily helps you appreciate the depth of your experiences and the lives of others. By
-            visualizing life spatially, you gain perspective on what truly matters—and discover new dimensions in the
-            people you care about.
+            Your story matters. Every moment has shaped who you are. <br/>Mily helps you see the bigger picture and share
+            it with people who matter.
           </p>
           <div className="mt-10 flex justify-center">
             <Link href="/signup">

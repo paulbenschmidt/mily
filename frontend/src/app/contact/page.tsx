@@ -17,13 +17,13 @@ export default function ContactPage() {
           <div className="mb-12">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-border bg-muted/30 px-4 py-1.5 text-sm text-muted-foreground">
               <span className="h-1.5 w-1.5 rounded-full bg-brand" />
-              Get in touch
+              Contact
             </div>
             <h1 className="font-serif text-4xl font-medium text-foreground lg:text-5xl">
-              Contact Us
+              Get in touch
             </h1>
             <p className="mt-4 text-lg text-muted-foreground">
-              We&#x27;d love to hear from you. Whether you have questions, feedback, or need support, we&#x27;re here to help.
+              I&#x27;d love to hear from you! Whether you have questions about Mily, feedback on how to make it better, or just want to say hello, don&#x27;t hesitate to reach out.
             </p>
           </div>
 
@@ -42,13 +42,13 @@ export default function ContactPage() {
                     Email
                   </h2>
                   <p className="mb-3 text-muted-foreground">
-                    Send us an email—we typically respond within 24 hours
+                    Send me an email—I'll get back to you within a day or two
                   </p>
                   <a
-                    href="mailto:hello@mily.bio"
+                    href="mailto:paul@joinmily.com"
                     className="text-brand hover:underline"
                   >
-                    hello@mily.bio
+                    paul@joinmily.com
                   </a>
                 </div>
               </div>
