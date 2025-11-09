@@ -26,6 +26,7 @@
     - AWS S3 + CloudFront would be most cost-effective at scale but is more complicated to set up.
     - Actually, let's make it so that users can add 10 photos before getting paywalled.
     - $24/year ($2/month) or $5/month
+    - Maybe you could start the cost slightly higher than lower it over time as more users sign up, that way you could make it a marketing strategy to get more users to sign up and also give people updates on user growth (in a way that doesn't feel like spam). Maybe you could make it a challenge to get to 1000 users and then lower the cost.
 - Password reset
 - [ ] Enable photos on events
 - [ ] Enable voice recording on events (so that users could record their thoughts and experiences). I'm imagining a grandparent who leaves stories for their grandchildren, or a parent who leaves stories for their children. It would be a very personal way to share your story.

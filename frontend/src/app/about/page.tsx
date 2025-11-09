@@ -59,9 +59,9 @@ export default function AboutPage() {
             <p className="mb-4 leading-relaxed text-muted-foreground lg:text-lg">
               Through studying psychology and being in therapy, I learned how powerful it is to revisit past events from new perspectives. A little later on, I started learning to code and enjoyed exploring ways to make life easier, simpler, and better with technology. Mily sits at the intersection of both: using technology to help us understand ourselves and connect more deeply with others.
             </p>
-            <p className="mb-4 leading-relaxed text-muted-foreground lg:text-lg">
+            {/* <p className="mb-4 leading-relaxed text-muted-foreground lg:text-lg">
               I eat my veggies, exercise regularly, and sleep a lot—so that I can (hopefully) live a long life filled with many, many, many memories with loved ones.
-            </p>
+            </p> */}
             <p className="leading-relaxed text-muted-foreground lg:text-lg">
               I hope that your interactions with Mily leave you with more joy, deeper love, and an even greater desire to make the most of this life. Thanks for joining on the journey. :)
             </p>
