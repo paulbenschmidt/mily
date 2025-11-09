@@ -1,78 +1,20 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
 import { TimelineView } from '@/components/Timeline/TimelineView';
-import { FilterOptions } from '@/components/Timeline/FilterDropdown';
 import { TimelineEventType } from '@/types/api';
 import demoData from '@/data/demo-timeline.json';
 import Link from 'next/link';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { useTimelineFilters } from '@/hooks/useTimelineFilters';
 
 export default function DemoPage() {
-  const [isMobile, setIsMobile] = useState(false);
-  const [filters, setFilters] = useState<FilterOptions>({
-    startDate: null,
-    endDate: null,
-    categories: [],
-    privacyLevels: [],
-  });
+  const isMobile = useIsMobile();
 
   // Load demo events from JSON
   const events = demoData as TimelineEventType[];
 
-  // Check for mobile on mount
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  // Apply filters
-  const filteredEvents = useMemo(() => {
-    return events.filter((event) => {
-      // Filter by date range
-      if (filters.startDate && event.event_date < filters.startDate) {
-        return false;
-      }
-      if (filters.endDate && event.event_date > filters.endDate) {
-        return false;
-      }
-
-      // Filter by category
-      if (filters.categories.length > 0 && !filters.categories.includes(event.category)) {
-        return false;
-      }
-
-      // Filter by privacy level
-      if (filters.privacyLevels.length > 0 && !filters.privacyLevels.includes(event.privacy_level)) {
-        return false;
-      }
-
-      return true;
-    });
-  }, [events, filters]);
-
-  const hasActiveFilters =
-    filters.categories.length > 0 ||
-    filters.privacyLevels.length > 0 ||
-    filters.startDate !== null ||
-    filters.endDate !== null;
-
-  const handleFilter = (newFilters: FilterOptions) => {
-    setFilters(newFilters);
-  };
-
-  const handleClearFilters = () => {
-    setFilters({
-      startDate: null,
-      endDate: null,
-      categories: [],
-      privacyLevels: [],
-    });
-  };
+  // Use timeline filters hook
+  const { filters, filteredEvents, hasActiveFilters, handleFilter, handleClearFilters } = useTimelineFilters(events);
 
   return (
     <div className="min-h-screen bg-background">
@@ -113,7 +55,7 @@ export default function DemoPage() {
           currentFilters={filters}
           title="Sample Timeline"
           ownerInfo={{
-            name: "Alex",
+            name: "Paul",
             profilePicture: undefined,
           }}
           isMobile={isMobile}

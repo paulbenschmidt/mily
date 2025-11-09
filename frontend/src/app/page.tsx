@@ -75,7 +75,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Take a Tour Section */}
+      {/* Demo Section */}
       <section id="demo" className="border-t border-border px-6 py-20 lg:px-8 lg:py-28">
         <div className="mx-auto max-w-6xl">
           <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 lg:items-center">

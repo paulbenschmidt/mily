@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { authApiClient } from '@/utils/auth-api';
 import { TimelineEventType } from '@/types/api';
-import { AddEventModal, DeleteConfirmationModal, FilterOptions, TimelineView } from '@/components/Timeline';
+import { AddEventModal, DeleteConfirmationModal, TimelineView } from '@/components/Timeline';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTimelineFilters } from '@/hooks/useTimelineFilters';
 
 export default function Timeline() {
   const { isMobile } = useAuth();
@@ -17,13 +18,8 @@ export default function Timeline() {
   const [eventToDelete, setEventToDelete] = useState<TimelineEventType | undefined>(undefined);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Filter state
-  const [filters, setFilters] = useState<FilterOptions>({
-    startDate: null,
-    endDate: null,
-    categories: [], // Empty = All selected
-    privacyLevels: [] // Empty = All selected
-  });
+  // Use timeline filters hook
+  const { filters, filteredEvents, hasActiveFilters, handleFilter, handleClearFilters } = useTimelineFilters(events);
 
   useEffect(() => {
     fetchEvents();
@@ -97,54 +93,8 @@ export default function Timeline() {
     }
   };
 
-  const handleFilter = (newFilters: FilterOptions) => {
-    // If all categories are selected, clear the array (empty = all)
-    const categories = newFilters.categories.length === 3 ? [] : newFilters.categories;
-    // If all privacy levels are selected, clear the array (empty = all)
-    const privacyLevels = newFilters.privacyLevels.length === 3 ? [] : newFilters.privacyLevels;
-    
-    setFilters({
-      ...newFilters,
-      categories,
-      privacyLevels,
-    });
-  };
-
   const handleShare = () => {
     alert('Feature coming soon!');
-  };
-
-  // Apply filters to events
-  const filteredEvents = useMemo(() => {
-    return events.filter(event => {
-      const eventDate = new Date(event.event_date);
-
-      // Filter by date range
-      if (filters.startDate && new Date(filters.startDate) > eventDate) {return false;}
-      if (filters.endDate && new Date(filters.endDate) < eventDate) {return false;}
-      // Filter by category - empty array means "All" (show all categories)
-      if (filters.categories.length > 0 && filters.categories.length < 3 && !filters.categories.includes(event.category)) {return false;}
-      // Filter by privacy level - empty array means "All" (show all levels)
-      if (filters.privacyLevels.length > 0 && filters.privacyLevels.length < 3 && !filters.privacyLevels.includes(event.privacy_level)) {return false;}
-
-      return true;
-    });
-  }, [events, filters]);
-
-
-  const hasActiveFilters =
-    filters.startDate !== null ||
-    filters.endDate !== null ||
-    (filters.categories.length > 0 && filters.categories.length < 3) ||
-    (filters.privacyLevels.length > 0 && filters.privacyLevels.length < 3);
-
-  const handleClearFilters = () => {
-    setFilters({
-      startDate: null,
-      endDate: null,
-      categories: [], // Empty = All selected
-      privacyLevels: [] // Empty = All selected
-    });
   };
 
   return (
