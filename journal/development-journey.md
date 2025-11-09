@@ -1,5 +1,7 @@
 # Development Journey
 
+- 2025-11-09:
+    - Struggled to sleep, so I woke up early at 4am and finished the "About" page as well as the PR review for the "Demo" page. Really happy with how it's coming along.
 - 2025-11-08:
     - I implemented Vercel Analytics. It's a simple analytics dashboard that might not be very useful, but it'll at least tell me how many users are converting, which is the most important metric for me. I guess there really isn't a better metric for a SaaS product. So I'm happy with it.
     - I learned about nameservers and how they work.
