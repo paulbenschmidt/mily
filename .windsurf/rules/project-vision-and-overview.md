@@ -22,8 +22,10 @@ The app is named "Mily" and is a social timeline app where users can record and 
 - Instagram "flattens" the events so that, for example, an everyday visit to a coffee shop occupies the same space as a major life event like getting married. Viewers don't have the ability to see what has salience/permanence/relevance over time.
 
 ### Target Audience
-- The target audience will likely be users 35-45 who have a wealth of past experiences to reflect on but a desire to reflect on them in order to live the second half of their life with intention.
-- The supplementary audience are those at the end of their life who want to share major experiences with loved ones in an easy-to-share format that doesn't overwhelm. This can spark new conversations to help younger generations appreciate the older generations.
+- The target audience will likely be users 35+ who have a wealth of past experiences to reflect on to:
+    - reflect on them in order to live the second half of their life with intention
+    - to share the experiences with loved ones in an easy-to-share format that doesn't overwhelm (helping younger generations appreciate the older generations)
+- My hope is that this will encourage self-reflection and self-appreciation, along with deepening relationships.
 
 ### Customer Experience
 - The app should have a clean, minimalist UI that doesn't draw attention to itself but instead focuses the user on the content within the app.
@@ -57,5 +59,5 @@ Our commitment: We're building Mily to be sustainable without being extractive. 
 ### Tech Stack
 
 Frontend: Next.js 15 + TypeScript + Tailwind CSS (hosted on Vercel)
-Backend: Django REST Framework + PostgreSQL (hosted on Railway)
-Database: Neon
+Backend: Django REST Framework (hosted on Railway)
+Database: PostgreSQL (hosted on NeonDB)
