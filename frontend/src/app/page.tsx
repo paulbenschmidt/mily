@@ -65,7 +65,7 @@ export default function Home() {
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link href="/signup">
               <button className="w-full rounded-lg bg-brand px-8 py-4 text-base font-medium text-white transition-all hover:bg-brand/90 hover:shadow-lg sm:w-auto flex items-center gap-2">
-                Start your timeline
+                Start for Free
                 <svg className="h-6 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
