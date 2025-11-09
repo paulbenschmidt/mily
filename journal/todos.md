@@ -1,6 +1,5 @@
 ## Now
 - [ ] Create paul@joinmily.com email with Cloudflare Email Routing
-- Exclude my personal activity from Vercel Analytics
 - Handle login for users who have deactivated their account
 - BUG: Clicking on the Get Started/Login link on Landing Page with a valid token creates a white screen that requires refresh
 - Create UTM parameters when sharing out different pages
