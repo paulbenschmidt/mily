@@ -80,7 +80,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl">
           <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 lg:items-center">
             {/* Left: Text content */}
-            <div>
+            <div className="text-center lg:text-left">
               <h2 className="font-serif text-3xl font-medium text-foreground lg:text-5xl">
                 See it in action
               </h2>
@@ -144,12 +144,12 @@ export default function Home() {
       </section>
 
       {/* About Section */}
-      <section id="about" className="border-t border-border px-6 py-20 lg:px-8 lg:py-28">
+      <section id="about" className="border-t border-border px-8 py-20 lg:px-8 lg:py-28">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="font-serif text-3xl font-medium text-foreground lg:text-4xl">
             Life is richer when we remember
           </h2>
-          <p className="mt-6 leading-relaxed text-muted-foreground lg:text-lg">
+          <p className="mt-6 px-4 leading-relaxed text-muted-foreground lg:text-lg lg:px-0">
             Your story matters. Every moment has shaped who you are. <br/>Mily helps you see the bigger picture and share
             it with people who matter.
           </p>
