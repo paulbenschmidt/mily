@@ -9,6 +9,9 @@ export function MarketingFooter() {
         <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
           <div className="font-serif text-xl font-medium text-foreground">Mily</div>
           <div className="flex gap-8 text-sm text-muted-foreground">
+            <Link href="/about" className="transition-colors hover:text-foreground">
+              About
+            </Link>
             <Link href="/privacy" className="transition-colors hover:text-foreground">
               Privacy
             </Link>

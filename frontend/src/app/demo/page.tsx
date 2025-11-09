@@ -29,7 +29,7 @@ export default function DemoPage() {
           </Link>
 
           <div className="flex items-center gap-3">
-            <span className="rounded-full bg-brand/10 px-3 py-1 text-xs font-medium text-brand">
+            <span className="rounded-full bg-brand/10 px-3 py-1 text-xs font-medium text-brand text-center">
               Demo Timeline
             </span>
             <Link href="/signup">
