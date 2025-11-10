@@ -8,7 +8,10 @@ export default function ConditionalAnalytics() {
 
   useEffect(() => {
     const isExcluded = localStorage.getItem('mily_excludeFromAnalytics') === 'true';
-    setShouldTrack(!isExcluded);
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+    const isProduction = apiUrl.includes('production');
+
+    setShouldTrack(!isExcluded && isProduction);
   }, []);
 
   if (!shouldTrack) {

@@ -263,7 +263,7 @@ export function TimelineView({
       )}
 
       {/* Filter status indicator */}
-      {hasActiveFilters && totalEventCount > 0 && onClearFilters && (
+      {/* {hasActiveFilters && totalEventCount > 0 && onClearFilters && (
         <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white px-4 py-2 rounded-full shadow-lg border border-secondary-200 flex items-center space-x-2">
           <SmallText>
             Showing {filteredEvents.length} of {totalEventCount} events
@@ -272,7 +272,7 @@ export function TimelineView({
             Clear
           </Button>
         </div>
-      )}
+      )} */}
 
       {/* Bottom spacing for better scroll experience */}
       <div className="h-8 md:h-16" />

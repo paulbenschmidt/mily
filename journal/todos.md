@@ -1,4 +1,5 @@
 ## Now
+- Add visual aspect to landing page
 - [ ] Create paul@joinmily.com email with Cloudflare Email Routing
 - Handle login for users who have deactivated their account
 - BUG: Clicking on the Get Started/Login link on Landing Page with a valid token creates a white screen that requires refresh
@@ -20,8 +21,10 @@
         - How?
             - Cold outreach to therapists in the region
             - Find blogs and websites that discuss mental health and therapy and reach out to them
+- Create testimonials on landing page
 
 ## Upcoming
+- Log UTM parameters on signup so that we can track where users are coming from
 - [ ] Look into serving photos through Railway buckets? Vercel Blob is probably a better way to go.
     - AWS S3 + CloudFront would be most cost-effective at scale but is more complicated to set up.
     - Actually, let's make it so that users can add 10 photos before getting paywalled.

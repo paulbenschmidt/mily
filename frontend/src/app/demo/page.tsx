@@ -72,7 +72,7 @@ export default function DemoPage() {
           onClearFilters={handleClearFilters}
           hasActiveFilters={hasActiveFilters}
           currentFilters={filters}
-          title="Sample Timeline"
+          title="My Timeline"
           ownerInfo={{
             name: "Paul",
             profilePicture: undefined,
