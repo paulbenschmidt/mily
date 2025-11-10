@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/Button"
 import Link from "next/link"
+import Image from "next/image"
 import { MarketingHeader } from "@/components/MarketingHeader"
 import { MarketingFooter } from "@/components/MarketingFooter"
 
@@ -26,43 +27,73 @@ export default function Home() {
                 <stop offset="100%" style={{ stopColor: '#c7d2fe', stopOpacity: 0.35 }} />
               </linearGradient>
               <linearGradient id="wave-gradient-3" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style={{ stopColor: '#c7d2fe', stopOpacity: 0.4 }} />
-                <stop offset="100%" style={{ stopColor: '#a5b4fc', stopOpacity: 0.3 }} />
+                <stop offset="0%" style={{ stopColor: '#c7d2fe', stopOpacity: 0.3 }} />
+                <stop offset="100%" style={{ stopColor: '#a5b4fc', stopOpacity: 0.2 }} />
+              </linearGradient>
+              <linearGradient id="wave-gradient-4" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style={{ stopColor: '#e0e7ff', stopOpacity: 1 }} />
+                <stop offset="100%" style={{ stopColor: '#c7d2fe', stopOpacity: 0.7 }} />
+              </linearGradient>
+              <linearGradient id="wave-gradient-5" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style={{ stopColor: '#eef2ff', stopOpacity: 1 }} />
+                <stop offset="100%" style={{ stopColor: '#e0e7ff', stopOpacity: 0.4 }} />
+              </linearGradient>
+              <linearGradient id="wave-gradient-6" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style={{ stopColor: '#ffffff', stopOpacity: 1 }} />
+                <stop offset="100%" style={{ stopColor: '#ffffff', stopOpacity: 0.7 }} />
               </linearGradient>
             </defs>
 
-            {/* First wave - gentle, starts higher left, smooth gradual curl upward to top right */}
+            {/* First wave - starts higher, curves upward to top right */}
             <path
-              d="M0,520 C200,500 350,480 550,450 C750,420 950,370 1150,300 C1280,250 1380,210 1440,180 L1440,800 L0,800 Z"
+              d="M0,350 C200,330 350,310 550,280 C750,250 950,200 1150,130 C1280,80 1380,40 1440,10 L1440,800 L0,800 Z"
               fill="url(#wave-gradient-1)"
             />
 
-            {/* Second wave - more pronounced swell, ends center-right slightly below center */}
+            {/* Second wave - starts from middle, gentle upward curve */}
             <path
-              d="M0,640 C200,620 340,580 540,555 C780,525 1020,510 1240,520 C1350,525 1410,530 1440,535 L1440,800 L0,800 Z"
+              d="M0,460 C200,440 340,400 540,375 C780,345 1020,330 1240,340 C1350,345 1410,350 1440,355 L1440,800 L0,800 Z"
               fill="url(#wave-gradient-2)"
             />
 
-            {/* Third wave - deep, organic curve with dramatic right swell */}
+            {/* Third wave - starts lower, organic upward curve with gentler right descent */}
             <path
-              d="M0,720 C280,690 420,650 640,630 C900,605 1140,635 1320,710 C1390,745 1425,775 1440,795 L1440,800 L0,800 Z"
+              d="M0,520 C280,490 420,450 640,430 C900,405 1140,420 1320,460 C1390,480 1425,505 1440,525 L1440,800 L0,800 Z"
               fill="url(#wave-gradient-3)"
+            />
+
+            {/* Fourth wave - reversed color, upside-down U shape */}
+            <path
+              d="M0,560 C200,560 400,560 640,560 C880,560 1100,580 1280,630 C1360,655 1410,685 1440,710 L1440,800 L0,800 Z"
+              fill="url(#wave-gradient-4)"
+            />
+
+            {/* Fifth wave - lighter reversed color, upside-down U shape */}
+            <path
+              d="M0,630 C200,630 400,630 640,630 C880,630 1100,645 1280,685 C1360,705 1410,730 1440,755 L1440,800 L0,800 Z"
+              fill="url(#wave-gradient-5)"
+            />
+
+            {/* Sixth wave - background color, upside-down U shape */}
+            <path
+              d="M0,680 C200,680 400,680 640,680 C880,680 1100,690 1280,720 C1360,735 1410,755 1440,775 L1440,800 L0,800 Z"
+              fill="url(#wave-gradient-6)"
             />
           </svg>
         </div>
 
-        <div className="mx-auto max-w-4xl text-center relative z-10 mt-12 lg:mt-16">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-muted/30 px-4 py-1.5 text-sm text-muted-foreground">
+        <div className="mx-auto max-w-6xl text-center relative z-10 mt-24 lg:mt-32">
+          {/* <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-muted/30 px-4 py-1.5 text-sm text-muted-foreground">
             <span className="h-1.5 w-1.5 rounded-full bg-brand" />
-            Your life, visualized
-          </div>
-          <h1 className="font-serif text-5xl font-medium leading-tight tracking-tight text-foreground text-balance lg:text-7xl">
-            Rediscover your life
+            Build your personal timeline
+          </div> */}
+          <h1 className="font-serif text-5xl font-medium leading-tight tracking-tight text-foreground text-balance lg:text-6xl">
+            Build your personal timeline
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground lg:text-xl">
-            Your life is a story worth sharing. <br /> Remember and celebrate with those who matter.
-          </p>
-          <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+          {/* <p className="mx-auto mt-3 max-w-2xl text-xl leading-relaxed text-secondary-700 lg:text-3xl">
+            Rediscover your life.
+          </p> */}
+          <div className="mt-6 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link href="/signup">
               <button className="w-full rounded-lg bg-brand px-8 py-4 text-base font-medium text-white transition-all hover:bg-brand/90 hover:shadow-lg sm:w-auto flex items-center gap-2">
                 Start for Free
@@ -71,6 +102,21 @@ export default function Home() {
                 </svg>
               </button>
             </Link>
+          </div>
+
+          {/* Timeline Screenshot */}
+          <div className="mt-16 lg:mt-20">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-200/20 to-purple-400/20 rounded-lg blur-xl transform translate-y-4"></div>
+              <Image
+                src="/timeline_example.png"
+                alt="Mily timeline example showing life events"
+                width={1200}
+                height={800}
+                className="relative rounded-lg shadow-2xl border border-border"
+                priority
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -156,7 +202,7 @@ export default function Home() {
           <div className="mt-10 flex justify-center">
             <Link href="/signup">
               <button className="rounded-lg bg-brand px-8 py-4 text-base font-medium text-white transition-all hover:bg-brand/90 hover:shadow-lg flex items-center gap-2">
-                Begin reflecting
+                Start Your Timeline
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
