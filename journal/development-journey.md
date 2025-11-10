@@ -1,6 +1,8 @@
 # Development Journey
 
 - 2025-11-09:
+    - After researching a few other hero pages, I realized that I should make the hero section clearer by adding a visual example of a timeline, so I did that.
+        - NOTE: In order to make the example timeline from the demo timeline, I temporarily adjusted a few events so that I could select the ones that I wanted on the hero page. I also changed the title to "My Timeline" instead of "Sample Timeline". I also temporarily removed the "hasActiveFilters" prop so that it wouldn't show that chip on the bottom when I filtered the events.
     - I learned that Claude.ai subscription is different from Anthropic API access, so even with my Claude subscription, I'd still need to pay for API access. I'll just keep using the Windsurf credits.
     - Struggled to sleep, so I woke up early at 4am and finished the "About" page as well as the PR review for the "Demo" page. Really happy with how it's coming along.
 - 2025-11-08:
