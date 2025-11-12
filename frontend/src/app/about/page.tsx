@@ -78,8 +78,8 @@ export default function AboutPage() {
             <div className="mt-6 flex flex-col items-center text-center">
               <div>
                 <p className="font-medium text-foreground">Paul</p>
-                <a href="mailto:paul@joinmily.com" className="text-brand hover:underline">
-                  paul@joinmily.com
+                <a href="mailto:paul@mily.bio" className="text-brand hover:underline">
+                  paul@mily.bio
                 </a>
               </div>
               <Image

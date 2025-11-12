@@ -45,10 +45,10 @@ export default function ContactPage() {
                     Send me an email—I&#x27;ll get back to you within a day or two
                   </p>
                   <a
-                    href="mailto:paul@joinmily.com"
+                    href="mailto:paul@mily.bio"
                     className="text-brand hover:underline"
                   >
-                    paul@joinmily.com
+                    paul@mily.bio
                   </a>
                 </div>
               </div>

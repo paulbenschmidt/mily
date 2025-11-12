@@ -7,8 +7,6 @@ I only have a couple of users, who are all friends or family, so I think it make
 While I haven't done very much user validation, there isn't really a single other personal timeline app, so I'm interested in building this for the sole purpose of being the dominant player in this space—prioritizing for high-quality building instead of popularity. If this project isn't successful, I can at least include it on my LinkedIn for reputability.
 
 ## In Progress
-- Create paul@joinmily.com email with Cloudflare Email Routing
-    - Set up paul@joinmily.com as alias
 - Handle login for users who have deactivated their account
 - BUG: Clicking on the Get Started/Login link on Landing Page with a valid token creates a white screen that requires refresh
 - Create UTM parameters when sharing out different pages
