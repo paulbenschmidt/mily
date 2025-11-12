@@ -1,5 +1,23 @@
 # Development Journey
 
+- 2025-11-12:
+    - I set up email forwarding with Cloudflare so that `paul@joinmily.com` would forward to my personal email address, but then I realized that I wouldn't be able to email back with the `joinmily.com` domain, so after asking Claude, I think I'll just go ahead with a Google Workspace account. I was originally bummed thinking that I'd need to update the `joinmily.com` nameservers to point to Porkbun again, but Claude recommended keeping nameservers with Cloudflare since they had better, faster traffic delivery. Therefore, I updated the `mily.bio` domain to point to Cloudflare's nameservers, too.
+    - I also learned that Cloudflare can have DNS records either as DNS only (where DNS query returns actual IP address of Vercel host) or proxied. DNS only is simpler, but proxied is faster and more secure, since it returns a Cloudflare IP so that user requests go through Cloudflare before going to the Vercel server. This will allow a host of benefits like:
+        - CDN - Content cached globally, faster load times worldwide
+        - DDoS protection - Cloudflare filters malicious traffic
+        - SSL/TLS - Free automatic HTTPS
+        - Hide your origin IP - Attackers can't see your real server IP
+        - Firewall rules - Block traffic by country, IP, etc.
+        - Optimization - Auto minification, image optimization, etc.
+    - However, not everything should be proxied: only the main website A/CNAME records and any web-facing subdomains should be proxied. MX records, DNS records, and API records (non-HTTP) should be DNS only.
+    - Processing the trade-off between `mily.bio` and `joinmily.com`:
+        - My main website is hosted at mily.bio. The website joinmily.com was bought so that I would have a .com domain. Should I still use joinymily.com as the primary domain? My target audience will likely be older generations 35+, with a median age around 55. I like that mily.bio is a lot shorter and simpler, but joinmily.com obviously has the .com domain. My current plan is to:
+            1. Keep hosting the website at mily.bio
+            2. Redirect requests to joinmily.com to mily.bio
+            3. Use mily.bio as the primary domain for the time being
+            4. ...but use paul@joinmily.com for outreach in the meantime while I'm still expanding
+        - Eventually, I want the mily.bio brand to be big enough that it doesn't need a .com domain, since .bio speaks to the mission of Mily better.
+        - However, for a 55 year old audience, this could be confusing. Since I don't really have any users yet, I'll just lean into the .bio domain and pivot in the future if I need to. I think the `mily.com` domain is still available anyway, so I could buy that if there's a lot of traction in a few months.
 - 2025-11-09:
     - After researching a few other hero pages, I realized that I should make the hero section clearer by adding a visual example of a timeline, so I did that.
         - NOTE: In order to make the example timeline from the demo timeline, I temporarily adjusted a few events so that I could select the ones that I wanted on the hero page. I also changed the title to "My Timeline" instead of "Sample Timeline". I also temporarily removed the "hasActiveFilters" prop so that it wouldn't show that chip on the bottom when I filtered the events.
