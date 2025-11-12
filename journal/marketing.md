@@ -1,0 +1,17 @@
+- Find ~50 solid users to test the web app, once it's been thoroughly tested, find a way to add charges then create a mobile app
+    - Pursue older generation
+    - Look at people who have reviewed previous apps or are active on mental health forums
+    - Go through the Claude response in the thread `Timeline app privacy policy review`
+- Marketing strategies:
+    - Older generation:
+        - Why? This generation has both time and money, as well as a desire to share their story with other people, so if you can create a platform that is easy to use, I think this will be a good fit. I originally wanted to target the younger, sexier generation, but I think this generation is more likely to be interested in this kind of platform—and more likely to pay for features, too.
+        - How?
+            - Dayton newspaper: Advertise it as a reflection tool, have them interview me
+            - Entrepreneur's Center: Have them feature me in their newsletter
+            - Websites: Search for "timeline" and "timeline creator" and reach out to the website owners to be featured
+            - Medium: Create a Medium account and start writing about Mily
+    - People in therapy:
+        - Why? These people have a stronger desire to reflect on their lives and many want their stories to be seen/heard.
+        - How?
+            - Cold outreach to therapists in the region
+            - Find blogs and websites that discuss mental health and therapy and reach out to them
