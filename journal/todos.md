@@ -19,6 +19,7 @@ While I haven't done very much user validation, there isn't really a single othe
 - Gather testimonials from users
 - ESSENTIAL: Have system email me when a user signs up
 - ENHANCE: Update demo pop-up to mention that filtering is available
+- Create test account using `test@mily.bio`
 
 ## To Organize
 
