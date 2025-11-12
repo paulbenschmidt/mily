@@ -94,3 +94,4 @@
 - [ ] Eventually, add AI-generated "tags" to events so that users can auto-filter events
 - [ ] Create a feature requests page so that users can suggest and upvote features
 - [ ] Add timeline event share logic (sharing individual events)
+- Add dots at the year separators, one for each year, to provide visual indicator of duration between events
