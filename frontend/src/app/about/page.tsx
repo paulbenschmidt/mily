@@ -28,13 +28,10 @@ export default function AboutPage() {
           {/* Origin Story */}
           <section className="mb-12">
             <p className="mb-4 leading-relaxed text-muted-foreground lg:text-lg">
-              I grew up around the world, living in several countries, so the idea for Mily first sparked from wanting to remember my life better.
-            </p>
-            <p className="mb-4 leading-relaxed text-muted-foreground lg:text-lg">
-              But I started to wonder: what if there was a way that I could learn about the past life of a new friend or passerby and get a glimpse into what they&apos;ve been through and what they value?
+              I grew up around the world, living in several countries, so the idea for a timeline project first sparked from wanting to remember my own life better. But as I thought about this, I wondered: <strong className="text-brand">what if there was a better way to learn about the lives of those closest to us?</strong> Every one of us has countless stories tucked away in memories, at risk of being forgotten.
             </p>
             <p className="leading-relaxed text-muted-foreground lg:text-lg">
-              This idea came together while listening to Greg McKeown (author of a great book called <i>Essentialism</i>) as he talked about an idea called <strong className="text-brand">sonder</strong>: the realization that every person—whether friend, acquaintance, or stranger—has a life that is just as complicated, nuanced, and beautiful as one&apos;s own. This concept is at the root of Mily: to appreciate the lives of those around us as much as we appreciate our own.
+              There's a word for this: <strong className="text-brand">sonder</strong>—the realization that every person, whether friend, acquaintance, or stranger, has a life that is just as complicated, nuanced, and beautiful as one's own. That's what Mily is really about: cultivating space to appreciate our lives and the lives of others in ways that honor each person's experience.
             </p>
           </section>
 
@@ -44,10 +41,10 @@ export default function AboutPage() {
               What Makes Mily Different
             </h2>
             <p className="mb-4 leading-relaxed text-muted-foreground">
-              This isn&apos;t another social media app designed to keep you scrolling. Mily is built for reflection and genuine connection with those closest to you: grandparents sharing stories with grandchildren, couples on dates just getting to know each other, friends learning new and interesting histories about each other. I wanted something that felt more like sharing old photos in a shoebox than maintaining an online presence.
+              When writing your timeline, you choose what events you want to share with others and who you want to share them with—grandparents sharing stories with grandchildren, couples on dates just getting to know each other, friends learning new and interesting histories about each other. Think of it as sharing old photos in a shoebox rather than maintaining an online presence.
             </p>
             <p className="mb-4 leading-relaxed text-muted-foreground">
-              Your stories belong to you—export them, delete them, share them as you choose. Your timeline and reflections are private by default and will never be sold to advertisers or data brokers.
+              And if you want to focus on reflection without sharing with others, Mily works beautifully that way, too! Your stories belong to you—export them, delete them, share them as you choose. Private by default, never sold to advertisers.
             </p>
           </section>
 

@@ -7,6 +7,8 @@ I only have a couple of users, who are all friends or family, so I think it make
 While I haven't done very much user validation, there isn't really a single other personal timeline app, so I'm interested in building this for the sole purpose of being the dominant player in this space—prioritizing for high-quality building instead of popularity. If this project isn't successful, I can at least include it on my LinkedIn for reputability.
 
 ## In Progress
+- Go through Joey's feedback
+    - Rename to "Private Notes"
 - Handle login for users who have deactivated their account
 - BUG: Clicking on the Get Started/Login link on Landing Page with a valid token creates a white screen that requires refresh
 - Create UTM parameters when sharing out different pages
@@ -18,6 +20,7 @@ While I haven't done very much user validation, there isn't really a single othe
 - ESSENTIAL: Have system email me when a user signs up
 - ENHANCE: Update demo pop-up to mention that filtering is available
 - Create test account using `test@mily.bio`
+- Poll users on whether to use `joinmily.com` or `mily.bio` as the primary domain
 
 ## To Organize
 
