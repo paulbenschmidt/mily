@@ -31,7 +31,7 @@ export default function AboutPage() {
               I grew up around the world, living in several countries, so the idea for a timeline project first sparked from wanting to remember my own life better. But as I thought about this, I wondered: <strong className="text-brand">what if there was a better way to learn about the lives of those closest to us?</strong> Every one of us has countless stories tucked away in memories, at risk of being forgotten.
             </p>
             <p className="leading-relaxed text-muted-foreground lg:text-lg">
-              There's a word for this: <strong className="text-brand">sonder</strong>—the realization that every person, whether friend, acquaintance, or stranger, has a life that is just as complicated, nuanced, and beautiful as one's own. That's what Mily is really about: cultivating space to appreciate our lives and the lives of others in ways that honor each person's experience.
+              There&apos;s a word for this: <strong className="text-brand">sonder</strong>—the realization that every person, whether friend, acquaintance, or stranger, has a life that is just as complicated, nuanced, and beautiful as one&apos;s own. That&apos;s what Mily is really about: cultivating space to appreciate our lives and the lives of others in ways that honor each person&apos;s experience.
             </p>
           </section>
 
