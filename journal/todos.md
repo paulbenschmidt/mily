@@ -7,6 +7,12 @@ I only have a couple of users, who are all friends or family, so I think it make
 While I haven't done very much user validation, there isn't really a single other personal timeline app, so I'm interested in building this for the sole purpose of being the dominant player in this space—prioritizing for high-quality building instead of popularity. If this project isn't successful, I can at least include it on my LinkedIn for reputability.
 
 ## In Progress
+- Make onboarding less intimidating
+- Add a waiting list/email capture if your freemium isn't ready - You want to convert interest even if the product isn't 100% ready
+- Set up basic analytics - You need to see where people drop off. Vercel Analytics should tell you this, but make sure you're tracking the key events (started timeline, added first event, added 5+ events)
+- Draft post and revise
+- Post to three Reddit groups
+
 - Go through Joey's feedback
     - Rename to "Private Notes"
 - Handle login for users who have deactivated their account
@@ -53,6 +59,7 @@ While I haven't done very much user validation, there isn't really a single othe
 - ENHANCE (needs polling): What should the design look like? (neumorphism, soft brutalism, etc)
 - ENHANCE: For friend requests, allow user blocking as first action
     - Currently a post request to friendship is required as the primary action
+- ENHANCE: Add logo to email verification (once I have enough consistent email deliverability to not get flagged as spam)
 
 ### Security
 - SECURITY: Legal review of Terms and Privacy Policy
