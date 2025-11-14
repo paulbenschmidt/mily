@@ -436,7 +436,9 @@ def send_verification_email(user, token):
     verification_url = f"{settings.FRONTEND_URL}/verify-email?token={token}"
 
     subject = 'Verify Your Email - Mily'
-    message = f"""Hi {user.first_name},
+    
+    # Plain text version (fallback)
+    text_message = f"""Hi {user.first_name},
 
 Welcome to Mily! Please verify your email address by clicking the link below:
 
@@ -447,8 +449,43 @@ This link will expire in 1 hour.
 If you didn't create an account, please ignore this email.
 
 Thanks,
-The Mily Team
+Paul from Mily
 """
+
+    # HTML version with styled button
+    logo_url = f"{settings.FRONTEND_URL}/mily_logo_for_google.png"
+    
+    html_message = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <img src="{logo_url}" alt="Mily" style="width: 120px; height: auto;">
+        </div>
+        
+        <p>Hi {user.first_name},</p>
+        
+        <p>Welcome to Mily! Please verify your email address by clicking the button below:</p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{verification_url}" 
+               style="display: inline-block; padding: 12px 32px; background-color: #4f46e5; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 16px;">
+                Verify Email Address
+            </a>
+        </div>
+        
+        <p style="color: #666; font-size: 14px;">This link will expire in 1 hour.</p>
+        
+        <p style="color: #666; font-size: 14px;">If you didn't create an account, please ignore this email.</p>
+        
+        <p>Thanks,<br>Paul from Mily</p>
+    </body>
+    </html>
+    """
 
     api_key = os.getenv('RESEND_API_KEY')
     if api_key and api_key != '':
@@ -458,7 +495,8 @@ The Mily Team
                 "from": settings.DEFAULT_FROM_EMAIL,
                 "to": [user.email],
                 "subject": subject,
-                "text": message,
+                "text": text_message,
+                "html": html_message,
             })
             print(f"Verification email sent to {user.email} via Resend API")
             print(f"Resend response: {email}")
@@ -466,13 +504,16 @@ The Mily Team
             print(f"Failed to send email via Resend: {e}")
             raise
     else:
-        send_mail(
+        from django.core.mail import EmailMultiAlternatives
+        
+        email = EmailMultiAlternatives(
             subject,
-            message,
+            text_message,
             settings.DEFAULT_FROM_EMAIL,
             [user.email],
-            fail_silently=False,
         )
+        email.attach_alternative(html_message, "text/html")
+        email.send(fail_silently=False)
 
 
 # Custom Token Refresh View for httpOnly Cookies
