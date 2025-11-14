@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { TimelineEventType, EventCategory, EventPrivacyLevel, EVENT_CATEGORIES, EVENT_PRIVACY_LEVELS } from '@/types/api';
 import { authApiClient } from '@/utils/auth-api';
-import { Input, Button, Subheading, Alert, Textarea } from '@/components/ui';
+import { Input, Button, Subheading, Alert, Textarea, Select, SmallText } from '@/components/ui';
 import { ToggleButtonGroup } from '@/components/Timeline';
 import { useAutoFocus } from '@/hooks/useAutoFocus';
 import { useModalKeyboardShortcuts } from '@/hooks/useModalKeyboardShortcuts';
@@ -30,7 +30,9 @@ export function AddEventModal({
   const isEditMode = !!eventToEdit;
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [eventDate, setEventDate] = useState('');
+  const [year, setYear] = useState('');
+  const [month, setMonth] = useState('');
+  const [day, setDay] = useState('');
   const [category, setCategory] = useState<EventCategory>(DEFAULT_CATEGORY);
   const [privacyLevel, setPrivacyLevel] = useState<EventPrivacyLevel>(DEFAULT_PRIVACY_LEVEL);
   const [notes, setNotes] = useState('');
@@ -43,10 +45,12 @@ export function AddEventModal({
     if (eventToEdit && isOpen) {
       setTitle(eventToEdit.title);
       setDescription(eventToEdit.description);
-      // Format date to YYYY-MM-DD for input
-      const date = new Date(eventToEdit.event_date);
-      const formattedDate = date.toISOString().split('T')[0];
-      setEventDate(formattedDate);
+      // Parse date into year, month, day
+      const [yearStr, monthStr, dayStr] = eventToEdit.event_date.split('-');
+      setYear(yearStr);
+      setMonth(monthStr);
+      // Only set day if not approximate
+      setDay(eventToEdit.is_day_approximate ? '' : dayStr);
       setCategory(eventToEdit.category);
       setPrivacyLevel(eventToEdit.privacy_level);
       setNotes(eventToEdit.notes || '');
@@ -73,14 +77,47 @@ export function AddEventModal({
 
     try {
       // Validate required fields
-      if (!title || !eventDate) {
-        throw new Error('Please fill in all required fields');
+      if (!title || !year || !month) {
+        throw new Error('Please fill in all required fields (title, year, and month)');
       }
+
+      // Validate year
+      const yearNum = parseInt(year);
+      const currentYear = new Date().getFullYear();
+      if (isNaN(yearNum) || yearNum < 1800 || yearNum > currentYear + 1) {
+        throw new Error('Please enter a valid year between 1800 and ' + (currentYear + 1));
+      }
+
+      // Validate month
+      const monthNum = parseInt(month);
+      if (isNaN(monthNum) || monthNum < 1 || monthNum > 12) {
+        throw new Error('Please select a valid month');
+      }
+
+      // Validate day if provided
+      let dayNum = 1;
+      let isDayApproximate = true;
+      if (day) {
+        dayNum = parseInt(day);
+        if (isNaN(dayNum) || dayNum < 1 || dayNum > 31) {
+          throw new Error('Please enter a valid day between 1 and 31');
+        }
+        // Validate day is valid for the selected month/year
+        const daysInMonth = new Date(yearNum, monthNum, 0).getDate();
+        if (dayNum > daysInMonth) {
+          throw new Error(`The selected month only has ${daysInMonth} days`);
+        }
+        isDayApproximate = false;
+      }
+
+      // Format date as YYYY-MM-DD
+      const formattedDate = `${year}-${month.padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
 
       const eventData = {
         title,
         description,
-        event_date: eventDate,
+        event_date: formattedDate,
+        is_day_approximate: isDayApproximate,
         category,
         privacy_level: privacyLevel,
         notes: notes || undefined,
@@ -112,7 +149,9 @@ export function AddEventModal({
   const resetForm = () => {
     setTitle('');
     setDescription('');
-    setEventDate('');
+    setYear('');
+    setMonth('');
+    setDay('');
     setCategory(DEFAULT_CATEGORY);
     setPrivacyLevel(DEFAULT_PRIVACY_LEVEL);
     setNotes('');
@@ -177,7 +216,8 @@ export function AddEventModal({
               ref={titleInputRef}
               type="text"
               id="title"
-              label="Title *"
+              label="Title"
+              placeholder="e.g., Started first job, Moved to Chicago"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
@@ -185,9 +225,24 @@ export function AddEventModal({
           </div>
 
           <div className="mb-4">
+            <div className="flex items-center gap-2 mb-1">
+              <label htmlFor="description" className="block text-sm font-medium text-secondary-700">
+                Description
+              </label>
+              <div className="group relative">
+                <svg className="w-4 h-4 text-secondary-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-10">
+                  Shareable details about this event
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                    <div className="border-4 border-transparent border-t-gray-800"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
             <Textarea
               id="description"
-              label="Description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
@@ -195,45 +250,142 @@ export function AddEventModal({
           </div>
 
           <div className="mb-4">
-            <Input
-              type="date"
-              id="eventDate"
-              label="Event Date *"
-              value={eventDate}
-              onChange={(e) => setEventDate(e.target.value)}
-              max={(() => {
-                const today = new Date();
-                const year = today.getFullYear();
-                const month = String(today.getMonth() + 1).padStart(2, '0');
-                const day = String(today.getDate()).padStart(2, '0');
-                return `${year}-${month}-${day}`;
-              })()}
-              required
+            <label className="block text-sm font-medium text-secondary-700 mb-1">
+              Event Date
+            </label>
+            <div className="flex gap-2">
+              <div className="flex-1 min-w-[80px] max-w-[100px]">
+                <label htmlFor="year" className="block text-xs font-medium text-secondary-600 mb-1">
+                  Year
+                </label>
+                <Input
+                  type="number"
+                  id="year"
+                  placeholder="YYYY"
+                  value={year}
+                  onChange={(e) => setYear(e.target.value)}
+                  min={1800}
+                  max={new Date().getFullYear() + 1}
+                  required
+                />
+              </div>
+              <div className="flex-1 min-w-[120px] max-w-[140px]">
+                <label htmlFor="month" className="block text-xs font-medium text-secondary-600 mb-1">
+                  Month
+                </label>
+                <Select
+                  id="month"
+                  value={month}
+                  onChange={(e) => setMonth(e.target.value)}
+                  required
+                >
+                  <option value="">Select</option>
+                  <option value="01">January</option>
+                  <option value="02">February</option>
+                  <option value="03">March</option>
+                  <option value="04">April</option>
+                  <option value="05">May</option>
+                  <option value="06">June</option>
+                  <option value="07">July</option>
+                  <option value="08">August</option>
+                  <option value="09">September</option>
+                  <option value="10">October</option>
+                  <option value="11">November</option>
+                  <option value="12">December</option>
+                </Select>
+              </div>
+              <div className="flex-1 min-w-[60px] max-w-[80px]">
+                <label htmlFor="day" className="block text-xs font-medium text-secondary-600 mb-1">
+                  Day
+                </label>
+                <Input
+                  type="number"
+                  id="day"
+                  placeholder="DD"
+                  value={day}
+                  onChange={(e) => setDay(e.target.value)}
+                  min={1}
+                  max={31}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="block text-sm font-medium text-secondary-700">
+                Category
+              </span>
+              <div className="group relative">
+                <svg className="w-4 h-4 text-secondary-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-10">
+                  <p className="mb-1">Major: Life-changing moments</p>
+                  <p className="mb-1">Minor: Meaningful milestones</p>
+                  <p className="mb-1">Memory: Personal reflections</p>
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                    <div className="border-4 border-transparent border-t-gray-800"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <ToggleButtonGroup
+              label=""
+              options={EVENT_CATEGORIES}
+              value={category}
+              onChange={setCategory}
+              disabled={!isSelectionsLoaded}
             />
           </div>
 
-          <ToggleButtonGroup
-            label="Category"
-            options={EVENT_CATEGORIES}
-            value={category}
-            onChange={setCategory}
-            disabled={!isSelectionsLoaded}
-            required
-          />
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="block text-sm font-medium text-secondary-700">
+                Privacy
+              </span>
+              <div className="group relative">
+                <svg className="w-4 h-4 text-secondary-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-10">
+                  Controls who sees event details. Personal notes are always private.
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                    <div className="border-4 border-transparent border-t-gray-800"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <ToggleButtonGroup
+              label=""
+              options={EVENT_PRIVACY_LEVELS}
+              value={privacyLevel}
+              onChange={setPrivacyLevel}
+              disabled={!isSelectionsLoaded}
+            />
+          </div>
 
-          <ToggleButtonGroup
-            label="Privacy"
-            options={EVENT_PRIVACY_LEVELS}
-            value={privacyLevel}
-            onChange={setPrivacyLevel}
-            disabled={!isSelectionsLoaded}
-            required
-          />
+          <hr className="border-secondary-200 my-4" />
 
           <div className="mb-4">
+            <div className="flex items-center gap-2 mb-1">
+              <label htmlFor="notes" className="block text-sm font-medium text-secondary-700">
+                Personal Notes
+              </label>
+              <div className="group relative">
+                <svg className="w-4 h-4 text-secondary-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-10">
+                  Personal notes are always private and never shared with anyone
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                    <div className="border-4 border-transparent border-t-gray-800"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
             <Textarea
               id="notes"
-              label="Notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={2}

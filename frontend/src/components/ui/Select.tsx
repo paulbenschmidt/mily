@@ -7,10 +7,11 @@ interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
 }
 
 const Select = forwardRef<HTMLSelectElement, SelectProps>(
-  ({ label, error, className = '', children, ...props }, ref) => {
-    const baseStyles = 'w-full px-3 py-2 border rounded-md transition-colors focus:outline-none';
+  ({ label, error, className = '', value, children, ...props }, ref) => {
+    const baseStyles = 'w-full h-10 px-3 py-2 border rounded-md transition-colors focus:outline-none';
     const normalStyles = 'border-secondary-300 focus:ring-primary-500 focus:border-primary-500';
     const errorStyles = 'border-danger-300 focus:ring-danger-500 focus:border-danger-500';
+    const placeholderStyles = !value || value === '' ? 'text-gray-400' : 'text-secondary-900';
 
     return (
       <div className="w-full">
@@ -21,7 +22,8 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
         )}
         <select
           ref={ref}
-          className={`${baseStyles} ${error ? errorStyles : normalStyles} ${className}`}
+          value={value}
+          className={`${baseStyles} ${error ? errorStyles : normalStyles} ${placeholderStyles} ${className}`}
           {...props}
         >
           {children}

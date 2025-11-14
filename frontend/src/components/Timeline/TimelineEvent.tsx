@@ -55,12 +55,12 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
     }
   };
 
-  const getStackedDate = (dateString: string) => {
+  const getStackedDate = (dateString: string, isDayApproximate: boolean) => {
     const [year, month, day] = dateString.split('-').map(Number);
     const date = new Date(year, month - 1, day);
     return {
       month: date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase(),
-      day: date.getDate().toString(),
+      day: isDayApproximate ? null : date.getDate().toString(),
       year: year.toString()
     };
   };
@@ -205,14 +205,15 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
               {/* Stacked date on the left */}
               <div className="flex flex-col items-center justify-start min-w-[40px] md:min-w-[50px]">
                 <Caption className="font-serif tracking-wider font-semibold text-secondary-500 leading-none">
-                  {getStackedDate(event.event_date).month}
+                  {getStackedDate(event.event_date, event.is_day_approximate).month}
                 </Caption>
-                <BodyText className="font-serif font-semibold text-secondary-700 leading-none mt-1">
-                  {getStackedDate(event.event_date).day}
-                </BodyText>
-                <BodyText className="font-serif text-secondary-500 leading-none mt-0.5 md:mt-1" textClass="text-xs">
-                  {/* {event.category} */}
-                  {getStackedDate(event.event_date).year}
+                {getStackedDate(event.event_date, event.is_day_approximate).day && (
+                  <BodyText className="font-serif font-semibold text-secondary-700 leading-none mt-1">
+                    {getStackedDate(event.event_date, event.is_day_approximate).day}
+                  </BodyText>
+                )}
+                <BodyText className={`font-serif text-secondary-500 leading-none ${getStackedDate(event.event_date, event.is_day_approximate).day ? 'mt-0.5 md:mt-1' : 'mt-1'}`} textClass="text-xs">
+                  {getStackedDate(event.event_date, event.is_day_approximate).year}
                 </BodyText>
               </div>
 
