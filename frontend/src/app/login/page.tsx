@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { Input, Button, PageHeading, SmallText, Alert, Link } from '@/components/ui';
@@ -9,12 +9,17 @@ import { AuthLayout } from '@/components/AuthLayout';
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
+  const emailInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    emailInputRef.current?.focus();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,6 +71,7 @@ export default function LoginPage() {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
             <Input
+              ref={emailInputRef}
               id="email"
               name="email"
               type="email"

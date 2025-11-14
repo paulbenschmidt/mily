@@ -29,6 +29,7 @@ export interface TimelineEventType {
   description: string;
   notes?: string;
   event_date: string;
+  is_day_approximate: boolean;
   category: EventCategory;
   privacy_level: EventPrivacyLevel;
   photos?: string[];
