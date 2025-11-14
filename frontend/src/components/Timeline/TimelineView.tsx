@@ -4,6 +4,8 @@ import { useRef, useEffect, useState } from 'react';
 import { TimelineEventType } from '@/types/api';
 import { TimelineEvent } from './TimelineEvent';
 import { FilterDropdown, FilterOptions } from './FilterDropdown';
+import { GuidedOnboarding } from './GuidedOnboarding';
+import { BulkEventModal } from './BulkEventModal';
 import { SmallText, BodyText, Button, Spinner } from '@/components/ui';
 
 interface TimelineViewProps {
@@ -15,6 +17,7 @@ interface TimelineViewProps {
   onEditEvent?: (event: TimelineEventType) => void;
   onDeleteEvent?: (event: TimelineEventType) => void;
   onAddEvent?: () => void;
+  onEventsAdded?: (events: TimelineEventType[]) => void;
   onFilter?: (filters: FilterOptions) => void;
   onShare?: () => void;
   onClearFilters?: () => void;
@@ -36,6 +39,7 @@ export function TimelineView({
   error,
   onDeleteEvent,
   onAddEvent,
+  onEventsAdded,
   onEditEvent,
   onFilter,
   onShare,
@@ -49,8 +53,34 @@ export function TimelineView({
   const timelineRef = useRef<HTMLDivElement>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
+  const [selectedMilestones, setSelectedMilestones] = useState<string[]>([]);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   const displayTitle = title || (mode === 'owner' ? 'My Timeline' : `${ownerInfo?.name || 'User'}'s Timeline`);
+
+  // Handler for guided onboarding
+  const handleGuidedContinue = (milestones: string[]) => {
+    setSelectedMilestones(milestones);
+    setIsBulkModalOpen(true);
+  };
+
+  const handleStartFromScratch = () => {
+    if (onAddEvent) {
+      onAddEvent();
+    }
+  };
+
+  const handleBulkEventsAdded = (events: TimelineEventType[]) => {
+    if (onEventsAdded) {
+      onEventsAdded(events);
+    }
+    setIsBulkModalOpen(false);
+    setSelectedMilestones([]);
+    // Show success message
+    setShowSuccessMessage(true);
+    setTimeout(() => setShowSuccessMessage(false), 5000);
+  };
 
   // Track scroll progress based on the event in the center of the viewport
   useEffect(() => {
@@ -217,18 +247,10 @@ export function TimelineView({
 
       {/* Empty state - only show for owner */}
       {totalEventCount === 0 && mode === 'owner' ? (
-        <div className="text-center flex flex-col items-center justify-center min-h-[calc(100vh-200px)]">
-          <Button
-            onClick={onAddEvent}
-            size="lg"
-            className="shadow-lg transition-all transform hover:scale-105 duration-200"
-          >
-            Begin
-          </Button>
-          <p className="mt-6 text-muted-foreground text-sm">
-            What&apos;s one moment you&apos;d like to remember?
-          </p>
-        </div>
+        <GuidedOnboarding
+          onContinue={handleGuidedContinue}
+          onStartFromScratch={handleStartFromScratch}
+        />
       ) : totalEventCount === 0 && mode !== 'owner' ? (
         <div className="text-center mt-12 md:mt-20">
           <BodyText>This timeline is empty.</BodyText>
@@ -274,9 +296,26 @@ export function TimelineView({
         </div>
       )}
 
+      {/* Success message after bulk add */}
+      {showSuccessMessage && totalEventCount > 0 && (
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-primary-600 text-white px-6 py-3 rounded-lg shadow-lg">
+          <SmallText className="text-white">
+            Great start! Click any event to add more details.
+          </SmallText>
+        </div>
+      )}
+
       {/* Bottom spacing for better scroll experience */}
       <div className="h-8 md:h-16" />
     </main>
+
+    {/* Bulk Event Modal */}
+    <BulkEventModal
+      isOpen={isBulkModalOpen}
+      onClose={() => setIsBulkModalOpen(false)}
+      onEventsAdded={handleBulkEventsAdded}
+      selectedMilestones={selectedMilestones}
+    />
     </>
   );
 }

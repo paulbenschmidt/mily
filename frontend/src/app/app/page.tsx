@@ -65,6 +65,14 @@ export default function Timeline() {
     setEvents(updatedEvents);
   };
 
+  const handleEventsAdded = (newEvents: TimelineEventType[]) => {
+    // Add multiple events to the timeline and sort by date (newest first)
+    const updatedEvents = [...newEvents, ...events].sort((a, b) =>
+      new Date(b.event_date).getTime() - new Date(a.event_date).getTime()
+    );
+    setEvents(updatedEvents);
+  };
+
   const handleEventUpdated = (updatedEvent: TimelineEventType) => {
     // Replace the updated event in the timeline and re-sort
     const updatedEvents = events.map(event =>
@@ -106,6 +114,7 @@ export default function Timeline() {
         loading={loading}
         error={error}
         onAddEvent={handleAddEvent}
+        onEventsAdded={handleEventsAdded}
         onEditEvent={handleEditEvent}
         onDeleteEvent={handleDeleteEvent}
         onFilter={handleFilter}

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { TimelineEventType, EventCategory, EventPrivacyLevel, EVENT_CATEGORIES, EVENT_PRIVACY_LEVELS } from '@/types/api';
 import { authApiClient } from '@/utils/auth-api';
 import { Input, Button, Subheading, Alert, Textarea, Select, SmallText } from '@/components/ui';
+import { DateInput } from './DateInput';
 import { ToggleButtonGroup } from '@/components/Timeline';
 import { useAutoFocus } from '@/hooks/useAutoFocus';
 import { useModalKeyboardShortcuts } from '@/hooks/useModalKeyboardShortcuts';
@@ -11,6 +12,34 @@ import { useDisableBodyScroll } from '@/hooks/disableBodyScroll';
 
 const DEFAULT_CATEGORY: EventCategory = 'memory';
 const DEFAULT_PRIVACY_LEVEL: EventPrivacyLevel = 'friends';
+
+const TITLE_PLACEHOLDERS = [
+  'Started first job',
+  'Moved to Chicago',
+  'Graduated college',
+  'Met my best friend',
+  'Adopted a pet',
+  'Learned to drive',
+  'First day of school',
+  'Got married',
+  'Bought a house',
+  'Started a business',
+  'Traveled to Japan',
+  'Learned to play guitar',
+  'Ran my first marathon',
+  'Published my first article',
+  'Changed careers',
+  'Moved abroad',
+  'Had my first child',
+  'Started therapy',
+  'Learned to cook',
+  'Got my first apartment',
+  'Joined a band',
+  'Went skydiving',
+  'Started volunteering',
+  'Learned a new language',
+  'Got promoted',
+];
 
 interface AddEventModalProps {
   isOpen: boolean;
@@ -39,6 +68,15 @@ export function AddEventModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSelectionsLoaded, setIsSelectionsLoaded] = useState(false);
+  const [titlePlaceholder, setTitlePlaceholder] = useState('');
+
+  // Set random placeholder when modal opens
+  useEffect(() => {
+    if (isOpen && !eventToEdit) {
+      const randomIndex = Math.floor(Math.random() * TITLE_PLACEHOLDERS.length);
+      setTitlePlaceholder(TITLE_PLACEHOLDERS[randomIndex]);
+    }
+  }, [isOpen, eventToEdit]);
 
   // Load event data when in edit mode
   useEffect(() => {
@@ -84,8 +122,8 @@ export function AddEventModal({
       // Validate year
       const yearNum = parseInt(year);
       const currentYear = new Date().getFullYear();
-      if (isNaN(yearNum) || yearNum < 1800 || yearNum > currentYear + 1) {
-        throw new Error('Please enter a valid year between 1800 and ' + (currentYear + 1));
+      if (isNaN(yearNum) || yearNum < 1900 || yearNum > currentYear + 1) {
+        throw new Error('Please enter a valid year between 1900 and ' + (currentYear + 1));
       }
 
       // Validate month
@@ -217,7 +255,7 @@ export function AddEventModal({
               type="text"
               id="title"
               label="Title"
-              placeholder="e.g., Started first job, Moved to Chicago"
+              placeholder={ titlePlaceholder }
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
@@ -253,62 +291,17 @@ export function AddEventModal({
             <label className="block text-sm font-medium text-secondary-700 mb-1">
               Event Date
             </label>
-            <div className="flex gap-2">
-              <div className="flex-1 min-w-[80px] max-w-[100px]">
-                <label htmlFor="year" className="block text-xs font-medium text-secondary-600 mb-1">
-                  Year
-                </label>
-                <Input
-                  type="number"
-                  id="year"
-                  placeholder="YYYY"
-                  value={year}
-                  onChange={(e) => setYear(e.target.value)}
-                  min={1800}
-                  max={new Date().getFullYear() + 1}
-                  required
-                />
-              </div>
-              <div className="flex-1 min-w-[120px] max-w-[140px]">
-                <label htmlFor="month" className="block text-xs font-medium text-secondary-600 mb-1">
-                  Month
-                </label>
-                <Select
-                  id="month"
-                  value={month}
-                  onChange={(e) => setMonth(e.target.value)}
-                  required
-                >
-                  <option value="">Select</option>
-                  <option value="01">January</option>
-                  <option value="02">February</option>
-                  <option value="03">March</option>
-                  <option value="04">April</option>
-                  <option value="05">May</option>
-                  <option value="06">June</option>
-                  <option value="07">July</option>
-                  <option value="08">August</option>
-                  <option value="09">September</option>
-                  <option value="10">October</option>
-                  <option value="11">November</option>
-                  <option value="12">December</option>
-                </Select>
-              </div>
-              <div className="flex-1 min-w-[60px] max-w-[80px]">
-                <label htmlFor="day" className="block text-xs font-medium text-secondary-600 mb-1">
-                  Day
-                </label>
-                <Input
-                  type="number"
-                  id="day"
-                  placeholder="DD"
-                  value={day}
-                  onChange={(e) => setDay(e.target.value)}
-                  min={1}
-                  max={31}
-                />
-              </div>
-            </div>
+            <DateInput
+              year={year}
+              month={month}
+              day={day}
+              onYearChange={setYear}
+              onMonthChange={setMonth}
+              onDayChange={setDay}
+              yearId="year"
+              monthId="month"
+              dayId="day"
+            />
           </div>
 
           <div>
