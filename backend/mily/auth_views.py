@@ -446,15 +446,13 @@ Welcome to Mily! Please verify your email address by clicking the link below:
 
 This link will expire in 1 hour.
 
-If you didn't create an account, please ignore this email.
+If you didn't create an account, you can safely ignore this email.
 
 Thanks,
 Paul from Mily
 """
 
     # HTML version with styled button
-    logo_url = f"{settings.FRONTEND_URL}/mily_logo_for_google.png"
-
     html_message = f"""
     <!DOCTYPE html>
     <html>
@@ -474,9 +472,13 @@ Paul from Mily
             </a>
         </div>
 
+        <p>Or copy and paste this link into your browser:</p>
+
+        <p style="word-break: break-all; color: #666; font-size: 14px;">{verification_url}</p>
+
         <p>This link will expire in 1 hour.</p>
 
-        <p>If you didn't create an account, please ignore this email.</p>
+        <p style="margin-bottom: 24px;">If you didn't create an account, you can safely ignore this email.</p>
 
         <p>Thanks,<br>Paul from Mily</p>
     </body>
