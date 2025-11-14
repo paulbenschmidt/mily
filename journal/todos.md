@@ -7,18 +7,17 @@ I only have a couple of users, who are all friends or family, so I think it make
 While I haven't done very much user validation, there isn't really a single other personal timeline app, so I'm interested in building this for the sole purpose of being the dominant player in this space—prioritizing for high-quality building instead of popularity. If this project isn't successful, I can at least include it on my LinkedIn for reputability.
 
 ## In Progress
-- Apply migrations for production
+- ENHANCE: Update landing page timeline example to have larger font size (maybe shorten descriptions, too)
 
 - Create test account using `test@mily.bio` on production
+    - Clean up old test Gmail account
 
-- Make onboarding less intimidating
 - Add a waiting list/email capture if your freemium isn't ready - You want to convert interest even if the product isn't 100% ready
 - Set up basic analytics - You need to see where people drop off. Vercel Analytics should tell you this, but make sure you're tracking the key events (started timeline, added first event, added 5+ events)
 - Draft post and revise
 - Post to three Reddit groups
 
 - Go through Joey's feedback
-    - Rename to "Private Notes"
 - Handle login for users who have deactivated their account
 - BUG: Clicking on the Get Started/Login link on Landing Page with a valid token creates a white screen that requires refresh
 - Create UTM parameters when sharing out different pages
@@ -28,8 +27,6 @@ While I haven't done very much user validation, there isn't really a single othe
 - Post to Reddit
 - Gather testimonials from users
 - ESSENTIAL: Have system email me when a user signs up
-- ENHANCE: Update demo pop-up to mention that filtering is available
-- Create test account using `test@mily.bio`
 - Poll users on whether to use `joinmily.com` or `mily.bio` as the primary domain
 
 ## To Organize
@@ -52,6 +49,7 @@ While I haven't done very much user validation, there isn't really a single othe
     - First find out HOW and WHY people want to share their timelines with others
     - Share individual events? Or at least link to a specific event?
     - Verify that users cannot see the years associated with any events (for privacy reasons)
+    - Make sure that empty timelines show "No events added yet" for others
 - FEATURE (needs polling): Add tags to events and allow users to filter by them
     - Add AI-generated "tags" to events so that users can auto-filter events?
 - FEATURE (needs polling): Add age to profile (which auto-creates an event for the user's birthday)
@@ -59,7 +57,6 @@ While I haven't done very much user validation, there isn't really a single othe
     - If I add it as part of the profile, I can add a little blurb that says "this field will be used to calculate your age for each event". It'll also auto-add an event to the user's timeline for their birthday.
 
 ### Enhancement
-- ENHANCE: Update landing page timeline example to have larger font size (maybe shorten descriptions, too)
 - ENHANCE (needs polling): What should the design look like? (neumorphism, soft brutalism, etc)
 - ENHANCE: For friend requests, allow user blocking as first action
     - Currently a post request to friendship is required as the primary action

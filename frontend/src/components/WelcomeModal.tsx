@@ -40,7 +40,10 @@ export function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
 
         <div className="px-6 py-5">
           <p className="mb-4 leading-relaxed text-muted-foreground">
-            You&apos;re about to see a sample timeline from someone&apos;s life story. In Mily, the most recent moments appear at the top, and you can see how people capture both big milestones and smaller memories that matter to them.
+            You&apos;re about to see a sample timeline from someone&apos;s life story. In Mily, the most recent moments appear at the top.
+          </p>
+          <p className="mb-4 leading-relaxed text-muted-foreground">
+            Interact with the timeline by clicking on events to see more details or by using the filter to only show dates within a specific range or of a specific type.
           </p>
 
           <div className="flex justify-end">
