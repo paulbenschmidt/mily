@@ -18,7 +18,6 @@ While I haven't done very much user validation, there isn't really a single othe
 - Post to three Reddit groups
 
 - Go through Joey's feedback
-    - Rename to "Private Notes"
 - Handle login for users who have deactivated their account
 - BUG: Clicking on the Get Started/Login link on Landing Page with a valid token creates a white screen that requires refresh
 - Create UTM parameters when sharing out different pages

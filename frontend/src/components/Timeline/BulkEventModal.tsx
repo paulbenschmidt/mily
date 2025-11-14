@@ -167,7 +167,7 @@ export function BulkEventModal({
                     id={`title-${index}`}
                     value={form.title}
                     onChange={(e) => updateEventForm(index, 'title', e.target.value)}
-                    placeholder="e.g., Graduated high school"
+                    placeholder="Enter event title"
                     required
                   />
                 </div>
@@ -209,7 +209,7 @@ export function BulkEventModal({
               disabled={isSubmitting}
               className="flex-1"
             >
-              {isSubmitting ? 'Adding...' : 'Create events'}
+              {isSubmitting ? 'Adding...' : 'Add events'}
             </Button>
           </div>
         </form>
