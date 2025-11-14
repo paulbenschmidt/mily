@@ -436,7 +436,7 @@ def send_verification_email(user, token):
     verification_url = f"{settings.FRONTEND_URL}/verify-email?token={token}"
 
     subject = 'Verify Your Email - Mily'
-    
+
     # Plain text version (fallback)
     text_message = f"""Hi {user.first_name},
 
@@ -454,7 +454,7 @@ Paul from Mily
 
     # HTML version with styled button
     logo_url = f"{settings.FRONTEND_URL}/mily_logo_for_google.png"
-    
+
     html_message = f"""
     <!DOCTYPE html>
     <html>
@@ -466,22 +466,22 @@ Paul from Mily
         <div style="text-align: center; margin-bottom: 30px;">
             <img src="{logo_url}" alt="Mily" style="width: 120px; height: auto;">
         </div>
-        
+
         <p>Hi {user.first_name},</p>
-        
+
         <p>Welcome to Mily! Please verify your email address by clicking the button below:</p>
-        
+
         <div style="text-align: center; margin: 30px 0;">
-            <a href="{verification_url}" 
+            <a href="{verification_url}"
                style="display: inline-block; padding: 12px 32px; background-color: #4f46e5; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 16px;">
                 Verify Email Address
             </a>
         </div>
-        
-        <p style="color: #666; font-size: 14px;">This link will expire in 1 hour.</p>
-        
-        <p style="color: #666; font-size: 14px;">If you didn't create an account, please ignore this email.</p>
-        
+
+        <p>This link will expire in 1 hour.</p>
+
+        <p>If you didn't create an account, please ignore this email.</p>
+
         <p>Thanks,<br>Paul from Mily</p>
     </body>
     </html>
@@ -505,7 +505,7 @@ Paul from Mily
             raise
     else:
         from django.core.mail import EmailMultiAlternatives
-        
+
         email = EmailMultiAlternatives(
             subject,
             text_message,
