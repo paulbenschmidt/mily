@@ -62,6 +62,7 @@ While I haven't done very much user validation, there isn't really a single othe
 - ENHANCE (needs polling): What should the design look like? (neumorphism, soft brutalism, etc)
 - ENHANCE: For friend requests, allow user blocking as first action
     - Currently a post request to friendship is required as the primary action
+- ENHANCE: Add logo to email verification (once I have enough consistent email deliverability to not get flagged as spam)
 
 ### Security
 - SECURITY: Legal review of Terms and Privacy Policy

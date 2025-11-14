@@ -463,10 +463,6 @@ Paul from Mily
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="text-align: center; margin-bottom: 30px;">
-            <img src="{logo_url}" alt="Mily" style="width: 120px; height: auto;">
-        </div>
-
         <p>Hi {user.first_name},</p>
 
         <p>Welcome to Mily! Please verify your email address by clicking the button below:</p>
