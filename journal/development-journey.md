@@ -1,5 +1,7 @@
 # Development Journey
 
+- 2025-11-14:
+    - I realized that my email verification should be sent using the root domain, so I updated that from `verify.mily.bio` to just `mily.bio`, and sent it from `hello@mily.bio` instead (and created an alias to forward to `paul@mily.bio`). I also made the email look prettier with HTML and a button.
 - 2025-11-12:
     - I set up email forwarding with Cloudflare so that `paul@joinmily.com` would forward to my personal email address, but then I realized that I wouldn't be able to email back with the `joinmily.com` domain, so after asking Claude, I think I'll just go ahead with a Google Workspace account. I was originally bummed thinking that I'd need to update the `joinmily.com` nameservers to point to Porkbun again, but Claude recommended keeping nameservers with Cloudflare since they had better, faster traffic delivery. Therefore, I updated the `mily.bio` domain to point to Cloudflare's nameservers, too.
     - I also learned that Cloudflare can have DNS records either as DNS only (where DNS query returns actual IP address of Vercel host) or proxied. DNS only is simpler, but proxied is faster and more secure, since it returns a Cloudflare IP so that user requests go through Cloudflare before going to the Vercel server. This will allow a host of benefits like:

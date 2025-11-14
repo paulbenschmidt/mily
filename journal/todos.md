@@ -7,9 +7,6 @@ I only have a couple of users, who are all friends or family, so I think it make
 While I haven't done very much user validation, there isn't really a single other personal timeline app, so I'm interested in building this for the sole purpose of being the dominant player in this space—prioritizing for high-quality building instead of popularity. If this project isn't successful, I can at least include it on my LinkedIn for reputability.
 
 ## In Progress
-- Don't launch until the "via amazonses.com" is gone.
-    - After you set up SPF/DKIM/DMARC, use mail-tester.com - send your verification email there and it'll score your email deliverability. Aim for 9/10 or higher before launching.
-
 - Make onboarding less intimidating
 - Add a waiting list/email capture if your freemium isn't ready - You want to convert interest even if the product isn't 100% ready
 - Set up basic analytics - You need to see where people drop off. Vercel Analytics should tell you this, but make sure you're tracking the key events (started timeline, added first event, added 5+ events)

@@ -408,18 +408,6 @@ def get_csrf_token_view(request):
     return Response({'message': 'CSRF token initialized'})
 
 
-# TODO: Implement session refresh
-# @require_http_methods(["POST"])
-# def refresh_session(request):
-#     """Extend session expiry"""
-#     if request.user.is_authenticated:
-#         # Extend session by updating it
-#         request.session.set_expiry(86400)  # 24 hours from now
-#         return JsonResponse({'success': True})
-
-#     return JsonResponse({'authenticated': False}, status=401)
-
-
 # Email Verification
 
 def generate_and_save_verification_token(user):
