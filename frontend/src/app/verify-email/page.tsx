@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { PageHeading, SmallText, Alert, Button } from '@/components/ui';
 import { AuthLayout } from '@/components/AuthLayout';
+import { authApiClient } from '@/utils/auth-api';
 
 function VerifyEmailContent() {
   const router = useRouter();
@@ -24,24 +25,13 @@ function VerifyEmailContent() {
       }
 
       try {
-        // Call Django backend to verify email
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify-email/`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ token }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || 'Verification failed');
-        }
+        // Use authApiClient to verify email (sets httpOnly cookies automatically)
+        const response = await authApiClient.verifyEmail(token);
 
         // Email verified and user logged in
         setStatus('success');
 
-        // Update auth context
+        // Update auth context to load user data
         await checkAuth();
 
         // Redirect to app after 2 seconds
@@ -56,7 +46,8 @@ function VerifyEmailContent() {
     };
 
     verifyEmail();
-  }, [searchParams, router]); // checkAuth excluded to prevent re-runs after successful verification
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, router]); // Only run when token changes, not when checkAuth changes
 
   return (
     <AuthLayout>
