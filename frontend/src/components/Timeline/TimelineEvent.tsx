@@ -16,6 +16,36 @@ interface TimelineEventProps {
 export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent, nextEvent }: TimelineEventProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
+  const getPrivacyIcon = (privacyLevel: string) => {
+    const iconClass = "w-3.5 h-3.5 text-secondary-400";
+
+    switch (privacyLevel) {
+      case 'public':
+        // Globe icon (visible to everyone)
+        return (
+          <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-label="Public">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+          </svg>
+        );
+      case 'friends':
+        // Simplified people/users icon (friends only)
+        return (
+          <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-label="Friends only">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        );
+      case 'private':
+        // Lock icon (private/locked)
+        return (
+          <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-label="Private">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        );
+      default:
+        return null;
+    }
+  };
+
   const getBackgroundCircleSize = (category: string) => {
     switch (category) {
       case "major":
@@ -221,6 +251,7 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
                   <BodyText className="font-semibold flex-1">{event.title}</BodyText>
+                  {getPrivacyIcon(event.privacy_level)}
                 </div>
 
                 {/* Description preview when collapsed */}

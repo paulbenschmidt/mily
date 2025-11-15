@@ -5,6 +5,8 @@
         - [ ] Look at people who have reviewed previous apps or are active on mental health forums
         - [ ] Older, reflective generation
         - [ ] People in therapy (or therapists) or find blogs/websites that discuss mental health/therapy and reach out
+        - [ ] Gather testimonials from users
+        - [ ] Create Discord channel?
     - [ ] Participate helpfully in 2-3 Reddit communities (30 min/week)
     - [ ] Document every user conversation and testimonial
     - [ ] Dayton newspaper: Advertise it as a reflection tool, have them interview me

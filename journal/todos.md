@@ -1,25 +1,14 @@
 ## In Progress
-- Change verification email to have Mily as the name instead of hello
-- Add check box for newsletter?
+- OUTREACH: Add check box for newsletter?
 - ENHANCE: Update landing page timeline example to have larger font size (maybe shorten descriptions, too)
-
-- Create test account using `test@mily.bio` on production
-    - Clean up old test Gmail account
-
-- Add a waiting list/email capture if your freemium isn't ready - You want to convert interest even if the product isn't 100% ready
-- Set up basic analytics - You need to see where people drop off. Vercel Analytics should tell you this, but make sure you're tracking the key events (started timeline, added first event, added 5+ events)
-
-- Go through Joey's feedback
-- Handle login for users who have deactivated their account
+- FEATURE: Add a waiting list/email capture if your freemium isn't ready - You want to convert interest even if the product isn't 100% ready
+- FEATURE: Set up basic analytics - You need to see where people drop off. Vercel Analytics should tell you this, but make sure you're tracking the key events (started timeline, added first event, added 5+ events)
+- FEATURE: Handle login for users who have deactivated their account
 - BUG: Clicking on the Get Started/Login link on Landing Page with a valid token creates a white screen that requires refresh
 - Create UTM parameters when sharing out different pages
     - Log UTM parameters on signup so that we can track where users are coming from
-- Find test users
-- Create Discord channel
-- Gather testimonials from users
 - ESSENTIAL: Have system email me when a user signs up
-- Poll users on whether to use `joinmily.com` or `mily.bio` as the primary domain
-- Post in Huffman Neighborhood group
+- OUTREACH: Post in Huffman Neighborhood group
 
 ## To Organize
 
@@ -65,6 +54,7 @@
 - TECHDEBT: Set up cron job to delete users after 30 days of `deactivated_at` and `is_active=False`
 
 ## Backlog
+- OTHER: Poll users on whether to use `joinmily.com` or `mily.bio` as the primary domain
 - FEATURE (needs polling): Onboarding flow for initial events
     - Bob recommended something that makes the initial "Begin" screen not look so intimidating. Here's his message: "I entered some events in Mily. Easy enough to use interface. I added a few events. I know it’s very much a work in process so no in depth notes at this time. It was a bit intimidating to start building a timeline so my top of mind idea is to include some sort of ‘line manager’ (🤓) assistant tool to help kickstart. Maybe some drop downs with suggested events, example profiles a bit more fleshed out, pro tips. That sort of thing."
 - ENHANCE: Set up virtual receptionist with Voice Standard (using Google Workspace)?
@@ -110,3 +100,4 @@
 - ENHANCE: Set up Google Analytics once I have many more users or I want to track specific features
 - ENHANCE: On mobile UI, fix where the filter event/privacy selections appear, since they're slightly off.
     - Note: this currently only happens on the browser for iPhones like iPhone 14 Pro Max. For some reason, the dropdown shifts farther away. This might not be too big of a concern since this is on mobile browsers, and the future app will have a different layout.
+- DREAM: Widget that is shareable on dating profiles/LinkedIn/Facebook/Instagram/YouTube/Reddit
