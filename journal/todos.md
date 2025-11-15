@@ -15,8 +15,6 @@ While I haven't done very much user validation, there isn't really a single othe
 
 - Add a waiting list/email capture if your freemium isn't ready - You want to convert interest even if the product isn't 100% ready
 - Set up basic analytics - You need to see where people drop off. Vercel Analytics should tell you this, but make sure you're tracking the key events (started timeline, added first event, added 5+ events)
-- Draft post and revise
-- Post to three Reddit groups
 
 - Go through Joey's feedback
 - Handle login for users who have deactivated their account
@@ -25,10 +23,10 @@ While I haven't done very much user validation, there isn't really a single othe
     - Log UTM parameters on signup so that we can track where users are coming from
 - Find test users
 - Create Discord channel
-- Post to Reddit
 - Gather testimonials from users
 - ESSENTIAL: Have system email me when a user signs up
 - Poll users on whether to use `joinmily.com` or `mily.bio` as the primary domain
+- Post in Huffman Neighborhood group
 
 ## To Organize
 
