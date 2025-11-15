@@ -478,7 +478,7 @@ Paul from Mily
         try:
             resend.api_key = api_key # Use HTTPS for production (since SMTP is blocked by Railway)
             email = resend.Emails.send({
-                "from": settings.DEFAULT_FROM_EMAIL,
+                "from": f"Mily <{settings.DEFAULT_FROM_EMAIL}",
                 "to": [user.email],
                 "subject": subject,
                 "text": text_message,

@@ -1,12 +1,5 @@
-I have the next four days off of work, and I'd like to figure out how to spend this time.
-
-Currently, I have a working MVP that allows users to add events with text, but photos/voice recordings are not yet available.
-
-I only have a couple of users, who are all friends or family, so I think it makes sense to start talking to users before building this out.
-
-While I haven't done very much user validation, there isn't really a single other personal timeline app, so I'm interested in building this for the sole purpose of being the dominant player in this space—prioritizing for high-quality building instead of popularity. If this project isn't successful, I can at least include it on my LinkedIn for reputability.
-
 ## In Progress
+- Change verification email to have Mily as the name instead of hello
 - Add check box for newsletter?
 - ENHANCE: Update landing page timeline example to have larger font size (maybe shorten descriptions, too)
 
