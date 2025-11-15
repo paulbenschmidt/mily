@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Input, Button, PageHeading, SmallText, Alert, Link } from '@/components/ui';
 import { AuthLayout } from '@/components/AuthLayout';
 
 export default function SignupPage() {
+  const firstNameInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -16,6 +17,12 @@ export default function SignupPage() {
   const [error, setError] = useState<string | null>(null);
   const [emailSent, setEmailSent] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (!emailSent) {
+      firstNameInputRef.current?.focus();
+    }
+  }, [emailSent]);
 
   const generateHandle = (firstName: string, lastName: string, email: string): string => {
     // Create a base handle from first name and last name
@@ -190,6 +197,7 @@ export default function SignupPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <Input
+                ref={firstNameInputRef}
                 id="first_name"
                 name="first_name"
                 type="text"
