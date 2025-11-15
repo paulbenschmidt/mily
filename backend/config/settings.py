@@ -181,14 +181,23 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle'
     ],
+    # 'DEFAULT_THROTTLE_RATES': {
+    #     'anon': '100/hour',  # Anonymous users
+    #     'user': '1000/hour',  # Authenticated users
+    #     'auth': '10/hour',  # Auth endpoints (login, signup, password reset)
+    #     'token_refresh': '20/hour',  # Token refresh
+    #     'event_create': '100/hour',  # Creating new events
+    #     'event_modify': '200/hour',  # Updating/deleting events
+    #     'user_read': '500/hour',  # Reading user profiles
+    # },
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '100/hour',  # Anonymous users
+        'anon': '1000/hour',  # Anonymous users
         'user': '1000/hour',  # Authenticated users
-        'auth': '10/hour',  # Auth endpoints (login, signup, password reset)
-        'token_refresh': '20/hour',  # Token refresh
-        'event_create': '100/hour',  # Creating new events
-        'event_modify': '200/hour',  # Updating/deleting events
-        'user_read': '500/hour',  # Reading user profiles
+        'auth': '1000/hour',  # Auth endpoints (login, signup, password reset)
+        'token_refresh': '1000/hour',  # Token refresh
+        'event_create': '1000/hour',  # Creating new events
+        'event_modify': '1000/hour',  # Updating/deleting events
+        'user_read': '1000/hour',  # Reading user profiles
     },
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20
