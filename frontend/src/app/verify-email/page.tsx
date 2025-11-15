@@ -25,6 +25,9 @@ function VerifyEmailContent() {
       }
 
       try {
+        // Ensure CSRF token is initialized before making the request
+        await authApiClient.initializeCsrf();
+
         // Use authApiClient to verify email (sets httpOnly cookies automatically)
         const response = await authApiClient.verifyEmail(token);
 
