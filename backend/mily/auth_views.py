@@ -109,6 +109,9 @@ def register_view(request):
         verification_token = generate_and_save_verification_token(user)
         send_verification_email(user, verification_token)
 
+        # Send notification to paul@mily.bio about new signup
+        send_new_user_notification(user)
+
         return Response({
             'message': 'Account created. Please check your email to verify your account.',
             'email': email
@@ -500,6 +503,35 @@ Paul from Mily
         )
         email.attach_alternative(html_message, "text/html")
         email.send(fail_silently=False)
+
+
+def send_new_user_notification(user):
+    """Send notification to paul@mily.bio when a new user signs up."""
+    subject = f'New User Signup: {user.first_name} {user.last_name}'
+
+    text_message = f"""New user signed up on Mily:
+
+Name: {user.first_name} {user.last_name}
+Email: {user.email}
+Handle: @{user.handle}
+Signup Time: {user.date_joined.strftime('%Y-%m-%d %H:%M:%S UTC')}
+
+Reach out to learn what made them sign up and how they heard about Mily!
+"""
+
+    api_key = os.getenv('RESEND_API_KEY')
+    if api_key and api_key != '':
+        try:
+            resend.api_key = api_key
+            email = resend.Emails.send({
+                "from": f"Mily <{settings.DEFAULT_FROM_EMAIL}>",
+                "to": ["paul@mily.bio"],
+                "subject": subject,
+                "text": text_message,
+            })
+        except Exception as e:
+            # Don't fail the signup if notification email fails
+            print(f"Failed to send new user notification: {e}")
 
 
 # Custom Token Refresh View for httpOnly Cookies
