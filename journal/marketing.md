@@ -1,3 +1,15 @@
+#
+Mily runs on "fame"—people want their stories to be heard.
+
+- OUTREACH: Post in Huffman Neighborhood group
+- HackerNews: Launch post
+- Life coaches
+- Reach out to reflection influencers
+- Post to Reddit and ask: What would make you want to share past experiences with another person?
+- Post to Starter Story
+- Send MVP to everyone on Asana list (resend to Heather once I have a public timeline)
+- Create spreadsheet to track outreach
+
 ### 90-Day Roadmap
 - Months 1-2:
     - [x] Update LinkedIn (30 min, one-time)
@@ -37,3 +49,8 @@ The hard truth: At this stage, nothing beats talking to humans one-on-one. Every
 ### Post To
 - https://www.reddit.com/r/SideProject
 - https://www.reddit.com/r/Entrepreneur
+
+### Ideas
+- (EXCITED ABOUT THIS) Have a podcast for distribution that shares people's stories, interviewing people's life events and how they navigated them
+    - If users want to be on the podcast, they can share the URL tag of their timeline that they want to have featured
+- Integrate with dating sites

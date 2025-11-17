@@ -1,14 +1,11 @@
 ## In Progress
 - OUTREACH: Add check box for newsletter?
-- ENHANCE: Update landing page timeline example to have larger font size (maybe shorten descriptions, too)
 - FEATURE: Add a waiting list/email capture if your freemium isn't ready - You want to convert interest even if the product isn't 100% ready
 - FEATURE: Set up basic analytics - You need to see where people drop off. Vercel Analytics should tell you this, but make sure you're tracking the key events (started timeline, added first event, added 5+ events)
 - FEATURE: Handle login for users who have deactivated their account
 - BUG: Clicking on the Get Started/Login link on Landing Page with a valid token creates a white screen that requires refresh
 - Create UTM parameters when sharing out different pages
     - Log UTM parameters on signup so that we can track where users are coming from
-- ESSENTIAL: Have system email me when a user signs up
-- OUTREACH: Post in Huffman Neighborhood group
 
 ## To Organize
 
@@ -33,11 +30,14 @@
     - Make sure that empty timelines show "No events added yet" for others
 - FEATURE (needs polling): Add tags to events and allow users to filter by them
     - Add AI-generated "tags" to events so that users can auto-filter events?
+    - Should be URL-parameter for easy sharing (like `?tags=entrepreneurship`)
+    - Maybe even create a description for each tag that talks about the arc of that tag
 - FEATURE (needs polling): Add age to profile (which auto-creates an event for the user's birthday)
     - This would allow users to see how old they were when experienced an event (which would allow users to weave timelines and see how their lives tracked when accounting for age)
     - If I add it as part of the profile, I can add a little blurb that says "this field will be used to calculate your age for each event". It'll also auto-add an event to the user's timeline for their birthday.
 
 ### Enhancement
+- ENHANCE: Update landing page timeline example to have larger font size (maybe shorten descriptions, too)
 - ENHANCE (needs polling): What should the design look like? (neumorphism, soft brutalism, etc)
 - ENHANCE: For friend requests, allow user blocking as first action
     - Currently a post request to friendship is required as the primary action
@@ -69,6 +69,8 @@
 - FEATURE: Create timeline "weave" with friends
     - I think the name "weave" because of the visual image, but also because it has the word "we"
     - You could have two different weave versions: one is just showing two timelines on the same year, the other could be showing two timelines relative to the ages. The second one sounds novel and unique: you could look at what a parent and child experienced in the same year, or two friends of different ages experienced in the same year. <3. I thought of this when I was thinking about seeing the difference between my timeline and Jackson's timeline.
+    - Should the weave allow more more than two timelines?
+    - What if you could join timelines on a specific event to see a fork? Like the birth of a child.
 - ENHANCE: Add logo to loading spinners and to footer
 - ENHANCE: Go through packages and update any that are not needed
 - TECHDEBT: Update readmes/windsurfrules/roadmaps/comments/etc
@@ -101,3 +103,6 @@
 - ENHANCE: On mobile UI, fix where the filter event/privacy selections appear, since they're slightly off.
     - Note: this currently only happens on the browser for iPhones like iPhone 14 Pro Max. For some reason, the dropdown shifts farther away. This might not be too big of a concern since this is on mobile browsers, and the future app will have a different layout.
 - DREAM: Widget that is shareable on dating profiles/LinkedIn/Facebook/Instagram/YouTube/Reddit
+- FEATURE: Add emotions of event? (e.g. happy, sad, angry, etc)
+    - Then mood can be tracked over time, and distribution of emotions can be visualized
+- FEATURE: Tagging people in events
