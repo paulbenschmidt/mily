@@ -23,6 +23,7 @@ from .throttling import (
     EventModifyRateThrottle,
     UserReadRateThrottle,
 )
+from .auth_views import send_account_deactivation_notification
 
 logger = logging.getLogger(__name__)
 
@@ -71,6 +72,9 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
             user.save()
 
             logger.info(f"User account deactivated: {user.email} (ID: {user.id})")
+
+            # Send notification to paul@mily.bio about account deactivation
+            send_account_deactivation_notification(user)
 
             response = Response({
                 'message': 'Account successfully deleted'
