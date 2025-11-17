@@ -264,6 +264,15 @@ class AuthApiClient {
     });
   }
 
+  async reactivateAccount(): Promise<{ message: string; user: UserType }> {
+    return this.request<{ message: string; user: UserType }>({
+      endpoint: '/users/reactivate/',
+      options: {
+        method: 'POST',
+      },
+    });
+  }
+
   // Events endpoints
   async getEvents(): Promise<TimelineEventType[]> {
     return this.request<TimelineEventType[]>({

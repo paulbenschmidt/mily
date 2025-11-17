@@ -2,7 +2,6 @@
 - OUTREACH: Add check box for newsletter?
 - FEATURE: Add a waiting list/email capture if your freemium isn't ready - You want to convert interest even if the product isn't 100% ready
 - FEATURE: Set up basic analytics - You need to see where people drop off. Vercel Analytics should tell you this, but make sure you're tracking the key events (started timeline, added first event, added 5+ events)
-- FEATURE: Handle login for users who have deactivated their account
 - BUG: Clicking on the Get Started/Login link on Landing Page with a valid token creates a white screen that requires refresh
 - Create UTM parameters when sharing out different pages
     - Log UTM parameters on signup so that we can track where users are coming from

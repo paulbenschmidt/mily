@@ -23,6 +23,7 @@ from .throttling import (
     EventModifyRateThrottle,
     UserReadRateThrottle,
 )
+from .auth_views import send_account_deactivation_notification
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +73,9 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
             logger.info(f"User account deactivated: {user.email} (ID: {user.id})")
 
+            # Send notification to paul@mily.bio about account deactivation
+            send_account_deactivation_notification(user)
+
             response = Response({
                 'message': 'Account successfully deleted'
             })
@@ -95,6 +99,29 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
         # GET request
         serializer = UserPrivateSerializer(request.user)
         return Response(serializer.data)
+
+    @action(detail=False, methods=["post"], url_path="reactivate")
+    def reactivate(self, request, *args, **kwargs):
+        """Reactivate a deactivated user account."""
+        user = request.user
+
+        if user.deactivated_at is None:
+            return Response({
+                'error': 'Account is not deactivated'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Reactivate the account
+        user.is_active = True
+        user.deactivated_at = None
+        user.save()
+
+        logger.info(f"User account reactivated: {user.email} (ID: {user.id})")
+
+        serializer = UserPrivateSerializer(user)
+        return Response({
+            'message': 'Account successfully reactivated',
+            'user': serializer.data
+        })
 
 
 class EventViewSet(viewsets.ModelViewSet):

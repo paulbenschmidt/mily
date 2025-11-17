@@ -15,6 +15,7 @@ export interface UserType {
   profile_picture?: string;
   created_at: string;
   updated_at: string;
+  deactivated_at?: string | null;
 }
 
 export const EVENT_CATEGORIES = ['major', 'minor', 'memory'] as const;

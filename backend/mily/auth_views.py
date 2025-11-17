@@ -534,6 +534,36 @@ Reach out to learn what made them sign up and how they heard about Mily!
             print(f"Failed to send new user notification: {e}")
 
 
+def send_account_deactivation_notification(user):
+    """Send notification to paul@mily.bio when a user deactivates their account."""
+    subject = f'Account Deactivated: {user.first_name} {user.last_name}'
+
+    text_message = f"""A user has deactivated their account on Mily:
+
+Name: {user.first_name} {user.last_name}
+Email: {user.email}
+Handle: @{user.handle}
+Account Created: {user.date_joined.strftime('%Y-%m-%d %H:%M:%S UTC')}
+Deactivated: {user.deactivated_at.strftime('%Y-%m-%d %H:%M:%S UTC') if user.deactivated_at else 'Unknown'}
+
+Consider reaching out to understand why they left.
+"""
+
+    api_key = os.getenv('RESEND_API_KEY')
+    if api_key and api_key != '':
+        try:
+            resend.api_key = api_key
+            email = resend.Emails.send({
+                "from": f"Mily <{settings.DEFAULT_FROM_EMAIL}>",
+                "to": ["paul@mily.bio"],
+                "subject": subject,
+                "text": text_message,
+            })
+        except Exception as e:
+            # Don't fail the deactivation if notification email fails
+            print(f"Failed to send account deactivation notification: {e}")
+
+
 # Custom Token Refresh View for httpOnly Cookies
 # Uses class-based view instead of function-based view to extend TokenRefreshView
 class CookieTokenRefreshView(TokenRefreshView):

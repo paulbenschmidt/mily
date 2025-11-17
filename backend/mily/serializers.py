@@ -44,8 +44,9 @@ class UserPrivateSerializer(serializers.ModelSerializer):
             "profile_picture",
             "created_at",
             "updated_at",
+            "deactivated_at",
         ]
-        read_only_fields = ["id", "created_at", "updated_at", "email", "username"]
+        read_only_fields = ["id", "created_at", "updated_at", "email", "username", "deactivated_at"]
 
 
 # Alias for backward compatibility
