@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { authApiClient } from '@/utils/auth-api';
 import { UserType } from '@/types/api';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { ReactivationModal } from '@/components/Auth/ReactivationModal';
 
 interface AuthContextType {
   user: UserType | null;
@@ -36,7 +35,6 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showReactivationModal, setShowReactivationModal] = useState(false);
   const isMobile = useIsMobile();
   const router = useRouter();
 
@@ -46,13 +44,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const authStatus = await authApiClient.getAuthStatus();
 
       if (authStatus.authenticated && authStatus.user) {
-        // Check if user account is deactivated
-        if (authStatus.user.deactivated_at) {
-          setUser(authStatus.user);
-          setShowReactivationModal(true);
-          setLoading(false);
-          return;
-        }
         setUser(authStatus.user);
       } else {
         setUser(null);
@@ -73,12 +64,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const response = await authApiClient.login({ email, password });
       if (response.user) {
-        // Check if user account is deactivated
-        if (response.user.deactivated_at) {
-          setUser(response.user);
-          setShowReactivationModal(true);
-          return;
-        }
         setUser(response.user);
       }
     } catch (error) {
@@ -129,26 +114,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initialize();
   }, []);
 
-  const handleReactivate = async () => {
-    try {
-      const response = await authApiClient.reactivateAccount();
-      if (response.user) {
-        setUser(response.user);
-        setShowReactivationModal(false);
-        router.push('/app');
-      }
-    } catch (error) {
-      console.error('Failed to reactivate account:', error);
-      throw error;
-    }
-  };
-
-  const handleCancelReactivation = () => {
-    setShowReactivationModal(false);
-    setUser(null);
-    router.push('/');
-  };
-
   const value: AuthContextType = {
     user,
     loading,
@@ -158,19 +123,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signup,
     checkAuth,
   };
-
-  // Show reactivation modal instead of children if account is deactivated
-  if (showReactivationModal && user) {
-    return (
-      <AuthContext.Provider value={value}>
-        <ReactivationModal
-          userName={user.first_name || user.username}
-          onReactivate={handleReactivate}
-          onCancel={handleCancelReactivation}
-        />
-      </AuthContext.Provider>
-    );
-  }
 
   return (
     <AuthContext.Provider value={value}>

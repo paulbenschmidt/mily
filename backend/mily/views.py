@@ -100,29 +100,6 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = UserPrivateSerializer(request.user)
         return Response(serializer.data)
 
-    @action(detail=False, methods=["post"], url_path="reactivate")
-    def reactivate(self, request, *args, **kwargs):
-        """Reactivate a deactivated user account."""
-        user = request.user
-
-        if user.deactivated_at is None:
-            return Response({
-                'error': 'Account is not deactivated'
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        # Reactivate the account
-        user.is_active = True
-        user.deactivated_at = None
-        user.save()
-
-        logger.info(f"User account reactivated: {user.email} (ID: {user.id})")
-
-        serializer = UserPrivateSerializer(user)
-        return Response({
-            'message': 'Account successfully reactivated',
-            'user': serializer.data
-        })
-
 
 class EventViewSet(viewsets.ModelViewSet):
     """API endpoint for managing timeline events.
