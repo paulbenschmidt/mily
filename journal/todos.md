@@ -1,21 +1,15 @@
 ## In Progress
-- OUTREACH: Add check box for newsletter?
-- FEATURE: Add a waiting list/email capture if your freemium isn't ready - You want to convert interest even if the product isn't 100% ready
-- FEATURE: Set up basic analytics - You need to see where people drop off. Vercel Analytics should tell you this, but make sure you're tracking the key events (started timeline, added first event, added 5+ events)
-- BUG: Clicking on the Get Started/Login link on Landing Page with a valid token creates a white screen that requires refresh
-- Create UTM parameters when sharing out different pages
-    - Log UTM parameters on signup so that we can track where users are coming from
 
 ## To Organize
 
 ## Sprint Backlog
 ### Essential
 - ESSENTIAL: Create testimonials on landing page
-- ESSENTIAL: Password reset
-    - Password reset via Django's built-in email system (Allow users ability to change password)
 - ESSENTIAL (needs polling): Implement premium payment system
 
 ### Feature
+- FEATURE: Add a waiting list/email capture if your freemium isn't ready - You want to convert interest even if the product isn't 100% ready
+- FEATURE: Set up basic analytics - You need to see where people drop off. Vercel Analytics should tell you this, but make sure you're tracking the key events (started timeline, added first event, added 5+ events)
 - FEATURE: Enable photos on events
     - Look into serving photos through Railway buckets? Vercel Blob is probably a better way to go.
     - AWS S3 + CloudFront would be most cost-effective at scale but is more complicated to set up.
@@ -24,6 +18,7 @@
     - Maybe you could start the cost slightly higher than lower it over time as more users sign up, that way you could make it a marketing strategy to get more users to sign up and also give people updates on user growth (in a way that doesn't feel like spam). Maybe you could make it a challenge to get to 1000 users and then lower the cost.
 - FEATURE (needs polling): Enable "Publicly Accessible" for "Share" button on event page
     - First find out HOW and WHY people want to share their timelines with others
+    - Share dropdown should have a toggle on whether or not the timeline is publicly accessible. It should also have some sort of connection to friendships, like "Send to a friend" or "Send to a group of friends". How will this also connect to "friendships" within the app?
     - Share individual events? Or at least link to a specific event?
     - Verify that users cannot see the years associated with any events (for privacy reasons)
     - Make sure that empty timelines show "No events added yet" for others
@@ -36,11 +31,14 @@
     - If I add it as part of the profile, I can add a little blurb that says "this field will be used to calculate your age for each event". It'll also auto-add an event to the user's timeline for their birthday.
 
 ### Enhancement
+- ENHANCE: Create UTM parameters when sharing out different pages
+    - Log UTM parameters on signup so that we can track where users are coming from
 - ENHANCE: Update landing page timeline example to have larger font size (maybe shorten descriptions, too)
 - ENHANCE (needs polling): What should the design look like? (neumorphism, soft brutalism, etc)
 - ENHANCE: For friend requests, allow user blocking as first action
     - Currently a post request to friendship is required as the primary action
 - ENHANCE: Add logo to email verification (once I have enough consistent email deliverability to not get flagged as spam)
+- BUG: Clicking on the Get Started/Login link on Landing Page with a valid token creates a white screen that requires refresh
 
 ### Security
 - SECURITY: Legal review of Terms and Privacy Policy

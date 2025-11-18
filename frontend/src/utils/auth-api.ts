@@ -225,6 +225,19 @@ class AuthApiClient {
     });
   }
 
+  async changePassword(
+    current_password: string,
+    new_password: string
+  ): Promise<{ message: string }> {
+    return this.request<{ message: string }>({
+      endpoint: '/auth/change-password/',
+      options: {
+        method: 'POST',
+        body: JSON.stringify({ current_password, new_password }),
+      },
+    });
+  }
+
   // Verify email - backend sets httpOnly cookies automatically
   async verifyEmail(token: string): Promise<AuthResponse> {
     return this.request<AuthResponse>({
