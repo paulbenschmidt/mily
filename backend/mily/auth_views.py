@@ -399,6 +399,56 @@ def resend_verification_email_view(request):
         })
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@throttle_classes([AuthRateThrottle])
+def change_password_view(request):
+    """Change password for authenticated user."""
+    current_password = request.data.get('current_password', '')
+    new_password = request.data.get('new_password', '')
+
+    if not current_password or not new_password:
+        return Response({
+            'error': 'Current password and new password are required'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    if len(new_password) < 8:
+        return Response({
+            'error': 'New password must be at least 8 characters long'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    user = request.user
+
+    # Verify current password
+    if not user.check_password(current_password):
+        return Response({
+            'error': 'Current password is incorrect'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    # Check if new password is same as current
+    if current_password == new_password:
+        return Response({
+            'error': 'New password must be different from current password'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        # Set new password
+        user.set_password(new_password)
+        user.save()
+
+        # Send notification email
+        send_password_change_notification(user)
+
+        return Response({
+            'message': 'Password changed successfully'
+        })
+
+    except Exception as e:
+        return Response({
+            'error': f'Failed to change password: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_csrf_token_view(request):
@@ -562,6 +612,76 @@ Consider reaching out to understand why they left.
         except Exception as e:
             # Don't fail the deactivation if notification email fails
             print(f"Failed to send account deactivation notification: {e}")
+
+
+def send_password_change_notification(user):
+    """Send notification email to user when their password is changed."""
+    subject = 'Your Mily Password Has Been Changed'
+
+    # Plain text version
+    text_message = f"""Hi {user.first_name},
+
+Your Mily account password was recently changed.
+
+If you made this change, you can safely ignore this email.
+
+If you did not make this change, please contact us immediately at paul@mily.bio to secure your account.
+
+Thanks,
+Paul from Mily
+"""
+
+    # HTML version
+    html_message = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <p>Hi {user.first_name},</p>
+
+        <p>Your Mily account password was recently changed.</p>
+
+        <p>If you made this change, you can safely ignore this email.</p>
+
+        <p><strong>If you did not make this change</strong>, please contact us immediately at <a href="mailto:paul@mily.bio">paul@mily.bio</a> to secure your account.</p>
+
+        <p>Thanks,<br>Paul from Mily</p>
+    </body>
+    </html>
+    """
+
+    api_key = os.getenv('RESEND_API_KEY')
+    if api_key and api_key != '':
+        try:
+            resend.api_key = api_key
+            email = resend.Emails.send({
+                "from": f"Mily <noreply@mily.bio>",
+                "to": [user.email],
+                "subject": subject,
+                "text": text_message,
+                "html": html_message,
+            })
+            print(f"Password change notification sent to {user.email}")
+        except Exception as e:
+            print(f"Failed to send password change notification: {e}")
+            # Don't fail the password change if email fails
+    else:
+        from django.core.mail import EmailMultiAlternatives
+
+        email = EmailMultiAlternatives(
+            subject,
+            text_message,
+            'noreply@mily.bio',
+            [user.email],
+        )
+        email.attach_alternative(html_message, "text/html")
+        try:
+            email.send(fail_silently=False)
+        except Exception as e:
+            print(f"Failed to send password change notification: {e}")
 
 
 # Custom Token Refresh View for httpOnly Cookies

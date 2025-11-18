@@ -14,6 +14,15 @@ export default function SettingsPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState('');
 
+  // Password change state
+  const [showPasswordChange, setShowPasswordChange] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+
   const handleExportEvents = async () => {
     setIsExporting(true);
     setError('');
@@ -54,6 +63,47 @@ export default function SettingsPage() {
       setError('Failed to export events. Please try again.');
     } finally {
       setIsExporting(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    setPasswordError('');
+    setPasswordSuccess(false);
+
+    // Validation
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setPasswordError('All password fields are required.');
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      setPasswordError('New password must be at least 8 characters long.');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError('New passwords do not match.');
+      return;
+    }
+
+    setIsChangingPassword(true);
+
+    try {
+      await authApiClient.changePassword(currentPassword, newPassword);
+
+      // Success - clear form and show success message
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setShowPasswordChange(false);
+      setPasswordSuccess(true);
+
+      // Hide success message after 5 seconds
+      setTimeout(() => setPasswordSuccess(false), 5000);
+    } catch (err) {
+      setPasswordError(err instanceof Error ? err.message : 'Failed to change password. Please try again.');
+    } finally {
+      setIsChangingPassword(false);
     }
   };
 
@@ -126,6 +176,106 @@ export default function SettingsPage() {
           >
             {isExporting ? 'Exporting...' : 'Export Timeline as CSV'}
           </Button>
+        </section>
+
+        {/* Password Change */}
+        <section className="bg-white rounded-lg border border-secondary-200 p-6 mb-6">
+          <SectionHeading className="mb-2">Password</SectionHeading>
+          <BodyText className="text-secondary-600 mb-4">
+            Change your account password. You&apos;ll receive an email confirmation after updating.
+          </BodyText>
+
+          {passwordSuccess && (
+            <Alert variant="success" className="mb-4">
+              Password changed successfully! A confirmation email has been sent to {user.email}.
+            </Alert>
+          )}
+
+          {!showPasswordChange ? (
+            <div className="flex items-center gap-4">
+              <BodyText className="font-medium">Password: •••••••••</BodyText>
+              <Button
+                onClick={() => setShowPasswordChange(true)}
+                variant="secondary"
+                size="sm"
+              >
+                Change Password
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="current-password" className="block mb-2">
+                  <BodyText className="font-medium">Current Password</BodyText>
+                </label>
+                <input
+                  id="current-password"
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand"
+                  placeholder="Enter current password"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="new-password" className="block mb-2">
+                  <BodyText className="font-medium">New Password</BodyText>
+                </label>
+                <input
+                  id="new-password"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand"
+                  placeholder="Enter new password (min 8 characters)"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="confirm-password" className="block mb-2">
+                  <BodyText className="font-medium">Confirm New Password</BodyText>
+                </label>
+                <input
+                  id="confirm-password"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand"
+                  placeholder="Confirm new password"
+                />
+              </div>
+
+              {passwordError && (
+                <Alert variant="error">{passwordError}</Alert>
+              )}
+
+              <div className="flex gap-3">
+                <Button
+                  onClick={handleChangePassword}
+                  disabled={isChangingPassword}
+                  variant="primary"
+                  size="md"
+                >
+                  {isChangingPassword ? 'Updating...' : 'Update Password'}
+                </Button>
+                <Button
+                  onClick={() => {
+                    setShowPasswordChange(false);
+                    setCurrentPassword('');
+                    setNewPassword('');
+                    setConfirmPassword('');
+                    setPasswordError('');
+                  }}
+                  variant="secondary"
+                  size="md"
+                  disabled={isChangingPassword}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
         </section>
 
         {/* Privacy Settings */}

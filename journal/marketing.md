@@ -1,6 +1,7 @@
 #
 Mily runs on "fame"—people want their stories to be heard.
 
+- OUTREACH: Add check box for newsletter?
 - OUTREACH: Post in Huffman Neighborhood group
 - HackerNews: Launch post
 - Life coaches
