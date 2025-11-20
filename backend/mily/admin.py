@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from .models import User, Event, Friendship
+from .models import User, Event, Share
 
 
 @admin.register(User)
@@ -52,20 +52,29 @@ class EventAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(Friendship)
-class FriendshipAdmin(admin.ModelAdmin):
-    """Admin interface for Friendship model"""
-    list_display = ('requester', 'addressee', 'status', 'created_at')
-    list_filter = ('status', 'created_at')
-    search_fields = ('requester__username', 'addressee__username')
-    readonly_fields = ('id', 'created_at', 'updated_at')
+@admin.register(Share)
+class ShareAdmin(admin.ModelAdmin):
+    """Admin interface for Share model"""
+    list_display = ('user', 'shared_with_email', 'shared_with_user', 'is_registered', 'invitation_sent_at')
+    list_filter = ('invitation_sent_at', 'created_at')
+    search_fields = ('user__email', 'user__username', 'shared_with_email', 'shared_with_user__email')
+    readonly_fields = ('id', 'invitation_sent_at', 'created_at', 'updated_at', 'is_registered')
+    raw_id_fields = ('user', 'shared_with_user')
 
     fieldsets = (
         (None, {
-            'fields': ('requester', 'addressee', 'status')
+            'fields': ('user', 'shared_with_email', 'shared_with_user')
+        }),
+        ('Status', {
+            'fields': ('is_registered', 'invitation_sent_at')
         }),
         ('Metadata', {
             'fields': ('id', 'created_at', 'updated_at'),
             'classes': ('collapse',)
         }),
     )
+
+    def is_registered(self, obj):
+        return obj.is_registered
+    is_registered.boolean = True
+    is_registered.short_description = 'Registered'

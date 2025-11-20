@@ -50,46 +50,12 @@ Individual life events on a user's timeline.
 - `minor`: Minor Life Event
 - `memory`: Memory
 
-### Friendship
-Manages friend relationships between users.
-
-**Key Fields:**
-- `id`: UUID primary key
-- `requester`: Foreign key to User (who sent the request)
-- `addressee`: Foreign key to User (who received the request)
-- `status`: Friendship status ('pending', 'accepted', 'declined', 'blocked')
-- `created_at`: Request creation timestamp
-- `updated_at`: Last status update timestamp
-
-**Status Flow:**
-1. `pending`: Friend request sent
-2. `accepted`: Friends confirmed
-3. `declined`: Request rejected
-4. `blocked`: User blocked
-
-**Key Methods:**
-- `are_friends()`: Class method to check if two users are friends
-
-**Database Constraints:**
-- Unique constraint on (requester, addressee) pairs
-- Check constraint preventing self-friendship
-
-## Relationships
-
-```
-User (1) ----< (M) Event
-User (1) ----< (M) Friendship (as requester)
-User (1) ----< (M) Friendship (as addressee)
-```
-
 ## Indexes
 
 Performance indexes are created on:
 - `Event`: user + event_date, user + privacy_level, user + category
-- `Friendship`: requester + status, addressee + status
 
 ## API Permissions
 
 - **Users**: Read-only access
 - **Events**: Public read for public events, authenticated users can CRUD their own events
-- **Friendships**: Authenticated users can manage their own friendship requests

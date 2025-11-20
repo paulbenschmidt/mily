@@ -4,6 +4,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     UserViewSet,
     EventViewSet,
+    ShareViewSet,
 )
 from .auth_views import (
     register_view,
@@ -23,6 +24,7 @@ from .throttling import TokenRefreshRateThrottle
 router = DefaultRouter()
 router.register(r"users", UserViewSet, basename="user")
 router.register(r"events", EventViewSet, basename="event")
+router.register(r"shares", ShareViewSet, basename="share")
 
 urlpatterns = [
     path("", include(router.urls)),

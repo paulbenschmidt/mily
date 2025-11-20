@@ -110,6 +110,11 @@ class AuthApiClient {
       this.handleErrorResponse(response, errorData);
     }
 
+    // Handle 204 No Content responses (e.g., DELETE requests)
+    if (response.status === 204) {
+      return undefined as T;
+    }
+
     return response.json();
   }
 
@@ -310,6 +315,47 @@ class AuthApiClient {
   async deleteEvent(eventId: string): Promise<void> {
     await this.request<void>({
       endpoint: `/events/${eventId}/`,
+      options: {
+        method: 'DELETE',
+      },
+    });
+  }
+
+  // Send timeline share invitation
+  async sendShareInvitation(email: string): Promise<{ id: string; shared_with_email: string }> {
+    return await this.request<{ id: string; shared_with_email: string }>({
+      endpoint: '/shares/',
+      options: {
+        method: 'POST',
+        body: JSON.stringify({
+          shared_with_email: email,
+        }),
+      },
+    });
+  }
+
+  // Get list of shares (people you've shared your timeline with)
+  async getShares(): Promise<Array<{
+    id: string;
+    shared_with_email: string;
+    invitation_sent_at: string;
+  }>> {
+    return await this.request<Array<{
+      id: string;
+      shared_with_email: string;
+      invitation_sent_at: string;
+    }>>({
+      endpoint: '/shares/',
+      options: {
+        method: 'GET',
+      },
+    });
+  }
+
+  // Remove a share
+  async deleteShare(shareId: string): Promise<void> {
+    await this.request<void>({
+      endpoint: `/shares/${shareId}/`,
       options: {
         method: 'DELETE',
       },

@@ -47,6 +47,7 @@ interface AddEventModalProps {
   onEventAdded: (event: TimelineEventType) => void;
   eventToEdit?: TimelineEventType;
   onEventUpdated?: (event: TimelineEventType) => void;
+  isPublic?: boolean;
 }
 
 export function AddEventModal({
@@ -54,7 +55,8 @@ export function AddEventModal({
   onClose,
   onEventAdded,
   eventToEdit,
-  onEventUpdated
+  onEventUpdated,
+  isPublic = false
 }: AddEventModalProps) {
   const isEditMode = !!eventToEdit;
   const [title, setTitle] = useState('');
@@ -341,8 +343,14 @@ export function AddEventModal({
                 <svg className="w-4 h-4 text-secondary-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-10">
-                  Controls who sees event details. Personal notes are always private.
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-64">
+                  <p className="mb-1">Controls who sees event details. Personal notes are always private.</p>
+
+                    {!isPublic && (
+                      <p className="mb-1">
+                        To make individual events public, you must first make your entire timeline public.
+                      </p>
+                    )}
                   <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
                     <div className="border-4 border-transparent border-t-gray-800"></div>
                   </div>
@@ -355,6 +363,7 @@ export function AddEventModal({
               value={privacyLevel}
               onChange={setPrivacyLevel}
               disabled={!isSelectionsLoaded}
+              disabledOptions={!isPublic ? ['public'] : []}
             />
           </div>
 

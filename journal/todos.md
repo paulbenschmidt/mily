@@ -1,4 +1,17 @@
+- [x] Create Share dropdown
+- [x] Implement `/app/friends` page
+- [ ] Implement shareable timeline URL
+- [ ] Review and simplify code
+
 ## In Progress
+- ENHANCE: Update Google description text to be less clunky (search for it on Google with "timeline mily" and you'll see it)
+- FEATURE (needs polling): Enable "Publicly Accessible" for "Share" button on event page
+    - First find out HOW and WHY people want to share their timelines with others
+    - Share dropdown should have a toggle on whether or not the timeline is publicly accessible. It should also have some sort of connection to friendships, like "Send to a friend" or "Send to a group of friends". How will this also connect to "friendships" within the app?
+    - Share individual events? Or at least link to a specific event?
+    - Verify that users cannot see the years associated with any events (for privacy reasons)
+    - Make sure that empty timelines show "No events added yet" for others
+- ESSENTIAL: Track conversion for the LinkedIn post
 
 ## To Organize
 
@@ -16,12 +29,6 @@
     - Actually, let's make it so that users can add 10 photos before getting paywalled.
     - $24/year ($2/month) or $5/month
     - Maybe you could start the cost slightly higher than lower it over time as more users sign up, that way you could make it a marketing strategy to get more users to sign up and also give people updates on user growth (in a way that doesn't feel like spam). Maybe you could make it a challenge to get to 1000 users and then lower the cost.
-- FEATURE (needs polling): Enable "Publicly Accessible" for "Share" button on event page
-    - First find out HOW and WHY people want to share their timelines with others
-    - Share dropdown should have a toggle on whether or not the timeline is publicly accessible. It should also have some sort of connection to friendships, like "Send to a friend" or "Send to a group of friends". How will this also connect to "friendships" within the app?
-    - Share individual events? Or at least link to a specific event?
-    - Verify that users cannot see the years associated with any events (for privacy reasons)
-    - Make sure that empty timelines show "No events added yet" for others
 - FEATURE (needs polling): Add tags to events and allow users to filter by them
     - Add AI-generated "tags" to events so that users can auto-filter events?
     - Should be URL-parameter for easy sharing (like `?tags=entrepreneurship`)

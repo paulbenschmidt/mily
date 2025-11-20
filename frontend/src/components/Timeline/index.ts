@@ -2,6 +2,7 @@ export { TimelineView } from './TimelineView';
 export { AddEventModal } from './AddEventModal';
 export { FilterDropdown } from './FilterDropdown';
 export type { FilterOptions } from './FilterDropdown';
+export { ShareDropdown } from './ShareDropdown';
 export { ToggleButton } from './ToggleButton';
 export { ToggleButtonGroup } from './ToggleButtonGroup';
 export { MultiToggleButtonGroup } from './MultiToggleButtonGroup';

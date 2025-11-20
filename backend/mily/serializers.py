@@ -5,9 +5,8 @@ from rest_framework import serializers
 
 from .models import (
     Event,
-    Friendship,
     EventPrivacyLevel,
-    FriendshipStatus,
+    Share,
 )
 
 User = get_user_model()
@@ -42,6 +41,7 @@ class UserPrivateSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "profile_picture",
+            "is_public",
             "created_at",
             "updated_at",
         ]
@@ -81,31 +81,22 @@ class EventSerializer(serializers.ModelSerializer):
         return value
 
 
-class FriendshipSerializer(serializers.ModelSerializer):
-    requester = serializers.PrimaryKeyRelatedField(read_only=True)
-    addressee = serializers.PrimaryKeyRelatedField(queryset=User.objects.filter(is_active=True))
+class ShareSerializer(serializers.ModelSerializer):
+    """Serializer for timeline shares. Only exposes minimal public information."""
 
     class Meta:
-        model = Friendship
+        model = Share
         fields = [
             "id",
-            "requester",
-            "addressee",
-            "status",
-            "created_at",
-            "updated_at",
+            "shared_with_email",
+            "invitation_sent_at",
         ]
-        read_only_fields = ["id", "created_at", "updated_at"]
+        read_only_fields = ["id", "invitation_sent_at"]
 
-    def validate_status(self, value: str) -> str:
-        if value not in FriendshipStatus.values:
-            raise serializers.ValidationError("Invalid friendship status.")
-        return value
-
-    def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
-        # Prevent self-friendship at serializer level too (DB constraint already handles it)
-        requester = attrs.get("requester") or getattr(self.instance, "requester", None)
-        addressee = attrs.get("addressee") or getattr(self.instance, "addressee", None)
-        if requester and addressee and requester == addressee:
-            raise serializers.ValidationError("Requester and addressee must be different users.")
-        return attrs
+    def validate_shared_with_email(self, value: str) -> str:
+        """Validate email format and prevent self-sharing."""
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            if value.lower() == request.user.email.lower():
+                raise serializers.ValidationError("You cannot share your timeline with yourself.")
+        return value.lower()
