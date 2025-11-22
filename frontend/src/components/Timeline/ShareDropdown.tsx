@@ -114,7 +114,7 @@ export function ShareDropdown({
               <p className="text-xs text-secondary-600">Currently shared with 0 friends</p>
             </div>
             <Link
-              href="/app/friends"
+              href="/app/sharing"
               className="text-xs font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1 whitespace-nowrap"
             >
               Manage
