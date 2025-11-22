@@ -1,6 +1,10 @@
 - [x] Create Share dropdown
 - [x] Implement `/app/friends` page
+    - [ ] Add additional logic to model that shows email if the user hasn't accepted it; if they have, show their name
+    - [ ] Add extra page that shows timelines shared with the current user
+    - [ ] Update counter on Shared dropdown (or maybe I shouldn't show this at all for simplicity...)
 - [ ] Implement shareable timeline URL
+    - [ ] Ensure that timeline URL is conditionally gated by `IsAuthenticated` depending on whether the timeline is public
 - [ ] Review and simplify code
 
 ## Rusty feedback
@@ -26,6 +30,7 @@ UI
 
 ## Sprint Backlog
 ### Essential
+- ESSENTIAL: Ensure that error responses returned are more generic and user-friendly (i.e. don't disclose internal error details)
 - ESSENTIAL: Have navigation bar along the bottom include: Timeline, Friends, Shop, Donate, Settings
     - This would help clear up space in the top part of the UI for things like "My Timeline" or "Friend Timeline"
 - ESSENTIAL: Create testimonials on landing page

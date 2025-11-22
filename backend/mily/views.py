@@ -211,8 +211,21 @@ class ShareViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        """Users can only see their own shares."""
+        """Users can only see their own shares (timelines they are sharing with others)."""
         return Share.objects.filter(user=self.request.user).select_related('shared_with_user')
+
+    @action(detail=False, methods=['get'], url_path='shared-with-me')
+    def shared_with_me(self, request):
+        """
+        Get timelines that have been shared with the current user.
+        Returns shares where the current user is the recipient.
+        """
+        shares = Share.objects.filter(
+            shared_with_user=request.user
+        ).select_related('user').order_by('-invitation_sent_at')
+
+        serializer = self.get_serializer(shares, many=True)
+        return Response(serializer.data)
 
     def perform_create(self, serializer):
         """Create share and send invitation email."""

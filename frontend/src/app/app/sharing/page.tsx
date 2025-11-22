@@ -31,18 +31,15 @@ export default function SharingPage() {
       setIsLoading(true);
       setError(null);
       const data = await authApiClient.getShares();
-      // Handle paginated response - extract results array
       if (data && typeof data === 'object' && 'results' in data) {
         setShares(Array.isArray(data.results) ? data.results : []);
-      } else if (Array.isArray(data)) {
-        setShares(data);
       } else {
         setShares([]);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load shares');
+      setError('Failed to load shares');
       console.error('Error fetching shares:', err);
-      setShares([]); // Set to empty array on error
+      setShares([]);
     } finally {
       setIsLoading(false);
     }
@@ -82,7 +79,7 @@ export default function SharingPage() {
       setShares(shares.filter(s => s.id !== shareToRemove.id));
       setShareToRemove(null);
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to remove share');
+      alert('Failed to remove share');
       console.error('Error removing share:', err);
     } finally {
       setIsRemoving(false);
