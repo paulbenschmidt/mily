@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button, Input, PageHeading, SmallText } from '@/components/ui';
-import { AddFriendModal, RemoveShareModal } from '@/components/Friends';
+import { ShareTimelineModal, RemoveShareModal } from '@/components/Shares';
 import { authApiClient } from '@/utils/auth-api';
 
 interface Share {
@@ -11,10 +11,10 @@ interface Share {
   invitation_sent_at: string;
 }
 
-export default function FriendsPage() {
+export default function SharingPage() {
   const [shares, setShares] = useState<Share[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isAddFriendModalOpen, setIsAddFriendModalOpen] = useState(false);
+  const [isShareTimelineModalOpen, setIsShareTimelineModalOpen] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,8 +48,8 @@ export default function FriendsPage() {
     }
   };
 
-  const handleAddFriend = () => {
-    setIsAddFriendModalOpen(true);
+  const handleShareTimeline = () => {
+    setIsShareTimelineModalOpen(true);
   };
 
   const handleInviteSent = () => {
@@ -113,9 +113,9 @@ export default function FriendsPage() {
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <PageHeading className="mb-2">Shared With / Friends</PageHeading>
+          <PageHeading className="mb-2">Shared With</PageHeading>
 
-          {/* Search and Add Friend - only show if there are shares */}
+          {/* Search and Share Timeline - only show if there are shares */}
           {shares.length > 0 && (
             <div className="flex gap-3 mt-4">
               <div className="flex-1">
@@ -126,11 +126,11 @@ export default function FriendsPage() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <Button onClick={handleAddFriend}>
+              <Button onClick={handleShareTimeline}>
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
-                Share My Timeline
+                Share Timeline
               </Button>
             </div>
           )}
@@ -205,21 +205,21 @@ export default function FriendsPage() {
               <p className="text-secondary-600 mb-6">
                 Share your timeline with friends and family
               </p>
-              <Button onClick={handleAddFriend}>
+              <Button onClick={handleShareTimeline}>
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
-                Share My Timeline
+                Share Timeline
               </Button>
             </div>
           </div>
         )}
       </div>
 
-      {/* Add Friend Modal */}
-      <AddFriendModal
-        isOpen={isAddFriendModalOpen}
-        onClose={() => setIsAddFriendModalOpen(false)}
+      {/* Share Timeline Modal */}
+      <ShareTimelineModal
+        isOpen={isShareTimelineModalOpen}
+        onClose={() => setIsShareTimelineModalOpen(false)}
         onInviteSent={handleInviteSent}
       />
 

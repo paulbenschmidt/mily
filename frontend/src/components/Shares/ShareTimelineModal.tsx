@@ -5,13 +5,13 @@ import { Button, Input, Subheading } from '@/components/ui';
 import { useDisableBodyScroll } from '@/hooks/disableBodyScroll';
 import { authApiClient } from '@/utils/auth-api';
 
-interface AddFriendModalProps {
+interface ShareTimelineModalProps {
   isOpen: boolean;
   onClose: () => void;
   onInviteSent: () => void;
 }
 
-export function AddFriendModal({ isOpen, onClose, onInviteSent }: AddFriendModalProps) {
+export function ShareTimelineModal({ isOpen, onClose, onInviteSent }: ShareTimelineModalProps) {
   const [email, setEmail] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +41,7 @@ export function AddFriendModal({ isOpen, onClose, onInviteSent }: AddFriendModal
       onInviteSent();
       handleClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send invitation');
+      setError('Failed to share timeline. Please check the email address and try again.');
     } finally {
       setIsSending(false);
     }
@@ -61,7 +61,7 @@ export function AddFriendModal({ isOpen, onClose, onInviteSent }: AddFriendModal
         <form onSubmit={handleSubmit}>
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-secondary-200">
-            <Subheading>Add Friend</Subheading>
+            <Subheading>Share Timeline</Subheading>
             <button
               type="button"
               onClick={handleClose}
@@ -117,7 +117,7 @@ export function AddFriendModal({ isOpen, onClose, onInviteSent }: AddFriendModal
               type="submit"
               disabled={isSending || !email.trim()}
             >
-              {isSending ? 'Sending...' : 'Send Invitation'}
+              {isSending ? 'Sending...' : 'Send'}
             </Button>
           </div>
         </form>

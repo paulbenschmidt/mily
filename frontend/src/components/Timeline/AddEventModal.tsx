@@ -11,7 +11,7 @@ import { useModalKeyboardShortcuts } from '@/hooks/useModalKeyboardShortcuts';
 import { useDisableBodyScroll } from '@/hooks/disableBodyScroll';
 
 const DEFAULT_CATEGORY: EventCategory = 'memory';
-const DEFAULT_PRIVACY_LEVEL: EventPrivacyLevel = 'friends';
+const DEFAULT_PRIVACY_LEVEL: EventPrivacyLevel = 'private';
 
 const TITLE_PLACEHOLDERS = [
   'Started first job',
