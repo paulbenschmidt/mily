@@ -166,7 +166,7 @@ export function TimelineView({
   return (
     <>
       {/* Timeline Header */}
-      <div className="sticky bg-white border-b border-secondary-200/50 px-6 py-4" style={{ top: '69px', zIndex: 40 }}>
+      <div className="sticky bg-white border-b border-secondary-200/50 px-6 py-4" style={{ top: '68px', zIndex: 40 }}>
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div>
             <SmallText className="font-semibold">{displayTitle}</SmallText>

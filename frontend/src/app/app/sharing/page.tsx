@@ -66,12 +66,24 @@ export default function SharingPage() {
   const [shareToRemove, setShareToRemove] = useState<Share | null>(null);
   const [isRemoving, setIsRemoving] = useState(false);
   const [processingShareId, setProcessingShareId] = useState<string | null>(null);
+  const [isPublic, setIsPublic] = useState(false);
+  const [isUpdatingPublic, setIsUpdatingPublic] = useState(false);
 
-  // Fetch shares on mount
+  // Fetch shares and public status on mount
   useEffect(() => {
     fetchSharedByYou();
     fetchSharedWithMe();
+    fetchPublicStatus();
   }, []);
+
+  const fetchPublicStatus = async () => {
+    try {
+      const user = await authApiClient.getCurrentUser();
+      setIsPublic(user.is_public || false);
+    } catch (err) {
+      console.error('Failed to fetch public status');
+    }
+  };
 
   const fetchSharedByYou = async () => {
     try {
@@ -182,6 +194,21 @@ export default function SharingPage() {
     }
   };
 
+  const handleTogglePublic = async (newIsPublic: boolean) => {
+    try {
+      setIsUpdatingPublic(true);
+      await authApiClient.updateUser({ is_public: newIsPublic });
+      setIsPublic(newIsPublic);
+    } catch (err) {
+      console.error('Failed to update public status:', err);
+      alert('Failed to update timeline visibility');
+      // Revert on error
+      setIsPublic(!newIsPublic);
+    } finally {
+      setIsUpdatingPublic(false);
+    }
+  };
+
   const filteredSharedByYou = sharedByYou.filter(share => {
     const email = share.shared_with_email.toLowerCase();
     const query = searchQuery.toLowerCase();
@@ -235,6 +262,33 @@ export default function SharingPage() {
         {/* Header */}
         <div className="mb-8">
           <PageHeading className="mb-2">Timeline Sharing</PageHeading>
+
+          {/* Public Toggle */}
+          <div className="bg-white rounded-lg border border-secondary-200 p-4 mt-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-secondary-900 text-sm">Make Timeline Public</p>
+                <p className="text-xs text-secondary-600 mt-0.5">
+                  {isPublic ? 'Anyone can view' : 'Only invited friends can view'}
+                </p>
+              </div>
+              <button
+                onClick={() => handleTogglePublic(!isPublic)}
+                disabled={isUpdatingPublic}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
+                  isPublic ? 'bg-primary-600' : 'bg-secondary-300'
+                } ${isUpdatingPublic ? 'opacity-50 cursor-not-allowed' : ''}`}
+                role="switch"
+                aria-checked={isPublic}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    isPublic ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
 
           {/* Tabs */}
           <div className="flex gap-2 mt-6 mb-4 border-b border-secondary-200">

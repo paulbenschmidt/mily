@@ -13,6 +13,7 @@ interface ShareDropdownProps {
   userHandle?: string;
 }
 
+
 export function ShareDropdown({
   isOpen,
   onClose,
@@ -24,6 +25,9 @@ export function ShareDropdown({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [localIsPublic, setLocalIsPublic] = useState(isPublic);
   const [copied, setCopied] = useState(false);
+
+  // Build share link
+  const shareLink = `${process.env.NEXT_PUBLIC_FRONTEND_URL}/timeline/${userHandle}`;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -54,7 +58,7 @@ export function ShareDropdown({
 
   const handleCopyLink = async () => {
     if (!userHandle) return;
-    const link = `https://mily.bio/timeline/${userHandle}`;
+    const link = shareLink;
     try {
       await navigator.clipboard.writeText(link);
       setCopied(true);
@@ -84,7 +88,7 @@ export function ShareDropdown({
                 <input
                 type="text"
                 readOnly
-                value={`https://mily.bio/timeline/${userHandle}`}
+                value={shareLink}
                 className="flex-1 px-3 py-2 text-xs border border-secondary-300 rounded-md bg-secondary-50 text-secondary-900 focus:outline-none focus:ring-1 focus:ring-primary-500"
                 onClick={(e) => e.currentTarget.select()}
                 />

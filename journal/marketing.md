@@ -29,6 +29,8 @@ By focusing on the user experience and doing things that didn't scale, they buil
 - Post to Starter Story
 - Send MVP to everyone on Asana list (resend to Heather once I have a public timeline)
 - Create spreadsheet to track outreach
+- Find a way to introduce it to therapists
+- Reach out to influencers and YouTubers
 
 ### 90-Day Roadmap
 - Months 1-2:

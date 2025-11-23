@@ -133,6 +133,12 @@ class AuthApiClient {
         return true;
       }
 
+      if (typeof window !== 'undefined' && window.location.pathname.startsWith('/timeline')) {
+        // Timeline routes should not trigger auth checks or redirects
+        // Without this, unauthenticated users would be redirected to login
+        return true;
+      }
+
       // Refresh failed - redirect to login (unless already there)
       if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
         window.location.href = '/login';

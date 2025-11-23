@@ -8,6 +8,11 @@ import { TimelineView } from '@/components/Timeline';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTimelineFilters } from '@/hooks/useTimelineFilters';
 
+// This route is technically public, but access rules are gated by the backend API as follows:
+// 1. If viewer IS authenticated and has accepted share: Return PUBLIC + FRIENDS events
+// 2. If user.is_public = True: Return all PUBLIC events (no auth required)
+// 3. Otherwise: Return 404
+
 export default function ViewTimeline() {
   const params = useParams();
   const { isMobile } = useAuth();

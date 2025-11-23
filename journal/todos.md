@@ -1,14 +1,6 @@
 - [x] Create Share dropdown
 - [x] Implement `/app/friends` page
-    - [ ] Add additional logic to model that shows email if the user hasn't accepted it; if they have, show their name
-    - [ ] Add extra page that shows timelines shared with the current user
-    - [ ] Update counter on Shared dropdown (or maybe I shouldn't show this at all for simplicity...)
-    - [ ] Make it so that user field is populated once the user signs up
-    - [ ] Make sure user deletes also delete any shares
-    - [ ] Add Sharing to hamburger menu
-    - [ ] Is there a way to reuse the layout for the /timeline page and for the /app page
-- [ ] Implement shareable timeline URL
-    - [ ] Ensure that timeline URL is conditionally gated by `IsAuthenticated` depending on whether the timeline is public
+- [x] Implement shareable timeline URL
 - [ ] Review and simplify code
 
 ## Rusty feedback
@@ -83,6 +75,8 @@ UI
 
 ### Tech Debt
 - TECHDEBT: Set up cron job to delete users after 30 days of `deactivated_at` and `is_active=False`
+- TECHDEBT: Go through SemRush emails
+- TECHDEBT: Go through CloudFlare email
 
 ## Backlog
 - ENHANCE: Poll users on the color once you have ~100 users
