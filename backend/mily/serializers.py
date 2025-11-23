@@ -19,13 +19,13 @@ class UserPublicSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             "id",
-            "username",
+            "email",
             "handle",
             "first_name",
             "last_name",
             "profile_picture",
         ]
-        read_only_fields = ["id", "username"]
+        read_only_fields = ["id", "email"]
 
 
 class UserPrivateSerializer(serializers.ModelSerializer):
@@ -82,16 +82,22 @@ class EventSerializer(serializers.ModelSerializer):
 
 
 class ShareSerializer(serializers.ModelSerializer):
-    """Serializer for timeline shares. Only exposes minimal public information."""
+    """Serializer for timeline shares with full user information."""
+    user = UserPublicSerializer(read_only=True)
+    shared_with_user = UserPublicSerializer(read_only=True)
 
     class Meta:
         model = Share
         fields = [
             "id",
+            "user",
             "shared_with_email",
+            "shared_with_user",
+            "is_accepted",
+            "accepted_at",
             "invitation_sent_at",
         ]
-        read_only_fields = ["id", "invitation_sent_at"]
+        read_only_fields = ["id", "user", "shared_with_user", "accepted_at", "invitation_sent_at"]
 
     def validate_shared_with_email(self, value: str) -> str:
         """Validate email format and prevent self-sharing."""

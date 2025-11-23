@@ -91,8 +91,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async () => {
     try {
       await authApiClient.logout(); // Logout will clear tokens on backend
-    } catch (error) {
-      console.error('AuthContext: Logout error:', error);
+    // } catch (error) {
+    //   // Optional: add error handling
     } finally {
       setUser(null);
       router.push('/login');
@@ -105,7 +105,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Always initialize CSRF token
       await authApiClient.initializeCsrf();
 
-      if (typeof window !== 'undefined' && window.location.pathname.startsWith('/app')) {
+      // Check auth for protected routes and timeline routes (which may show different content based on auth)
+      if (typeof window !== 'undefined' && (window.location.pathname.startsWith('/app') || window.location.pathname.startsWith('/timeline'))) {
         await checkAuth();
       } else {
         setLoading(false);

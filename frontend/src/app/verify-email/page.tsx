@@ -42,9 +42,8 @@ function VerifyEmailContent() {
           router.push('/app');
         }, 2000);
       } catch (err) {
-        console.error('Verification error:', err);
         setStatus('error');
-        setError(err instanceof Error ? err.message : 'Verification failed');
+        setError('Verification failed');
       }
     };
 

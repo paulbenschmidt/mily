@@ -17,13 +17,15 @@ interface FilterDropdownProps {
   onClose: () => void;
   onApplyFilters: (filters: FilterOptions) => void;
   currentFilters: FilterOptions;
+  mode?: 'owner' | 'viewer';
 }
 
 export function FilterDropdown({
   isOpen,
   onClose,
   onApplyFilters,
-  currentFilters
+  currentFilters,
+  mode = 'owner'
 }: FilterDropdownProps) {
   const [filters, setFilters] = useState<FilterOptions>(currentFilters);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -106,13 +108,15 @@ export function FilterDropdown({
           onChange={(categories) => setFilters({ ...filters, categories })}
         />
 
-        {/* Privacy Level Filter */}
-        <MultiToggleButtonGroup
-          label="Privacy Levels"
-          options={EVENT_PRIVACY_LEVELS}
-          values={filters.privacyLevels}
-          onChange={(privacyLevels) => setFilters({ ...filters, privacyLevels })}
-        />
+        {/* Privacy Level Filter - Only show for owner mode */}
+        {mode === 'owner' && (
+          <MultiToggleButtonGroup
+            label="Privacy Levels"
+            options={EVENT_PRIVACY_LEVELS}
+            values={filters.privacyLevels}
+            onChange={(privacyLevels) => setFilters({ ...filters, privacyLevels })}
+          />
+        )}
 
         {/* Action Buttons */}
         <div className="flex justify-end gap-2 mt-6">

@@ -3,6 +3,10 @@
     - [ ] Add additional logic to model that shows email if the user hasn't accepted it; if they have, show their name
     - [ ] Add extra page that shows timelines shared with the current user
     - [ ] Update counter on Shared dropdown (or maybe I shouldn't show this at all for simplicity...)
+    - [ ] Make it so that user field is populated once the user signs up
+    - [ ] Make sure user deletes also delete any shares
+    - [ ] Add Sharing to hamburger menu
+    - [ ] Is there a way to reuse the layout for the /timeline page and for the /app page
 - [ ] Implement shareable timeline URL
     - [ ] Ensure that timeline URL is conditionally gated by `IsAuthenticated` depending on whether the timeline is public
 - [ ] Review and simplify code
@@ -14,6 +18,9 @@ UI
 - horizontal (will be helpful for photos)
 - Change it so that separators only are mentioned if events are a year apart (remove the year separators)
 - Add periods to give visual indicator of years passed?
+- FEATURE: Allow users to create multiple timelines
+    - Rusty mentioned that it could be nice for parents who want to maintain separate timelines for children
+    - Reviews suggest that users who are authors also would like this feature when creating timelines for fictional characters
 
 ## In Progress
 - ENHANCE: Update Google description text to be less clunky (search for it on Google with "timeline mily" and you'll see it)

@@ -55,10 +55,10 @@ class EventAdmin(admin.ModelAdmin):
 @admin.register(Share)
 class ShareAdmin(admin.ModelAdmin):
     """Admin interface for Share model"""
-    list_display = ('user', 'shared_with_email', 'shared_with_user', 'is_registered', 'invitation_sent_at')
-    list_filter = ('invitation_sent_at', 'created_at')
+    list_display = ('user', 'shared_with_email', 'shared_with_user', 'is_accepted', 'accepted_at', 'is_registered', 'invitation_sent_at')
+    list_filter = ('is_accepted', 'invitation_sent_at', 'accepted_at', 'created_at')
     search_fields = ('user__email', 'user__username', 'shared_with_email', 'shared_with_user__email')
-    readonly_fields = ('id', 'invitation_sent_at', 'created_at', 'updated_at', 'is_registered')
+    readonly_fields = ('id', 'invitation_sent_at', 'accepted_at', 'created_at', 'updated_at', 'is_registered')
     raw_id_fields = ('user', 'shared_with_user')
 
     fieldsets = (
@@ -66,7 +66,7 @@ class ShareAdmin(admin.ModelAdmin):
             'fields': ('user', 'shared_with_email', 'shared_with_user')
         }),
         ('Status', {
-            'fields': ('is_registered', 'invitation_sent_at')
+            'fields': ('is_accepted', 'accepted_at', 'is_registered', 'invitation_sent_at')
         }),
         ('Metadata', {
             'fields': ('id', 'created_at', 'updated_at'),

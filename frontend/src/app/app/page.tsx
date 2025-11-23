@@ -35,7 +35,7 @@ export default function Timeline() {
       setIsPublic(user.is_public);
       setUserHandle(user.handle);
     } catch (err) {
-      console.error('Failed to fetch user profile:', err);
+      alert('Failed to fetch user profile');
     }
   };
 
@@ -148,8 +148,7 @@ export default function Timeline() {
       const updatedUser = await authApiClient.updateUser({ is_public: newIsPublic });
       setIsPublic(updatedUser.is_public);
     } catch (err) {
-      console.error('Failed to update timeline visibility:', err);
-      alert(err instanceof Error ? err.message : 'Failed to update timeline visibility');
+      alert('Failed to update timeline visibility');
       // Revert the local state on error
       setIsPublic(!newIsPublic);
     } finally {

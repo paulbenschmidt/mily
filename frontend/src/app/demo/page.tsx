@@ -22,8 +22,6 @@ export default function DemoPage() {
   useEffect(() => {
     // Check if user has seen the welcome modal this session
     const hasSeenThisSession = sessionStorage.getItem('mily_hasSeenWelcomeModal');
-    console.log('Session storage value:', hasSeenThisSession);
-    console.log('Will show modal:', !hasSeenThisSession);
     if (!hasSeenThisSession) {
       setShowWelcomeModal(true);
     }

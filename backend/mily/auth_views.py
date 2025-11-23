@@ -18,6 +18,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
+from .models import Share
 from .serializers import UserPrivateSerializer
 from .throttling import AuthRateThrottle
 
@@ -111,6 +112,14 @@ def register_view(request):
 
         # Send notification to paul@mily.bio about new signup
         send_new_user_notification(user)
+
+        # Update any pending shares with this email to link to the new user
+        # Note: We only link the user, we don't auto-accept. User must explicitly accept.
+        pending_shares = Share.objects.filter(
+            shared_with_email=email,
+            shared_with_user__isnull=True
+        )
+        pending_shares.update(shared_with_user=user)
 
         return Response({
             'message': 'Account created. Please check your email to verify your account.',

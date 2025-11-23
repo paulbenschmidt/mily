@@ -7,7 +7,6 @@
 
 export interface UserType {
   id: string;
-  username: string;
   handle: string;
   email: string;
   first_name: string;

@@ -31,7 +31,7 @@ class AuthApiClient {
         credentials: 'include',
       });
     } catch (error) {
-      console.error('Failed to initialize CSRF token:', error);
+      console.error('Failed to initialize CSRF token:');
     }
   }
 
@@ -139,7 +139,7 @@ class AuthApiClient {
       }
       return false;
     } catch (error) {
-      console.error('Token refresh failed:', error);
+      console.error('Token refresh failed');
       if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
         window.location.href = '/login';
       }
@@ -190,7 +190,7 @@ class AuthApiClient {
         },
       });
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error('Logout failed');
     }
     return { message: 'Logout successful' };
   }
@@ -335,17 +335,107 @@ class AuthApiClient {
   }
 
   // Get list of shares (people you've shared your timeline with)
-  async getShares(): Promise<Array<{
+  async getSharedByYou(): Promise<Array<{
     id: string;
+    user: {
+      id: string;
+      email: string;
+      first_name: string;
+      last_name: string;
+      handle: string;
+      profile_picture: string;
+    };
     shared_with_email: string;
+    shared_with_user: {
+      id: string;
+      email: string;
+      first_name: string;
+      last_name: string;
+      handle: string;
+      profile_picture: string;
+    } | null;
+    is_accepted: boolean;
+    accepted_at: string | null;
     invitation_sent_at: string;
   }>> {
     return await this.request<Array<{
       id: string;
+      user: {
+        id: string;
+        email: string;
+        first_name: string;
+        last_name: string;
+        handle: string;
+        profile_picture: string;
+      };
       shared_with_email: string;
+      shared_with_user: {
+        id: string;
+        email: string;
+        first_name: string;
+        last_name: string;
+        handle: string;
+        profile_picture: string;
+      } | null;
+      is_accepted: boolean;
+      accepted_at: string | null;
       invitation_sent_at: string;
     }>>({
       endpoint: '/shares/',
+      options: {
+        method: 'GET',
+      },
+    });
+  }
+
+  // Get list of timelines shared with the current user
+  async getSharedWithMe(): Promise<Array<{
+    id: string;
+    user: {
+      id: string;
+      email: string;
+      first_name: string;
+      last_name: string;
+      handle: string;
+      profile_picture: string;
+    };
+    shared_with_email: string;
+    shared_with_user: {
+      id: string;
+      email: string;
+      first_name: string;
+      last_name: string;
+      handle: string;
+      profile_picture: string;
+    } | null;
+    is_accepted: boolean;
+    accepted_at: string | null;
+    invitation_sent_at: string;
+  }>> {
+    return await this.request<Array<{
+      id: string;
+      user: {
+        id: string;
+        email: string;
+        first_name: string;
+        last_name: string;
+        handle: string;
+        profile_picture: string;
+      };
+      shared_with_email: string;
+      shared_with_user: {
+        id: string;
+        email: string;
+        first_name: string;
+        last_name: string;
+        handle: string;
+        profile_picture: string;
+      } | null;
+      is_accepted: boolean;
+      accepted_at: string | null;
+      invitation_sent_at: string;
+    }>>({
+      endpoint: '/shares/shared-with-me/',
       options: {
         method: 'GET',
       },
@@ -359,6 +449,81 @@ class AuthApiClient {
       options: {
         method: 'DELETE',
       },
+    });
+  }
+
+  // Accept a share invitation
+  async acceptShareInvitation(shareId: string): Promise<void> {
+    await this.request<void>({
+      endpoint: `/shares/${shareId}/accept/`,
+      options: {
+        method: 'PATCH',
+      },
+    });
+  }
+
+  // Reject a share invitation
+  async rejectShareInvitation(shareId: string): Promise<void> {
+    await this.request<void>({
+      endpoint: `/shares/${shareId}/reject/`,
+      options: {
+        method: 'DELETE',
+      },
+    });
+  }
+
+  // Get another user's timeline by handle
+  async getTimelineByHandle(handle: string): Promise<{
+    events: Array<{
+      id: string;
+      user: string;
+      title: string;
+      description: string;
+      notes?: string;
+      event_date: string;
+      is_day_approximate: boolean;
+      category: 'major' | 'minor' | 'memory';
+      privacy_level: 'public' | 'friends' | 'private';
+      photos?: string[];
+      tags?: string[];
+      created_at: string;
+      updated_at: string;
+    }>;
+    user: {
+      first_name: string;
+      last_name: string;
+      handle: string;
+      profile_picture: string;
+    };
+  }> {
+    return await this.request<{
+      events: Array<{
+        id: string;
+        user: string;
+        title: string;
+        description: string;
+        notes?: string;
+        event_date: string;
+        is_day_approximate: boolean;
+        category: 'major' | 'minor' | 'memory';
+        privacy_level: 'public' | 'friends' | 'private';
+        photos?: string[];
+        tags?: string[];
+        created_at: string;
+        updated_at: string;
+      }>;
+      user: {
+        first_name: string;
+        last_name: string;
+        handle: string;
+        profile_picture: string;
+      };
+    }>({
+      endpoint: `/timelines/${handle}`,
+      options: {
+        method: 'GET',
+      },
+      skipAuth: true, // Public endpoint, auth is optional but will be sent if available
     });
   }
 }

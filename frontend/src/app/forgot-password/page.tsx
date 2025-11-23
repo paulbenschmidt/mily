@@ -13,15 +13,15 @@ export default function ForgotPasswordPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       setLoading(true);
       setError(null);
-      
+
       await authApiClient.requestPasswordReset(email);
       setSuccess(true);
     } catch (err) {
-      console.error('Password reset request failed:', err);
+      alert('Password reset request failed');
       setError(err instanceof Error ? err.message : 'Failed to send reset email');
     } finally {
       setLoading(false);
@@ -64,7 +64,7 @@ export default function ForgotPasswordPage() {
             Enter your email address and we&apos;ll send you a link to reset your password
           </SmallText>
         </div>
-        
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <Input
             id="email"
@@ -92,7 +92,7 @@ export default function ForgotPasswordPage() {
               {loading ? 'Sending...' : 'Send Reset Link'}
             </Button>
           </div>
-          
+
           <div className="text-center">
             <Link href="/login" variant="secondary">
               Back to Sign In

@@ -60,7 +60,7 @@ export function ShareDropdown({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy link:', err);
+      alert('Failed to copy link');
     }
   };
 
@@ -111,7 +111,6 @@ export function ShareDropdown({
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <p className="font-medium text-secondary-900 text-sm mb-1">Share with Friends</p>
-              <p className="text-xs text-secondary-600">Currently shared with 0 friends</p>
             </div>
             <Link
               href="/app/sharing"
@@ -130,7 +129,7 @@ export function ShareDropdown({
           <div>
             <p className="font-medium text-secondary-900 text-sm">Make Timeline Public</p>
             <p className="text-xs text-secondary-600 mt-0.5">
-              {localIsPublic ? 'Anyone can view' : 'Only friends can view'}
+              {localIsPublic ? 'Anyone can view' : 'Only invited friends can view'}
             </p>
           </div>
           <button

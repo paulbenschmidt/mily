@@ -121,6 +121,8 @@ class Share(models.Model):
         related_name='shared_timelines',
         help_text="Populated when the recipient creates an account"
     )
+    is_accepted = models.BooleanField(default=False, help_text="Whether the recipient has accepted the invitation")
+    accepted_at = models.DateTimeField(null=True, blank=True, help_text="When the recipient accepted the invitation")
     invitation_sent_at = models.DateTimeField(auto_now_add=True, help_text="When the invitation email was sent")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

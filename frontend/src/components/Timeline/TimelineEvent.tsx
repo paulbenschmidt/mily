@@ -11,9 +11,10 @@ interface TimelineEventProps {
   onDeleteEvent?: (event: TimelineEventType) => void;
   previousEvent?: TimelineEventType;
   nextEvent?: TimelineEventType;
+  mode?: 'owner' | 'viewer';
 }
 
-export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent, nextEvent }: TimelineEventProps) {
+export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent, nextEvent, mode = 'owner' }: TimelineEventProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const getPrivacyIcon = (privacyLevel: string) => {
@@ -251,7 +252,7 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
                   <BodyText className="font-semibold flex-1">{event.title}</BodyText>
-                  {getPrivacyIcon(event.privacy_level)}
+                  {mode === 'owner' && getPrivacyIcon(event.privacy_level)}
                 </div>
 
                 {/* Description preview when collapsed */}

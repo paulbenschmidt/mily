@@ -47,7 +47,6 @@ export function TimelineView({
   onEventsAdded,
   onEditEvent,
   onFilter,
-  onShare,
   onClearFilters,
   hasActiveFilters,
   currentFilters,
@@ -167,7 +166,7 @@ export function TimelineView({
   return (
     <>
       {/* Timeline Header */}
-      <div className="sticky z-10 bg-white/80 backdrop-blur-md border-b border-secondary-200/50 px-6 py-4" style={{ top: 'var(--app-header-height, 69px)' }}>
+      <div className="sticky bg-white border-b border-secondary-200/50 px-6 py-4" style={{ top: '69px', zIndex: 40 }}>
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div>
             <SmallText className="font-semibold">{displayTitle}</SmallText>
@@ -195,6 +194,7 @@ export function TimelineView({
                       onClose={() => setIsFilterOpen(false)}
                       onApplyFilters={onFilter}
                       currentFilters={currentFilters}
+                      mode={mode}
                     />
                   )}
                 </div>
@@ -301,6 +301,7 @@ export function TimelineView({
                   onDeleteEvent={mode === 'owner' ? onDeleteEvent : undefined}
                   previousEvent={filteredEvents[index - 1]}
                   nextEvent={filteredEvents[index + 1]}
+                  mode={mode}
                 />
               </div>
             ))
