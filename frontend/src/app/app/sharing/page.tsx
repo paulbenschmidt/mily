@@ -500,7 +500,7 @@ export default function SharingPage() {
                 <>
                   <h3 className="text-lg font-semibold text-secondary-900 mb-2">No timelines yet</h3>
                   <p className="text-secondary-600">
-                    When friends share their timelines with you, they'll appear here
+                    When friends share their timelines with you, they&apos;ll appear here
                   </p>
                 </>
               )}

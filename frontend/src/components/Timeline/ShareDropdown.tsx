@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Subheading, SmallText } from '@/components/ui';
+import { Subheading } from '@/components/ui';
 
 interface ShareDropdownProps {
   isOpen: boolean;
@@ -158,7 +158,7 @@ export function ShareDropdown({
             {/* Note */}
             <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
               <p className="text-xs text-blue-800">
-                <strong>Note:</strong> Individual event privacy settings still apply. Only events marked as "Public" will be visible to others.
+                <strong>Note:</strong> Individual event privacy settings still apply. Only events marked as &quot;Public&quot; will be visible to others.
               </p>
             </div>
           </>
