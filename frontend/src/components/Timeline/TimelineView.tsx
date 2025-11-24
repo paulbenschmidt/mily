@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useEffect, useState } from 'react';
+import Link from 'next/link';
 import { TimelineEventType } from '@/types/api';
 import { TimelineEvent } from './TimelineEvent';
 import { FilterDropdown, FilterOptions } from './FilterDropdown';
@@ -8,6 +9,7 @@ import { ShareDropdown } from './ShareDropdown';
 import { GuidedOnboarding } from './GuidedOnboarding';
 import { BulkEventModal } from './BulkEventModal';
 import { SmallText, BodyText, Button, Spinner } from '@/components/ui';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface TimelineViewProps {
   mode: 'owner' | 'viewer';
@@ -58,6 +60,7 @@ export function TimelineView({
   isUpdatingPublic,
   userHandle,
 }: TimelineViewProps) {
+  const { user } = useAuth();
   const timelineRef = useRef<HTMLDivElement>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isShareDropdownOpen, setIsShareDropdownOpen] = useState(false);
@@ -157,8 +160,15 @@ export function TimelineView({
 
   if (error) {
     return (
-      <div className="flex justify-center items-center min-h-[calc(100vh-120px)]">
+      <div className="flex flex-col justify-center items-center min-h-[calc(100vh-120px)] gap-10">
         <BodyText className="text-danger-600">{error}</BodyText>
+        {!user && (
+          <Link href="/signup">
+            <Button variant="primary">
+              Create Your Timeline
+            </Button>
+          </Link>
+        )}
       </div>
     );
   }
