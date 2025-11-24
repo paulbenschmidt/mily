@@ -6,7 +6,7 @@ export async function middleware(request: NextRequest) {
 
   // Check if user is authenticated by looking for JWT access token in cookies
   const accessToken = request.cookies.get('access_token');
-  // Actual token validation happens in ProtectedRoute component
+  // Actual token validation happens in AppLayout component
   const isAuthenticated = !!accessToken?.value;
 
   // Redirect authenticated users away from auth pages

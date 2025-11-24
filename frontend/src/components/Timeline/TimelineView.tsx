@@ -1,12 +1,15 @@
 'use client';
 
 import { useRef, useEffect, useState } from 'react';
+import Link from 'next/link';
 import { TimelineEventType } from '@/types/api';
 import { TimelineEvent } from './TimelineEvent';
 import { FilterDropdown, FilterOptions } from './FilterDropdown';
+import { ShareDropdown } from './ShareDropdown';
 import { GuidedOnboarding } from './GuidedOnboarding';
 import { BulkEventModal } from './BulkEventModal';
 import { SmallText, BodyText, Button, Spinner } from '@/components/ui';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface TimelineViewProps {
   mode: 'owner' | 'viewer';
@@ -29,6 +32,10 @@ interface TimelineViewProps {
     profilePicture?: string;
   };
   isMobile: boolean;
+  isPublic?: boolean;
+  onTogglePublic?: (isPublic: boolean) => void;
+  isUpdatingPublic?: boolean;
+  userHandle?: string;
 }
 
 export function TimelineView({
@@ -42,16 +49,21 @@ export function TimelineView({
   onEventsAdded,
   onEditEvent,
   onFilter,
-  onShare,
   onClearFilters,
   hasActiveFilters,
   currentFilters,
   title,
   ownerInfo,
   isMobile,
+  isPublic,
+  onTogglePublic,
+  isUpdatingPublic,
+  userHandle,
 }: TimelineViewProps) {
+  const { user } = useAuth();
   const timelineRef = useRef<HTMLDivElement>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isShareDropdownOpen, setIsShareDropdownOpen] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
   const [selectedMilestones, setSelectedMilestones] = useState<string[]>([]);
@@ -148,8 +160,15 @@ export function TimelineView({
 
   if (error) {
     return (
-      <div className="flex justify-center items-center min-h-[calc(100vh-120px)]">
-        <BodyText className="text-danger-600">Error: {error}</BodyText>
+      <div className="flex flex-col justify-center items-center min-h-[calc(100vh-120px)] gap-10">
+        <BodyText className="text-danger-600">{error}</BodyText>
+        {!user && (
+          <Link href="/signup">
+            <Button variant="primary">
+              Create Your Timeline
+            </Button>
+          </Link>
+        )}
       </div>
     );
   }
@@ -157,7 +176,7 @@ export function TimelineView({
   return (
     <>
       {/* Timeline Header */}
-      <div className="sticky z-10 bg-white/80 backdrop-blur-md border-b border-secondary-200/50 px-6 py-4" style={{ top: 'var(--app-header-height, 69px)' }}>
+      <div className="sticky bg-white border-b border-secondary-200/50 px-6 py-4" style={{ top: '68px', zIndex: 40 }}>
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div>
             <SmallText className="font-semibold">{displayTitle}</SmallText>
@@ -185,21 +204,36 @@ export function TimelineView({
                       onClose={() => setIsFilterOpen(false)}
                       onApplyFilters={onFilter}
                       currentFilters={currentFilters}
+                      mode={mode}
                     />
                   )}
                 </div>
 
-                {mode === 'owner' && onShare && (
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={onShare}
-                  >
-                    <svg className={`w-4 h-4 ${!isMobile ? 'mr-2' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                    </svg>
-                    {!isMobile && 'Share'}
-                  </Button>
+                {mode === 'owner' && onTogglePublic && (
+                  <div className="relative">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setIsShareDropdownOpen(!isShareDropdownOpen)}
+                    >
+                      <svg className={`w-4 h-4 ${!isMobile ? 'mr-2' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                      </svg>
+                      {!isMobile && 'Share'}
+                    </Button>
+
+                    {/* Share Dropdown */}
+                    {isShareDropdownOpen && isPublic !== undefined && (
+                      <ShareDropdown
+                        isOpen={isShareDropdownOpen}
+                        onClose={() => setIsShareDropdownOpen(false)}
+                        isPublic={isPublic}
+                        onTogglePublic={onTogglePublic}
+                        isUpdating={isUpdatingPublic}
+                        userHandle={userHandle}
+                      />
+                    )}
+                  </div>
                 )}
               </>
             )}
@@ -277,6 +311,7 @@ export function TimelineView({
                   onDeleteEvent={mode === 'owner' ? onDeleteEvent : undefined}
                   previousEvent={filteredEvents[index - 1]}
                   nextEvent={filteredEvents[index + 1]}
+                  mode={mode}
                 />
               </div>
             ))

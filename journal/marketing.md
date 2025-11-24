@@ -1,6 +1,25 @@
 #
 Mily runs on "fame"—people want their stories to be heard.
 
+---
+
+https://news.ycombinator.com/item?id=42247749
+
+During Y Combinator, Paul Graham gave them crucial advice: focus on building a product that a small group of users would love.
+"Paul Graham said, 'It's better to have 100 people that love you than a million people that just sort of like you.'... He said, 'All you have to do is get 100 people.'"
+
+Chesky and his team took this to heart, personally engaging with their users.
+
+"We literally would fly, during Y Combinator, from Mountain View to New York... We'd meet with every one of our hosts, and we'd live with them... I used to also carry a bank ledger in my backpack... Knock on your door and hand you a check."
+
+They focused on improving listings by offering professional photography.
+
+"I would go there and be like, 'Wow, the photos are terrible. This is actually a really nice house.'... We thought, 'What if you just clicked a button and a photographer next day would magically show up and photograph your home?'"
+
+By focusing on the user experience and doing things that didn't scale, they built a loyal community.
+
+---
+
 - OUTREACH: Add check box for newsletter?
 - OUTREACH: Post in Huffman Neighborhood group
 - HackerNews: Launch post
@@ -10,6 +29,8 @@ Mily runs on "fame"—people want their stories to be heard.
 - Post to Starter Story
 - Send MVP to everyone on Asana list (resend to Heather once I have a public timeline)
 - Create spreadsheet to track outreach
+- Find a way to introduce it to therapists
+- Reach out to influencers and YouTubers
 
 ### 90-Day Roadmap
 - Months 1-2:

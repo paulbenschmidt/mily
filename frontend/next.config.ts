@@ -13,7 +13,6 @@ const envPaths = [
 // Load the first .env file that exists
 for (const path of envPaths) {
   if (existsSync(path)) {
-    console.log(`Loading environment variables from ${path}`);
     config({ path });
     break;
   }

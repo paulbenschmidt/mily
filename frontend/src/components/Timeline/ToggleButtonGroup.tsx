@@ -9,6 +9,7 @@ interface ToggleButtonGroupProps<T extends string> {
   onChange: (value: T) => void;
   disabled?: boolean;
   required?: boolean;
+  disabledOptions?: T[];
 }
 
 export function ToggleButtonGroup<T extends string>({
@@ -18,6 +19,7 @@ export function ToggleButtonGroup<T extends string>({
   onChange,
   disabled = false,
   required = false,
+  disabledOptions = [],
 }: ToggleButtonGroupProps<T>) {
   return (
     <div className="mb-4">
@@ -31,7 +33,7 @@ export function ToggleButtonGroup<T extends string>({
             option={option}
             isSelected={value === option}
             onClick={() => onChange(option)}
-            disabled={disabled}
+            disabled={disabled || disabledOptions.includes(option)}
           />
         ))}
       </div>

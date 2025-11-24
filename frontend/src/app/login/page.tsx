@@ -33,8 +33,8 @@ export default function LoginPage() {
       // Redirect to app after successful login
       router.push('/app');
     } catch (err) {
-      console.error('Login failed:', err);
-      
+      alert('Login failed');
+
       // Check if error is due to unverified email
       const error = err as Error & { errorCode?: string; email?: string };
       if (error.errorCode === 'EMAIL_NOT_VERIFIED') {
@@ -42,7 +42,7 @@ export default function LoginPage() {
         router.push(`/verify-email-reminder?email=${encodeURIComponent(error.email || formData.email)}`);
         return;
       }
-      
+
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
       setLoading(false);

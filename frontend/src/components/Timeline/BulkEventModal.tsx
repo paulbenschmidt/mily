@@ -120,12 +120,7 @@ export function BulkEventModal({
       onEventsAdded(createdEvents);
       onClose();
     } catch (err) {
-      console.error('Error creating events:', err);
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('Failed to create events. Please try again.');
-      }
+      setError('Failed to create events. Please try again.');
     } finally {
       setIsSubmitting(false);
     }

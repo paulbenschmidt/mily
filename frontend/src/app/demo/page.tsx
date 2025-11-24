@@ -22,8 +22,6 @@ export default function DemoPage() {
   useEffect(() => {
     // Check if user has seen the welcome modal this session
     const hasSeenThisSession = sessionStorage.getItem('mily_hasSeenWelcomeModal');
-    console.log('Session storage value:', hasSeenThisSession);
-    console.log('Will show modal:', !hasSeenThisSession);
     if (!hasSeenThisSession) {
       setShowWelcomeModal(true);
     }
@@ -38,8 +36,8 @@ export default function DemoPage() {
     <div className="min-h-screen bg-background">
       <WelcomeModal isOpen={showWelcomeModal} onClose={handleCloseWelcomeModal} />
       {/* Demo Header */}
-      <header className="sticky top-0 z-20 border-b border-border bg-white/95 backdrop-blur-sm">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 lg:px-8">
+      <header className="sticky top-0 z-20 border-b border-border bg-white" style={{ height: '69px' }}>
+        <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2 text-foreground hover:text-brand transition-colors">
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -61,25 +59,23 @@ export default function DemoPage() {
       </header>
 
       {/* Timeline View */}
-      <div style={{ '--app-header-height': '64px' } as React.CSSProperties}>
-        <TimelineView
-          mode="viewer"
-          filteredEvents={filteredEvents}
-          totalEventCount={events.length}
-          loading={false}
-          error={null}
-          onFilter={handleFilter}
-          onClearFilters={handleClearFilters}
-          hasActiveFilters={hasActiveFilters}
-          currentFilters={filters}
-          title="Sample Timeline"
-          ownerInfo={{
-            name: "Paul",
-            profilePicture: undefined,
-          }}
-          isMobile={isMobile}
-        />
-      </div>
+      <TimelineView
+        mode="viewer"
+        filteredEvents={filteredEvents}
+        totalEventCount={events.length}
+        loading={false}
+        error={null}
+        onFilter={handleFilter}
+        onClearFilters={handleClearFilters}
+        hasActiveFilters={hasActiveFilters}
+        currentFilters={filters}
+        title="Sample Timeline"
+        ownerInfo={{
+          name: "Sample Timeline",
+          profilePicture: undefined,
+        }}
+        isMobile={isMobile}
+      />
 
       {/* CTA Footer */}
       <div className="border-t border-border bg-muted/30 py-12">

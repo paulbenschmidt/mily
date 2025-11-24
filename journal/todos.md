@@ -1,13 +1,42 @@
+- If there is no handle at the URL, have it redirect?
+
+## Rusty feedback
+UI
+- Include major/minor/memory on the top timeline
+- Scrubbable top timeline
+- horizontal (will be helpful for photos)
+- Change it so that separators only are mentioned if events are a year apart (remove the year separators)
+- Add periods to give visual indicator of years passed?
+- FEATURE: Allow users to create multiple timelines
+    - Rusty mentioned that it could be nice for parents who want to maintain separate timelines for children
+    - Reviews suggest that users who are authors also would like this feature when creating timelines for fictional characters
+
 ## In Progress
+- ENHANCE: Update Google description text to be less clunky (search for it on Google with "timeline mily" and you'll see it)
+- FEATURE (needs polling): Enable "Publicly Accessible" for "Share" button on event page
+    - First find out HOW and WHY people want to share their timelines with others
+    - Share dropdown should have a toggle on whether or not the timeline is publicly accessible. It should also have some sort of connection to friendships, like "Send to a friend" or "Send to a group of friends". How will this also connect to "friendships" within the app?
+    - Share individual events? Or at least link to a specific event?
+    - Verify that users cannot see the years associated with any events (for privacy reasons)
+    - Make sure that empty timelines show "No events added yet" for others
+    - Change it so that users can "Accept" the view, which converts it from email identifier to user identifier, for better naming (and so that the URL with handle is accessible from the friends page)
+- ESSENTIAL: Track conversion for the LinkedIn post
 
 ## To Organize
 
 ## Sprint Backlog
 ### Essential
+- ESSENTIAL: Ensure that error responses returned are more generic and user-friendly (i.e. don't disclose internal error details)
+- ESSENTIAL: Have navigation bar along the bottom include: Timeline, Friends, Shop, Donate, Settings
+    - This would help clear up space in the top part of the UI for things like "My Timeline" or "Friend Timeline"
 - ESSENTIAL: Create testimonials on landing page
 - ESSENTIAL (needs polling): Implement premium payment system
 
 ### Feature
+- FEATURE: Create "View" dropdown. Options include:
+    - Photo view (horizontal) vs timeline view (vertical)
+    - Preview as Friend (without private events, and privacy icons, and personal notes)-- should this be a separate page?
+    - Expand/collapse all cards
 - FEATURE: Add a waiting list/email capture if your freemium isn't ready - You want to convert interest even if the product isn't 100% ready
 - FEATURE: Set up basic analytics - You need to see where people drop off. Vercel Analytics should tell you this, but make sure you're tracking the key events (started timeline, added first event, added 5+ events)
 - FEATURE: Enable photos on events
@@ -16,12 +45,6 @@
     - Actually, let's make it so that users can add 10 photos before getting paywalled.
     - $24/year ($2/month) or $5/month
     - Maybe you could start the cost slightly higher than lower it over time as more users sign up, that way you could make it a marketing strategy to get more users to sign up and also give people updates on user growth (in a way that doesn't feel like spam). Maybe you could make it a challenge to get to 1000 users and then lower the cost.
-- FEATURE (needs polling): Enable "Publicly Accessible" for "Share" button on event page
-    - First find out HOW and WHY people want to share their timelines with others
-    - Share dropdown should have a toggle on whether or not the timeline is publicly accessible. It should also have some sort of connection to friendships, like "Send to a friend" or "Send to a group of friends". How will this also connect to "friendships" within the app?
-    - Share individual events? Or at least link to a specific event?
-    - Verify that users cannot see the years associated with any events (for privacy reasons)
-    - Make sure that empty timelines show "No events added yet" for others
 - FEATURE (needs polling): Add tags to events and allow users to filter by them
     - Add AI-generated "tags" to events so that users can auto-filter events?
     - Should be URL-parameter for easy sharing (like `?tags=entrepreneurship`)
@@ -49,8 +72,12 @@
 
 ### Tech Debt
 - TECHDEBT: Set up cron job to delete users after 30 days of `deactivated_at` and `is_active=False`
+- TECHDEBT: Go through SemRush emails
+- TECHDEBT: Go through CloudFlare email
 
 ## Backlog
+- ENHANCE: Poll users on the color once you have ~100 users
+    - Feedback from Rusty was that the color was confusing (he mentioned that the movie *Inside Out* had sad memories in blue and happy memories in gold)
 - OTHER: Poll users on whether to use `joinmily.com` or `mily.bio` as the primary domain
 - FEATURE (needs polling): Onboarding flow for initial events
     - Bob recommended something that makes the initial "Begin" screen not look so intimidating. Here's his message: "I entered some events in Mily. Easy enough to use interface. I added a few events. I know it’s very much a work in process so no in depth notes at this time. It was a bit intimidating to start building a timeline so my top of mind idea is to include some sort of ‘line manager’ (🤓) assistant tool to help kickstart. Maybe some drop downs with suggested events, example profiles a bit more fleshed out, pro tips. That sort of thing."
@@ -82,7 +109,6 @@
 - SECURITY: Implement 2FA?
 - SECURITY: Regular Security Updates via Dependabot or something similar
 - TECHDEBT: Backend: Move on from Nixpacks to current best practices (I'm getting a deprecation warning)
-- ENHANCE: Have navigation bar along the bottom include: Timeline, Friends, Shop, Donate, Settings
 - ENHANCE: Make it so that the top event on a timeline does not continue extending above the dot.
 - ENHANCE: Make the date stuck in the top-left corner (so that it doesn't move when the card is expanded)
     - The dot should be stuck in the top-left corner as well. This way the timeline extends downward, without the date moving.

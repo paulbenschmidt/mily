@@ -17,13 +17,27 @@ export default function Timeline() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<TimelineEventType | undefined>(undefined);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isPublic, setIsPublic] = useState(false);
+  const [isUpdatingPublic, setIsUpdatingPublic] = useState(false);
+  const [userHandle, setUserHandle] = useState<string>();
 
   // Use timeline filters hook
   const { filters, filteredEvents, hasActiveFilters, handleFilter, handleClearFilters } = useTimelineFilters(events);
 
   useEffect(() => {
     fetchEvents();
+    fetchUserProfile();
   }, []);
+
+  const fetchUserProfile = async () => {
+    try {
+      const user = await authApiClient.getCurrentUser();
+      setIsPublic(user.is_public);
+      setUserHandle(user.handle);
+    } catch (err) {
+      alert('Failed to fetch user profile');
+    }
+  };
 
   const fetchEvents = async () => {
     try {
@@ -41,6 +55,33 @@ export default function Timeline() {
       setLoading(false);
     }
   };
+
+
+  // Apply privacy override when is_public changes
+  useEffect(() => {
+    if (events.length === 0) return;
+
+    // If timeline is not public, override any "public" events to "friends"
+    if (!isPublic) {
+      const updatedEvents = events.map(event =>
+        event.privacy_level === 'public'
+          ? { ...event, privacy_level: 'friends' as const }
+          : event
+      );
+
+      // Only update if there were changes
+      const hasChanges = updatedEvents.some((event, index) =>
+        event.privacy_level !== events[index].privacy_level
+      );
+
+      if (hasChanges) {
+        setEvents(updatedEvents);
+      }
+    } else {
+      // When timeline becomes public, refetch events to restore original privacy levels
+      fetchEvents();
+    }
+  }, [isPublic]);
 
   const handleAddEvent = () => {
     setEventToEdit(undefined); // Ensure we're in create mode
@@ -101,8 +142,18 @@ export default function Timeline() {
     }
   };
 
-  const handleShare = () => {
-    alert('Feature coming soon!');
+  const handleTogglePublic = async (newIsPublic: boolean) => {
+    setIsUpdatingPublic(true);
+    try {
+      const updatedUser = await authApiClient.updateUser({ is_public: newIsPublic });
+      setIsPublic(updatedUser.is_public);
+    } catch (err) {
+      alert('Failed to update timeline visibility');
+      // Revert the local state on error
+      setIsPublic(!newIsPublic);
+    } finally {
+      setIsUpdatingPublic(false);
+    }
   };
 
   return (
@@ -118,11 +169,14 @@ export default function Timeline() {
         onEditEvent={handleEditEvent}
         onDeleteEvent={handleDeleteEvent}
         onFilter={handleFilter}
-        onShare={handleShare}
         onClearFilters={handleClearFilters}
         hasActiveFilters={hasActiveFilters}
         currentFilters={filters}
         isMobile={isMobile}
+        isPublic={isPublic}
+        onTogglePublic={handleTogglePublic}
+        isUpdatingPublic={isUpdatingPublic}
+        userHandle={userHandle}
       />
 
       {/* Add/Edit Event Modal */}
@@ -132,6 +186,7 @@ export default function Timeline() {
         onEventAdded={handleEventAdded}
         eventToEdit={eventToEdit}
         onEventUpdated={handleEventUpdated}
+        isPublic={isPublic}
       />
 
       {/* Delete Confirmation Modal */}

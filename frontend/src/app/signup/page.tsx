@@ -81,8 +81,7 @@ export default function SignupPage() {
       // Show success message
       setEmailSent(true);
     } catch (err) {
-      console.error('Signup failed:', err);
-      setError(err instanceof Error ? err.message : 'Failed to create account');
+      setError('Failed to create account');
     } finally {
       setLoading(false);
     }
@@ -116,8 +115,7 @@ export default function SignupPage() {
       // Show success (email sent again)
       alert('Verification email sent! Please check your inbox.');
     } catch (err) {
-      console.error('Resend failed:', err);
-      setError(err instanceof Error ? err.message : 'Failed to resend email');
+      setError('Failed to resend email');
     } finally {
       setLoading(false);
     }

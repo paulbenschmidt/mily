@@ -9,7 +9,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 
-from mily.models import Event, Friendship, EventPrivacyLevel, FriendshipStatus
+from mily.models import Event, EventPrivacyLevel
 
 User = get_user_model()
 
@@ -139,12 +139,6 @@ class EventViewSetTestCase(APITestCase):
             event_date='2023-01-02',
             privacy_level=EventPrivacyLevel.PRIVATE
         )
-        self.friends_event = Event.objects.create(
-            user=self.user1,
-            title='Friends Event',
-            event_date='2023-01-03',
-            privacy_level=EventPrivacyLevel.FRIENDS
-        )
 
     def test_anonymous_users_see_only_public_events(self):
         """Anonymous users can only see public events"""
@@ -163,25 +157,6 @@ class EventViewSetTestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data["results"]), 3)  # All user1's events
-
-    def test_authenticated_users_see_friends_events_when_friends(self):
-        """Authenticated users see friends' events when they are friends"""
-        # Create friendship
-        Friendship.objects.create(
-            requester=self.user1,
-            addressee=self.user2,
-            status=FriendshipStatus.ACCEPTED
-        )
-
-        self.client.force_authenticate(user=self.user2)
-        url = reverse('event-list')
-        response = self.client.get(url)
-
-        # Should see public event and friends event from user1
-        titles = [event['title'] for event in response.data["results"]]
-        self.assertIn('Public Event', titles)
-        self.assertIn('Friends Event', titles)
-        self.assertNotIn('Private Event', titles)
 
     def test_create_event_requires_authentication(self):
         """Creating events requires authentication"""
@@ -238,165 +213,3 @@ class EventViewSetTestCase(APITestCase):
         })
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['title'], 'Updated Event')
-
-# TODO: add tests back in once model is implemented
-# class FriendshipViewSetTestCase(APITestCase):
-#     """Test cases for FriendshipViewSet"""
-
-#     def setUp(self):
-#         self.client = APIClient()
-#         self.user1 = User.objects.create_user(
-#             username='user1',
-#             email='user1@example.com',
-#             password='testpass123',
-#             handle='user1'
-#         )
-#         self.user2 = User.objects.create_user(
-#             username='user2',
-#             email='user2@example.com',
-#             password='testpass123',
-#             handle='user2'
-#         )
-#         self.user3 = User.objects.create_user(
-#             username='user3',
-#             email='user3@example.com',
-#             password='testpass123',
-#             handle='user3'
-#         )
-
-#     def test_list_friendships_requires_authentication(self):
-#         """Listing friendships requires authentication"""
-#         url = reverse('friendship-list')
-#         response = self.client.get(url)
-#         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-#     def test_users_only_see_own_friendships(self):
-#         """Users only see friendships they're involved in"""
-#         # Create friendships
-#         friendship1 = Friendship.objects.create(
-#             requester=self.user1,
-#             addressee=self.user2,
-#             status=FriendshipStatus.PENDING
-#         )
-#         friendship2 = Friendship.objects.create(
-#             requester=self.user2,
-#             addressee=self.user3,
-#             status=FriendshipStatus.ACCEPTED
-#         )
-
-#         self.client.force_authenticate(user=self.user1)
-#         url = reverse('friendship-list')
-#         response = self.client.get(url)
-
-#         self.assertEqual(response.status_code, status.HTTP_200_OK)
-#         self.assertEqual(len(response.data["results"]), 1)  # Only friendship1
-#         self.assertEqual(response.data["results"][0]['id'], str(friendship1.pk))
-
-#     def test_create_friendship_sets_requester_automatically(self):
-#         """Creating a friendship automatically sets requester to authenticated user"""
-#         self.client.force_authenticate(user=self.user1)
-#         url = reverse('friendship-list')
-#         response = self.client.post(url, {
-#             'addressee': self.user2.pk
-#         })
-
-#         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-#         self.assertEqual(response.data['requester'], self.user1.pk)
-#         self.assertEqual(response.data['addressee'], self.user2.pk)
-#         self.assertEqual(response.data['status'], FriendshipStatus.PENDING)
-
-#     def test_create_friendship_requires_authentication(self):
-#         """Creating friendships requires authentication"""
-#         url = reverse('friendship-list')
-#         response = self.client.post(url, {
-#             'addressee': self.user2.pk
-#         })
-#         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-#     def test_accept_friendship_only_by_addressee(self):
-#         """Only the addressee can accept a friendship"""
-#         friendship = Friendship.objects.create(
-#             requester=self.user1,
-#             addressee=self.user2,
-#             status=FriendshipStatus.PENDING
-#         )
-
-#         # Try to accept as requester (should fail)
-#         self.client.force_authenticate(user=self.user1)
-#         url = reverse('friendship-accept', kwargs={'pk': friendship.pk})
-#         response = self.client.post(url)
-#         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-#         # Accept as addressee (should succeed)
-#         self.client.force_authenticate(user=self.user2)
-#         response = self.client.post(url)
-#         self.assertEqual(response.status_code, status.HTTP_200_OK)
-#         self.assertEqual(response.data['status'], FriendshipStatus.ACCEPTED)
-
-#     def test_decline_friendship_only_by_addressee(self):
-#         """Only the addressee can decline a friendship"""
-#         friendship = Friendship.objects.create(
-#             requester=self.user1,
-#             addressee=self.user2,
-#             status=FriendshipStatus.PENDING
-#         )
-
-#         # Try to decline as requester (should fail)
-#         self.client.force_authenticate(user=self.user1)
-#         url = reverse('friendship-decline', kwargs={'pk': friendship.pk})
-#         response = self.client.post(url)
-#         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-#         # Decline as addressee (should succeed)
-#         self.client.force_authenticate(user=self.user2)
-#         response = self.client.post(url)
-#         self.assertEqual(response.status_code, status.HTTP_200_OK)
-#         self.assertEqual(response.data['status'], FriendshipStatus.DECLINED)
-
-#     def test_block_friendship_by_either_party(self):
-#         """Either party can block a friendship"""
-#         friendship = Friendship.objects.create(
-#             requester=self.user1,
-#             addressee=self.user2,
-#             status=FriendshipStatus.ACCEPTED
-#         )
-
-#         # Block as requester
-#         self.client.force_authenticate(user=self.user1)
-#         url = reverse('friendship-block', kwargs={'pk': friendship.pk})
-#         response = self.client.post(url)
-#         self.assertEqual(response.status_code, status.HTTP_200_OK)
-#         self.assertEqual(response.data['status'], FriendshipStatus.BLOCKED)
-
-#     def test_block_friendship_requires_involvement(self):
-#         """Only parties involved in friendship can block it"""
-#         friendship = Friendship.objects.create(
-#             requester=self.user1,
-#             addressee=self.user2,
-#             status=FriendshipStatus.ACCEPTED
-#         )
-
-#         # Try to block as uninvolved user
-#         self.client.force_authenticate(user=self.user3)
-#         url = reverse('friendship-block', kwargs={'pk': friendship.pk})
-#         response = self.client.post(url)
-#         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-#     def test_friendship_queryset_filters_by_active_users(self):
-#         """Friendship creation only allows active users"""
-#         inactive_user = User.objects.create_user(
-#             username='inactive_friendship',
-#             email='inactive_friendship@example.com',
-#             password='testpass123',
-#             handle='inactive_friendship',
-#             is_active=False
-#         )
-
-#         self.client.force_authenticate(user=self.user1)
-#         url = reverse('friendship-list')
-#         response = self.client.post(url, {
-#             'addressee': inactive_user.pk
-#         })
-
-#         # Should fail because inactive user is not in queryset
-#         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

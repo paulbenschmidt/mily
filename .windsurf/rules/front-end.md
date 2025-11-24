@@ -1,6 +1,7 @@
 ---
-trigger: model_decision
+trigger: glob
 description: When working on front-end components (e.g., CSS, HTML, React)
+globs: frontend/
 ---
 
 - Use React components in `./frontend/src/components/ui/` for common elements like typography, inputs, buttons, and spinners

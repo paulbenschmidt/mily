@@ -39,8 +39,7 @@ function VerifyEmailReminderContent() {
 
       setSuccess(true);
     } catch (err) {
-      console.error('Resend failed:', err);
-      setError(err instanceof Error ? err.message : 'Failed to resend email');
+      setError('Failed to resend email');
     } finally {
       setLoading(false);
     }
@@ -66,7 +65,7 @@ function VerifyEmailReminderContent() {
         </div>
 
         <PageHeading>Email Not Verified</PageHeading>
-        
+
         {success ? (
           <>
             <SmallText className="text-primary-600">

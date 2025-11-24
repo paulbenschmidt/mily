@@ -1,9 +1,9 @@
 import { AppLayout } from '@/components/AppLayout';
 
-export default function Layout({
+export default function TimelineLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <AppLayout requireAuth={true}>{children}</AppLayout>;
+  return <AppLayout requireAuth={false}>{children}</AppLayout>;
 }

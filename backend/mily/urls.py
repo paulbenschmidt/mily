@@ -4,6 +4,8 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     UserViewSet,
     EventViewSet,
+    ShareViewSet,
+    get_other_timeline,
 )
 from .auth_views import (
     register_view,
@@ -23,12 +25,16 @@ from .throttling import TokenRefreshRateThrottle
 router = DefaultRouter()
 router.register(r"users", UserViewSet, basename="user")
 router.register(r"events", EventViewSet, basename="event")
+router.register(r"shares", ShareViewSet, basename="share")
 
 urlpatterns = [
     path("", include(router.urls)),
 
     # Health check endpoint
     path("health/", health_check, name="health_check"),
+
+    # Public timeline endpoint
+    path("timelines/<str:handle>/", get_other_timeline, name="public_timeline"),
 
     # Authentication endpoints
     path("auth/csrf-token/", get_csrf_token_view, name="csrf_token"),
