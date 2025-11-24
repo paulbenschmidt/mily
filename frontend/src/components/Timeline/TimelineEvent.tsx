@@ -283,7 +283,7 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
                     </div>
                   )}
 
-                  {event.notes && (
+                  {mode === 'owner' && event.notes && (
                     <div className="pt-4">
                       <Caption className="italic">{event.notes}</Caption>
                     </div>

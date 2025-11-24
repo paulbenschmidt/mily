@@ -1,4 +1,11 @@
-- If there is no handle at the URL, have it redirect?
+- Fix so that "User" doesn't show up on the timeline page if the timeline is public (actually grab the first name)
+- FEATURE: Create notifications icon
+- Sort shares in reverse chronological order
+- Go through and make your personal timeline better
+    - Update your first/last name
+- Allow users ability to update handle/first name/last name
+- Set up newsletter to update users on new features
+- Make month on date optional
 
 ## Rusty feedback
 UI
@@ -13,13 +20,6 @@ UI
 
 ## In Progress
 - ENHANCE: Update Google description text to be less clunky (search for it on Google with "timeline mily" and you'll see it)
-- FEATURE (needs polling): Enable "Publicly Accessible" for "Share" button on event page
-    - First find out HOW and WHY people want to share their timelines with others
-    - Share dropdown should have a toggle on whether or not the timeline is publicly accessible. It should also have some sort of connection to friendships, like "Send to a friend" or "Send to a group of friends". How will this also connect to "friendships" within the app?
-    - Share individual events? Or at least link to a specific event?
-    - Verify that users cannot see the years associated with any events (for privacy reasons)
-    - Make sure that empty timelines show "No events added yet" for others
-    - Change it so that users can "Accept" the view, which converts it from email identifier to user identifier, for better naming (and so that the URL with handle is accessible from the friends page)
 - ESSENTIAL: Track conversion for the LinkedIn post
 
 ## To Organize
@@ -45,6 +45,7 @@ UI
     - Actually, let's make it so that users can add 10 photos before getting paywalled.
     - $24/year ($2/month) or $5/month
     - Maybe you could start the cost slightly higher than lower it over time as more users sign up, that way you could make it a marketing strategy to get more users to sign up and also give people updates on user growth (in a way that doesn't feel like spam). Maybe you could make it a challenge to get to 1000 users and then lower the cost.
+    - Consider not letting photos be visible when user is authenticated, to avoid robots spamming photo API calls. That'll force users to create accounts.
 - FEATURE (needs polling): Add tags to events and allow users to filter by them
     - Add AI-generated "tags" to events so that users can auto-filter events?
     - Should be URL-parameter for easy sharing (like `?tags=entrepreneurship`)
@@ -76,6 +77,8 @@ UI
 - TECHDEBT: Go through CloudFlare email
 
 ## Backlog
+- LEARN: Learn how users are sharing their timelines with others
+- ENHANCE: Allow users to share individual events?
 - ENHANCE: Poll users on the color once you have ~100 users
     - Feedback from Rusty was that the color was confusing (he mentioned that the movie *Inside Out* had sad memories in blue and happy memories in gold)
 - OTHER: Poll users on whether to use `joinmily.com` or `mily.bio` as the primary domain
