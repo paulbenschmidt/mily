@@ -5,7 +5,7 @@ from .views import (
     UserViewSet,
     EventViewSet,
     ShareViewSet,
-    get_public_timeline,
+    get_other_timeline,
 )
 from .auth_views import (
     register_view,
@@ -34,7 +34,7 @@ urlpatterns = [
     path("health/", health_check, name="health_check"),
 
     # Public timeline endpoint
-    path("timelines/<str:handle>/", get_public_timeline, name="public_timeline"),
+    path("timelines/<str:handle>/", get_other_timeline, name="public_timeline"),
 
     # Authentication endpoints
     path("auth/csrf-token/", get_csrf_token_view, name="csrf_token"),

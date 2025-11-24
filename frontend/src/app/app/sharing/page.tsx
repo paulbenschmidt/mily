@@ -90,8 +90,9 @@ export default function SharingPage() {
       setIsLoading(true);
       setError(null);
       const data = await authApiClient.getSharedByYou();
-      if (data && typeof data === 'object' && 'results' in data) {
-        setSharedByYou(Array.isArray(data.results) ? data.results : []);
+      // Backend returns array directly (pagination disabled)
+      if (Array.isArray(data)) {
+        setSharedByYou(data);
       } else {
         setSharedByYou([]);
       }
@@ -200,7 +201,7 @@ export default function SharingPage() {
       await authApiClient.updateUser({ is_public: newIsPublic });
       setIsPublic(newIsPublic);
     } catch (err) {
-      console.error('Failed to update public status:', err);
+      console.error('Failed to update public status');
       alert('Failed to update timeline visibility');
       // Revert on error
       setIsPublic(!newIsPublic);
@@ -352,7 +353,12 @@ export default function SharingPage() {
           /* Error State */
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
             <p className="text-red-800">{error}</p>
-            <Button onClick={fetchSharedByYou} variant="text" size="sm" className="mt-2">
+            <Button
+              onClick={activeTab === 'shared-by-you' ? fetchSharedByYou : fetchSharedWithMe}
+              variant="text"
+              size="sm"
+              className="mt-2"
+            >
               Try Again
             </Button>
           </div>
@@ -367,6 +373,7 @@ export default function SharingPage() {
                 >
                   <div className="flex items-center gap-4 min-w-0 flex-1">
                     {/* Avatar */}
+                    {/* TODO: If user has accepted, use user profile picture */}
                     <div className="w-12 h-12 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-semibold text-sm flex-shrink-0">
                       {share.is_accepted && share.shared_with_user
                           ? getInitials(getDisplayName(share.shared_with_user))

@@ -4,6 +4,10 @@ TODO: Enable dark mode; the setting below makes it so that dark is not defined b
 which case I have none.
 https://tailwindcss.com/docs/dark-mode#toggling-dark-mode-manually
 */
+
+/*
+NOTE: When updating these colors, make sure to account for any backend hard-coded colors (for emails, etc.)
+*/
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {

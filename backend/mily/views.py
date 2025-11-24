@@ -117,13 +117,30 @@ class EventViewSet(viewsets.ModelViewSet):
     """API endpoint for managing timeline events.
 
     Supports CRUD operations with appropriate permissions:
-    - List: Authenticated users see their own events plus public/friend events
+    - List: Authenticated users see only their own events
     - Create: Authenticated users can create their own events
     - Retrieve/Update/Delete: Event owners can modify their own events
+
+    Note: Viewing other users' timelines is handled by get_other_timeline()
     """
-    queryset = Event.objects.all().order_by('-event_date')
     serializer_class = EventSerializer
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+
+    def get_queryset(self):
+        """
+        Filter events to only return the authenticated user's own events.
+
+        This ensures users cannot access other users' events through this ViewSet.
+        Viewing other users' timelines is handled by the get_other_timeline() function
+        which implements proper privacy filtering.
+        """
+        user = self.request.user
+
+        if not user.is_authenticated:
+            return Event.objects.none()
+
+        # Only return the authenticated user's events
+        return Event.objects.filter(user=user).order_by('-event_date')
 
     def get_throttles(self):
         """Apply different throttles based on action."""
@@ -213,6 +230,8 @@ class ShareViewSet(viewsets.ModelViewSet):
     """
     serializer_class = ShareSerializer
     permission_classes = [permissions.IsAuthenticated]
+    # TODO: Add pagination to handle large numbers of shares
+    pagination_class = None  # Disable pagination - shares are unlikely to be numerous
 
     def get_queryset(self):
         """Users can only see their own shares (timelines they are sharing with others)."""
@@ -221,7 +240,7 @@ class ShareViewSet(viewsets.ModelViewSet):
     def get_object(self):
         """
         Override to allow recipients to access shares for accept/reject actions.
-        Returns the share if user is either the sender or receiver.
+        Returns the share if user is either the sender or receiver (default behavior limits to sender)
         """
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
         share_id = self.kwargs[lookup_url_kwarg]
@@ -269,11 +288,7 @@ class ShareViewSet(viewsets.ModelViewSet):
         share.accepted_at = timezone.now()
         share.save()
 
-        logger.info(
-            "Share invitation accepted: %s accepted invitation from %s",
-            request.user.email,
-            share.user.email
-        )
+        logger.info(f"Share invitation accepted: {request.user.email} accepted invitation from {share.user.email}")
 
         serializer = self.get_serializer(share)
         return Response(serializer.data)
@@ -293,11 +308,7 @@ class ShareViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        logger.info(
-            "Share invitation rejected: %s rejected invitation from %s",
-            request.user.email,
-            share.user.email
-        )
+        logger.info(f"Share invitation rejected: {request.user.email} rejected invitation from {share.user.email}")
 
         share.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -318,10 +329,8 @@ class ShareViewSet(viewsets.ModelViewSet):
         self._send_invitation_email(share)
 
         logger.info(
-            "Timeline share created: %s shared with %s (registered: %s)",
-            self.request.user.email,
-            shared_with_email,
-            shared_with_user is not None
+            f"Timeline share created: {self.request.user.email} shared with {shared_with_email} "
+            f"(registered: {share.is_registered})"
         )
 
         return share
@@ -332,7 +341,7 @@ class ShareViewSet(viewsets.ModelViewSet):
         recipient_email = share.shared_with_email
 
         # Determine if recipient has an account
-        has_account = share.shared_with_user is not None
+        has_account = share.is_registered
 
         # Build the timeline URL
         timeline_url = f"{settings.FRONTEND_URL}/timeline/{share.user.handle}"
@@ -351,7 +360,7 @@ You can view their timeline here:
 Log in to your Mily account to see their life events and memories.
 
 Thanks,
-Paul from Mily"""
+The Mily Team"""
 
             html_message = f"""
     <!DOCTYPE html>
@@ -378,7 +387,7 @@ Paul from Mily"""
 
         <p>Log in to your Mily account to see their life events and memories.</p>
 
-        <p>Thanks,<br>Paul from Mily</p>
+        <p>Thanks,<br>The Mily Team</p>
     </body>
     </html>
             """
@@ -451,25 +460,26 @@ The Mily team"""
                     "text": text_message,
                     "html": html_message,
                 })
-                logger.info("Invitation email sent to %s via Resend (ID: %s)", recipient_email, email.get('id'))
+                logger.info(f"Invitation email sent to {recipient_email} via Resend (ID: {email.get('id')})")
             except Exception as e:
-                logger.error("Failed to send invitation email to %s via Resend: %s", recipient_email, str(e))
+                logger.error(f"Failed to send invitation email to {recipient_email} via Resend: {str(e)}")
                 # Don't fail the request if email fails
                 pass
         else:
-            logger.warning("RESEND_API_KEY not configured, skipping invitation email to %s", recipient_email)
+            logger.warning(f"RESEND_API_KEY not configured, skipping invitation email to {recipient_email}")
 
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
-def get_public_timeline(request, handle):
+def get_other_timeline(request, handle):
     """
     Get a user's timeline by handle with privacy-aware filtering.
 
     Access rules (in order of priority):
-    1. If viewer IS authenticated and has accepted share: Return PUBLIC + FRIENDS events
-    2. If user.is_public = True: Return all PUBLIC events (no auth required)
-    3. Otherwise: Return 404
+    1. If viewer IS authenticated and is the owner: Return PUBLIC + FRIENDS events
+    2. If viewer IS authenticated and has accepted share: Return PUBLIC + FRIENDS events
+    3. If user.is_public = True: Return all PUBLIC events (no auth required)
+    4. Otherwise: Return 404
     """
     User = get_user_model()
 
@@ -479,8 +489,28 @@ def get_public_timeline(request, handle):
     except User.DoesNotExist:
         raise NotFound("Timeline not found")
 
-    # Priority 1: Check if authenticated user has an accepted share
+    # Priority 1: Check if authenticated user is the owner
     if request.user.is_authenticated:
+
+        if request.user == timeline_owner:
+            # User is the owner - return all events
+            events = Event.objects.filter(
+                user=timeline_owner,
+                privacy_level__in=['public', 'friends']
+            )
+
+            serializer = EventSerializer(events, many=True)
+            return Response({
+                'events': serializer.data,
+                'user': {
+                    'first_name': timeline_owner.first_name,
+                    'last_name': timeline_owner.last_name,
+                    'handle': timeline_owner.handle,
+                    'profile_picture': timeline_owner.profile_picture or '',
+                }
+            })
+
+        # Priority 2: Check if viewer has accepted share
         has_accepted_share = Share.objects.filter(
             user=timeline_owner,
             shared_with_user=request.user,
@@ -505,7 +535,7 @@ def get_public_timeline(request, handle):
                 }
             })
 
-    # Priority 2: Check if timeline is public
+    # Priority 3: Check if timeline is public
     if timeline_owner.is_public:
         # Public timeline - return only PUBLIC events
         events = Event.objects.filter(
@@ -524,5 +554,5 @@ def get_public_timeline(request, handle):
             }
         })
 
-    # Priority 3: No access - return 404
+    # Priority 4: No access - return 404
     raise NotFound("Timeline not found")

@@ -158,7 +158,7 @@ export function TimelineView({
   if (error) {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-120px)]">
-        <BodyText className="text-danger-600">Error: {error}</BodyText>
+        <BodyText className="text-danger-600">{error}</BodyText>
       </div>
     );
   }

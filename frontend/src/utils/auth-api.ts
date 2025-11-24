@@ -31,7 +31,7 @@ class AuthApiClient {
         credentials: 'include',
       });
     } catch (error) {
-      console.error('Failed to initialize CSRF token:');
+      console.error('Failed to initialize CSRF token');
     }
   }
 

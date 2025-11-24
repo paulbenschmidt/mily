@@ -91,8 +91,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async () => {
     try {
       await authApiClient.logout(); // Logout will clear tokens on backend
-    // } catch (error) {
-    //   // Optional: add error handling
+    } catch (error) {
+      console.error('Logout failed');
     } finally {
       setUser(null);
       router.push('/login');

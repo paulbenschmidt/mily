@@ -71,7 +71,7 @@ export default function DemoPage() {
         currentFilters={filters}
         title="Sample Timeline"
         ownerInfo={{
-          name: "Paul",
+          name: "Sample Timeline",
           profilePicture: undefined,
         }}
         isMobile={isMobile}

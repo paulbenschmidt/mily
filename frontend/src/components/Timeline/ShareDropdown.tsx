@@ -58,7 +58,7 @@ export function ShareDropdown({
 
   const handleCopyLink = async () => {
     if (!userHandle) return;
-    const link = shareLink;
+      const link = shareLink;
     try {
       await navigator.clipboard.writeText(link);
       setCopied(true);

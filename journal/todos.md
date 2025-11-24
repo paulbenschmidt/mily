@@ -1,7 +1,4 @@
-- [x] Create Share dropdown
-- [x] Implement `/app/friends` page
-- [x] Implement shareable timeline URL
-- [ ] Review and simplify code
+- If there is no handle at the URL, have it redirect?
 
 ## Rusty feedback
 UI
