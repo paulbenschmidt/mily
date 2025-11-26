@@ -120,32 +120,7 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
   // Check if there's expandable content (description, photos, or notes)
   const hasExpandableContent = event.description || (event.photos && event.photos.length > 0) || event.notes;
 
-  const yearsToReturn = (): string | null => {
-    // Parse year directly from date string to avoid timezone issues
-    const currentYear = parseInt(event.event_date.split('-')[0]);
-
-    // If there is no next, return the current year
-    if (!nextEvent) {
-      return currentYear.toString();
-    }
-
-    const nextYear = parseInt(nextEvent.event_date.split('-')[0]);
-    const yearsDiff = Math.abs(currentYear - nextYear);
-    if (currentYear === nextYear) {
-      return null; // If the next event is in the same year, don't show a year
-    } else if (yearsDiff === 1) {
-      return currentYear.toString(); // If the next event is in the next year, show the next year
-    } else if (yearsDiff > 1) {
-      return `${yearsDiff} years`; // If the next event is more than a year away, show the number of years
-    } else {
-      return null; // Fallback
-    }
-  };
-
-  // Calculate year label once to avoid calling function twice
-  const yearLabel = yearsToReturn();
-
-  const getMonthSpacerHeight = () => {
+  const getEventSpacerHeight = () => {
     // Exit early if there is no next event
     if (!nextEvent) {
       return '';
@@ -155,38 +130,20 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
     const nextDate = new Date(nextEvent.event_date);
     const daysDiff = Math.abs(Math.floor((currentDate.getTime() - nextDate.getTime()) / (1000 * 60 * 60 * 24)));
 
-    if (daysDiff <= 30) {
+    if (daysDiff <= 90) {
       return 'h-2';
-    } else if (daysDiff <= 90) {
-      return 'h-4';
     } else if (daysDiff <= 180) {
-      return 'h-6';
+      return 'h-4';
     } else if (daysDiff <= 365) {
+      return 'h-6';
+    } else if (daysDiff <= 365 * 3) {
       return 'h-8';
-    } else {
-      return 'h-2';
-    }
-  };
-
-  const getYearSpacerHeight = () => {
-    // Exit early if there is no next event
-    const defaultHeight = 'h-6';
-    if (!nextEvent) {
-      return defaultHeight;
-    }
-
-    const currentDate = new Date(event.event_date);
-    const nextDate = new Date(nextEvent.event_date);
-    const yearsDiff = Math.abs(Math.floor((currentDate.getTime() - nextDate.getTime()) / (1000 * 60 * 60 * 24 * 365)));
-
-    if (yearsDiff <= 1) {
-      return defaultHeight;
-    } else if (yearsDiff <= 2) {
-      return 'h-10';
-    } else if (yearsDiff <= 5) {
-      return 'h-14';
-    } else if (yearsDiff <= 10) {
-      return 'h-18';
+    } else if (daysDiff <= 365 * 6) {
+      return 'h-12';
+    } else if (daysDiff <= 365 * 9) {
+      return 'h-16';
+    } else if (daysDiff <= 365 * 12) {
+      return 'h-20';
     } else {
       return 'h-24';
     }
@@ -329,29 +286,8 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
         </div>
       </div>
 
-      {/* Spacer for events that are months apart and not broken by a year */}
-      {yearLabel === null && (
-        <div className={`flex items-center justify-center ${getMonthSpacerHeight()}`} />
-      )}
-
-      {/* Year labels between events */}
-      {yearLabel !== null && (
-        <div className={`flex flex-col gap-4 my-6 items-center justify-center ${getYearSpacerHeight()}`}>
-          <div className="flex items-center gap-3 md:gap-6 w-full">
-            {/* Ghost spacer to match the timeline dot width */}
-            <div className="w-6 flex-shrink-0" />
-
-            {/* Year label with lines */}
-            <div className="flex-1 flex items-center gap-3 px-8 md:px-16">
-              <div className="flex-1 h-px bg-secondary-300" />
-              <BodyText className="font-serif font-semibold text-secondary-600 whitespace-nowrap">
-                {yearLabel}
-              </BodyText>
-              <div className="flex-1 h-px bg-secondary-300" />
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Spacer for events with appropriate spacing */}
+      <div className={`flex items-center justify-center ${getEventSpacerHeight()}`} />
     </div>
   );
 }

@@ -1,31 +1,26 @@
 - Fix so that "User" doesn't show up on the timeline page if the timeline is public (actually grab the first name)
-- FEATURE: Create notifications icon
+
 - Sort shares in reverse chronological order
-- Go through and make your personal timeline better
-    - Update your first/last name
 - Allow users ability to update handle/first name/last name
-- Set up newsletter to update users on new features
 - Make month on date optional
 
 ## Rusty feedback
 UI
 - Include major/minor/memory on the top timeline
 - Scrubbable top timeline
-- horizontal (will be helpful for photos)
-- Change it so that separators only are mentioned if events are a year apart (remove the year separators)
-- Add periods to give visual indicator of years passed?
-- FEATURE: Allow users to create multiple timelines
-    - Rusty mentioned that it could be nice for parents who want to maintain separate timelines for children
-    - Reviews suggest that users who are authors also would like this feature when creating timelines for fictional characters
 
 ## In Progress
 - ENHANCE: Update Google description text to be less clunky (search for it on Google with "timeline mily" and you'll see it)
 - ESSENTIAL: Track conversion for the LinkedIn post
 
 ## To Organize
+- FEATURE: Reflection prompts/cards that ask "What is a time where you felt very excited/sad?" to get people thinking about different events to add them
+    - Bob mentioned that this could be helpful for folks who didn't know what to add. I also see this as a helpful conversation tool where people can get a random prompt, and have the other person answer with a specific timeline event. Or it could be a game: guess what event the timeline owner first thought of when seeing this prompt.
+- FEATURE: Notification reminders to reflect (either email or in-app). These can likely be every 6 months or every year.
 
 ## Sprint Backlog
 ### Essential
+- ESSENTIAL: Create notifications icon
 - ESSENTIAL: Ensure that error responses returned are more generic and user-friendly (i.e. don't disclose internal error details)
 - ESSENTIAL: Have navigation bar along the bottom include: Timeline, Friends, Shop, Donate, Settings
     - This would help clear up space in the top part of the UI for things like "My Timeline" or "Friend Timeline"
@@ -34,7 +29,7 @@ UI
 
 ### Feature
 - FEATURE: Create "View" dropdown. Options include:
-    - Photo view (horizontal) vs timeline view (vertical)
+    - Photo view (horizontal) vs timeline view (vertical) - feedback from Rusty
     - Preview as Friend (without private events, and privacy icons, and personal notes)-- should this be a separate page?
     - Expand/collapse all cards
 - FEATURE: Add a waiting list/email capture if your freemium isn't ready - You want to convert interest even if the product isn't 100% ready
@@ -77,6 +72,9 @@ UI
 - TECHDEBT: Go through CloudFlare email
 
 ## Backlog
+- FEATURE: Allow users to create multiple timelines
+    - Rusty mentioned that it could be nice for parents who want to maintain separate timelines for children
+    - Reviews suggest that users who are authors also would like this feature when creating timelines for fictional characters
 - LEARN: Learn how users are sharing their timelines with others
 - ENHANCE: Allow users to share individual events?
 - ENHANCE: Poll users on the color once you have ~100 users
