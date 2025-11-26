@@ -92,7 +92,11 @@ export default function SharingPage() {
       const data = await authApiClient.getSharedByYou();
       // Backend returns array directly (pagination disabled)
       if (Array.isArray(data)) {
-        setSharedByYou(data);
+        // Sort by invitation_sent_at descending (most recent first)
+        const sorted = [...data].sort((a, b) =>
+          new Date(b.invitation_sent_at).getTime() - new Date(a.invitation_sent_at).getTime()
+        );
+        setSharedByYou(sorted);
       } else {
         setSharedByYou([]);
       }
@@ -111,7 +115,11 @@ export default function SharingPage() {
       const data = await authApiClient.getSharedWithMe();
       // Backend returns array directly, not paginated
       if (Array.isArray(data)) {
-        setSharedWithMe(data);
+        // Sort by invitation_sent_at descending (most recent first)
+        const sorted = [...data].sort((a, b) =>
+          new Date(b.invitation_sent_at).getTime() - new Date(a.invitation_sent_at).getTime()
+        );
+        setSharedWithMe(sorted);
       } else {
         setSharedWithMe([]);
       }

@@ -1,6 +1,4 @@
 - Fix so that "User" doesn't show up on the timeline page if the timeline is public (actually grab the first name)
-
-- Sort shares in reverse chronological order
 - Allow users ability to update handle/first name/last name
 - Make month on date optional
 
