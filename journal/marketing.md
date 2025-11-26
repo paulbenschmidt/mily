@@ -20,6 +20,7 @@ By focusing on the user experience and doing things that didn't scale, they buil
 
 ---
 
+- Set up newsletter to update users on new features
 - OUTREACH: Add check box for newsletter?
 - OUTREACH: Post in Huffman Neighborhood group
 - HackerNews: Launch post
@@ -31,6 +32,8 @@ By focusing on the user experience and doing things that didn't scale, they buil
 - Create spreadsheet to track outreach
 - Find a way to introduce it to therapists
 - Reach out to influencers and YouTubers
+- Marketing: Annual Mily events where people come together and tell stories or meet interesting people, where speakers have their own Mily timelines
+- Marketing: Mental Health Awareness landing page
 
 ### 90-Day Roadmap
 - Months 1-2:
