@@ -81,6 +81,35 @@ class EventSerializer(serializers.ModelSerializer):
         return value
 
 
+class EventPublicSerializer(serializers.ModelSerializer):
+    """Serializer for public event data (excludes personal notes)."""
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = Event
+        fields = [
+            "id",
+            "user",
+            "category",
+            "title",
+            "description",
+            "event_date",
+            "is_day_approximate",
+            "location",
+            "privacy_level",
+            "photos",
+            "tags",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+    def validate_privacy_level(self, value: str) -> str:
+        if value not in EventPrivacyLevel.values:
+            raise serializers.ValidationError("Invalid privacy level.")
+        return value
+
+
 class ShareSerializer(serializers.ModelSerializer):
     """Serializer for timeline shares with full user information."""
     user = UserPublicSerializer(read_only=True)

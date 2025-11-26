@@ -18,6 +18,7 @@ from .models import (
 )
 from .serializers import (
     EventSerializer,
+    EventPublicSerializer,
     UserPublicSerializer,
     UserPrivateSerializer,
     ShareSerializer,
@@ -499,7 +500,7 @@ def get_other_timeline(request, handle):
                 privacy_level__in=['public', 'friends']
             )
 
-            serializer = EventSerializer(events, many=True)
+            serializer = EventPublicSerializer(events, many=True)
             return Response({
                 'events': serializer.data,
                 'user': {
@@ -524,7 +525,7 @@ def get_other_timeline(request, handle):
                 privacy_level__in=['public', 'friends']
             )
 
-            serializer = EventSerializer(events, many=True)
+            serializer = EventPublicSerializer(events, many=True)
             return Response({
                 'events': serializer.data,
                 'user': {
@@ -543,7 +544,7 @@ def get_other_timeline(request, handle):
             privacy_level='public'
         )
 
-        serializer = EventSerializer(events, many=True)
+        serializer = EventPublicSerializer(events, many=True)
         return Response({
             'events': serializer.data,
             'user': {
