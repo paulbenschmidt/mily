@@ -1,6 +1,5 @@
 ## Rusty feedback
 UI
-- Include major/minor/memory on the top timeline
 - Scrubbable top timeline
 
 ## In Progress
