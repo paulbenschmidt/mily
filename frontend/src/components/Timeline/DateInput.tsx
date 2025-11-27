@@ -63,9 +63,9 @@ export function DateInput({
           id={monthId}
           value={month}
           onChange={(e) => onMonthChange(e.target.value)}
-          required={required}
         >
           <option value="" disabled hidden>Select</option>
+          <option value=""></option>
           <option value="01">January</option>
           <option value="02">February</option>
           <option value="03">March</option>

@@ -88,7 +88,8 @@ export function AddEventModal({
       // Parse date into year, month, day
       const [yearStr, monthStr, dayStr] = eventToEdit.event_date.split('-');
       setYear(yearStr);
-      setMonth(monthStr);
+      // Only set month if not approximate
+      setMonth(eventToEdit.is_month_approximate ? '' : monthStr);
       // Only set day if not approximate
       setDay(eventToEdit.is_day_approximate ? '' : dayStr);
       setCategory(eventToEdit.category);
@@ -117,8 +118,8 @@ export function AddEventModal({
 
     try {
       // Validate required fields
-      if (!title || !year || !month) {
-        throw new Error('Please fill in all required fields (title, year, and month)');
+      if (!title || !year) {
+        throw new Error('Please fill in all required fields (title and year)');
       }
 
       // Validate year
@@ -128,36 +129,40 @@ export function AddEventModal({
         throw new Error('Please enter a valid year between 1900 and ' + (currentYear + 1));
       }
 
-      // Validate month
-      const monthNum = parseInt(month);
-      if (isNaN(monthNum) || monthNum < 1 || monthNum > 12) {
-        throw new Error('Please select a valid month');
-      }
-
-      // Validate day if provided
+      // Provide default values
+      let monthNum = 1;
+      let isMonthApproximate = true;
       let dayNum = 1;
       let isDayApproximate = true;
-      if (day) {
-        dayNum = parseInt(day);
-        if (isNaN(dayNum) || dayNum < 1 || dayNum > 31) {
-          throw new Error('Please enter a valid day between 1 and 31');
+
+      // Reassign month and day if provided
+      if (month) {
+        monthNum = parseInt(month);
+        if (isNaN(monthNum) || monthNum < 1 || monthNum > 12) {
+          throw new Error('Please select a valid month');
         }
-        // Validate day is valid for the selected month/year
-        const daysInMonth = new Date(yearNum, monthNum, 0).getDate();
-        if (dayNum > daysInMonth) {
-          throw new Error(`The selected month only has ${daysInMonth} days`);
+        isMonthApproximate = false;
+
+        if (day) {
+          dayNum = parseInt(day);
+          // Validate day is valid for the selected month/year
+          const daysInMonth = new Date(yearNum, monthNum, 0).getDate();
+          if (isNaN(dayNum) || dayNum < 1 || dayNum > daysInMonth) {
+            throw new Error('Please enter a valid day between 1 and ' + daysInMonth);
+          }
+          isDayApproximate = false;
         }
-        isDayApproximate = false;
       }
 
-      // Format date as YYYY-MM-DD
-      const formattedDate = `${year}-${month.padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+      // Format date as YYYY-MM-DD (defaults to January 1st if month/day not provided)
+      const formattedDate = `${year}-${String(monthNum).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
 
       const eventData = {
         title,
         description,
         event_date: formattedDate,
         is_day_approximate: isDayApproximate,
+        is_month_approximate: isMonthApproximate,
         category,
         privacy_level: privacyLevel,
         notes: notes || undefined,

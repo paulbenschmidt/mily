@@ -86,11 +86,11 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
     }
   };
 
-  const getStackedDate = (dateString: string, isDayApproximate: boolean) => {
+  const getStackedDate = (dateString: string, isDayApproximate: boolean, isMonthApproximate: boolean) => {
     const [year, month, day] = dateString.split('-').map(Number);
     const date = new Date(year, month - 1, day);
     return {
-      month: date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase(),
+      month: isMonthApproximate ? null : date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase(),
       day: isDayApproximate ? null : date.getDate().toString(),
       year: year.toString()
     };
@@ -174,7 +174,7 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
           {/* Dot with background circle to separate from line */}
           <div className="w-6 h-6 flex items-center justify-center relative">
             {/* Background circle to match background of page - sized based on category */}
-            <div className={`absolute bg-secondary-50 rounded-full ${getBackgroundCircleSize(event.category)}`} />
+            <div className={`absolute bg-white rounded-full ${getBackgroundCircleSize(event.category)}`} />
             {/* Actual dot */}
             <div
               className={`rounded-full border-2 ${getCategoryDotStyling(event.category)} ${getCategoryShadow(event.category)} flex-shrink-0 relative`}
@@ -191,18 +191,20 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
 
             <div className="flex gap-3 md:gap-4 items-center">
               {/* Stacked date on the left */}
-              <div className="flex flex-col items-center justify-start min-w-[40px] md:min-w-[50px]">
-                <Caption className="font-serif tracking-wider font-semibold text-secondary-500 leading-none">
-                  {getStackedDate(event.event_date, event.is_day_approximate).month}
+              <div className="flex flex-col items-center justify-start min-w-[35px] md:min-w-[45px]">
+                <Caption className="font-serif font-semibold text-secondary-500 leading-none mt-1">
+                  {getStackedDate(event.event_date, event.is_day_approximate, event.is_month_approximate).year}
                 </Caption>
-                {getStackedDate(event.event_date, event.is_day_approximate).day && (
-                  <BodyText className="font-serif font-semibold text-secondary-700 leading-none mt-1">
-                    {getStackedDate(event.event_date, event.is_day_approximate).day}
+                {getStackedDate(event.event_date, event.is_day_approximate, event.is_month_approximate).month && (
+                  <BodyText className={`font-serif text-secondary-500 leading-none mt-1.5`} textClass="text-xs">
+                    {getStackedDate(event.event_date, event.is_day_approximate, event.is_month_approximate).month} {getStackedDate(event.event_date, event.is_day_approximate, event.is_month_approximate).day}
                   </BodyText>
                 )}
-                <BodyText className={`font-serif text-secondary-500 leading-none ${getStackedDate(event.event_date, event.is_day_approximate).day ? 'mt-0.5 md:mt-1' : 'mt-1'}`} textClass="text-xs">
-                  {getStackedDate(event.event_date, event.is_day_approximate).year}
-                </BodyText>
+                {/* {getStackedDate(event.event_date, event.is_day_approximate, event.is_month_approximate).day && (
+                  <Caption className="font-serif font-semibold text-secondary-400 leading-none mt-1" textClass="text-s">
+                    {getStackedDate(event.event_date, event.is_day_approximate, event.is_month_approximate).day}
+                  </Caption>
+                )} */}
               </div>
 
               {/* Content on the right */}

@@ -157,7 +157,7 @@ export default function Timeline() {
   };
 
   return (
-    <div className="min-h-screen bg-secondary-50">
+    <>
       <TimelineView
         mode="owner"
         filteredEvents={filteredEvents}
@@ -197,6 +197,6 @@ export default function Timeline() {
         eventTitle={eventToDelete?.title || ''}
         isDeleting={isDeleting}
       />
-    </div>
+    </>
   );
 }

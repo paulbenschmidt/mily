@@ -33,7 +33,7 @@ export default function DemoPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <>
       <WelcomeModal isOpen={showWelcomeModal} onClose={handleCloseWelcomeModal} />
       {/* Demo Header */}
       <header className="sticky top-0 z-20 border-b border-border bg-white" style={{ height: '69px' }}>
@@ -100,6 +100,6 @@ export default function DemoPage() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

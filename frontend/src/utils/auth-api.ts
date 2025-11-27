@@ -343,46 +343,18 @@ class AuthApiClient {
   // Get list of shares (people you've shared your timeline with)
   async getSharedByYou(): Promise<Array<{
     id: string;
-    user: {
-      id: string;
-      email: string;
-      first_name: string;
-      last_name: string;
-      handle: string;
-      profile_picture: string;
-    };
+    user: UserType;
     shared_with_email: string;
-    shared_with_user: {
-      id: string;
-      email: string;
-      first_name: string;
-      last_name: string;
-      handle: string;
-      profile_picture: string;
-    } | null;
+    shared_with_user: UserType | null;
     is_accepted: boolean;
     accepted_at: string | null;
     invitation_sent_at: string;
   }>> {
     return await this.request<Array<{
       id: string;
-      user: {
-        id: string;
-        email: string;
-        first_name: string;
-        last_name: string;
-        handle: string;
-        profile_picture: string;
-      };
+      user: UserType;
       shared_with_email: string;
-      shared_with_user: {
-        id: string;
-        email: string;
-        first_name: string;
-        last_name: string;
-        handle: string;
-        profile_picture: string;
-      } | null;
+      shared_with_user: UserType | null;
       is_accepted: boolean;
       accepted_at: string | null;
       invitation_sent_at: string;
@@ -397,46 +369,18 @@ class AuthApiClient {
   // Get list of timelines shared with the current user
   async getSharedWithMe(): Promise<Array<{
     id: string;
-    user: {
-      id: string;
-      email: string;
-      first_name: string;
-      last_name: string;
-      handle: string;
-      profile_picture: string;
-    };
+    user: UserType;
     shared_with_email: string;
-    shared_with_user: {
-      id: string;
-      email: string;
-      first_name: string;
-      last_name: string;
-      handle: string;
-      profile_picture: string;
-    } | null;
+    shared_with_user: UserType | null;
     is_accepted: boolean;
     accepted_at: string | null;
     invitation_sent_at: string;
   }>> {
     return await this.request<Array<{
       id: string;
-      user: {
-        id: string;
-        email: string;
-        first_name: string;
-        last_name: string;
-        handle: string;
-        profile_picture: string;
-      };
+      user: UserType;
       shared_with_email: string;
-      shared_with_user: {
-        id: string;
-        email: string;
-        first_name: string;
-        last_name: string;
-        handle: string;
-        profile_picture: string;
-      } | null;
+      shared_with_user: UserType | null;
       is_accepted: boolean;
       accepted_at: string | null;
       invitation_sent_at: string;
@@ -480,50 +424,12 @@ class AuthApiClient {
 
   // Get another user's timeline by handle
   async getTimelineByHandle(handle: string): Promise<{
-    events: Array<{
-      id: string;
-      user: string;
-      title: string;
-      description: string;
-      notes?: string;
-      event_date: string;
-      is_day_approximate: boolean;
-      category: 'major' | 'minor' | 'memory';
-      privacy_level: 'public' | 'friends' | 'private';
-      photos?: string[];
-      tags?: string[];
-      created_at: string;
-      updated_at: string;
-    }>;
-    user: {
-      first_name: string;
-      last_name: string;
-      handle: string;
-      profile_picture: string;
-    };
+    events: TimelineEventType[];
+    user: UserType;
   }> {
     return await this.request<{
-      events: Array<{
-        id: string;
-        user: string;
-        title: string;
-        description: string;
-        notes?: string;
-        event_date: string;
-        is_day_approximate: boolean;
-        category: 'major' | 'minor' | 'memory';
-        privacy_level: 'public' | 'friends' | 'private';
-        photos?: string[];
-        tags?: string[];
-        created_at: string;
-        updated_at: string;
-      }>;
-      user: {
-        first_name: string;
-        last_name: string;
-        handle: string;
-        profile_picture: string;
-      };
+      events: TimelineEventType[];
+      user: UserType;
     }>({
       endpoint: `/timelines/${handle}`,
       options: {
