@@ -174,7 +174,7 @@ export function TimelineView({
   }
 
   return (
-    <>
+    <div className="min-h-screen bg-white">
       {/* Timeline Header */}
       <div className="sticky bg-white border-b border-secondary-200/50 px-6 py-4" style={{ top: '68px', zIndex: 40 }}>
         <div className="max-w-4xl mx-auto flex items-center justify-between">
@@ -351,6 +351,6 @@ export function TimelineView({
       onEventsAdded={handleBulkEventsAdded}
       selectedMilestones={selectedMilestones}
     />
-    </>
+    </div>
   );
 }

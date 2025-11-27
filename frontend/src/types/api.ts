@@ -30,12 +30,23 @@ export interface TimelineEventType {
   notes?: string;
   event_date: string;
   is_day_approximate: boolean;
+  is_month_approximate: boolean;
   category: EventCategory;
   privacy_level: EventPrivacyLevel;
   photos?: string[];
   tags?: string[];
   created_at: string;
   updated_at: string;
+}
+
+export interface ShareType {
+  id: string;
+  user: UserType;
+  shared_with_email: string;
+  shared_with_user: UserType | null;
+  is_accepted: boolean;
+  accepted_at: string | null;
+  invitation_sent_at: string;
 }
 
 export interface AuthResponse {
