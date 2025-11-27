@@ -8,6 +8,7 @@ import { FilterDropdown, FilterOptions } from './FilterDropdown';
 import { ShareDropdown } from './ShareDropdown';
 import { GuidedOnboarding } from './GuidedOnboarding';
 import { BulkEventModal } from './BulkEventModal';
+import { TimelineProgressIndicator } from './TimelineProgressIndicator';
 import { SmallText, BodyText, Button, Spinner } from '@/components/ui';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -94,6 +95,37 @@ export function TimelineView({
     setTimeout(() => setShowSuccessMessage(false), 5000);
   };
 
+  // Handle seeking to a specific date position
+  const handleSeek = (targetDatePercentage: number, isDragging = false) => {
+
+    // NOTE: there is a minor bug that prevents users from clicking on the second event when the timeline is at the top.
+    // This is because the second event is too high up to be at the center of the viewport, so when attempting to
+    // scroll to it, it just scrolls to the top of the timeline (the first event) and moves the dot to the far right
+    // of the timeline.
+
+    if (filteredEvents.length === 0) return;
+
+    const firstEventDate = new Date(filteredEvents[0].event_date).getTime();
+    const lastEventDate = new Date(filteredEvents[filteredEvents.length - 1].event_date).getTime();
+    const totalTimeSpan = Math.abs(firstEventDate - lastEventDate);
+
+    // Calculate target date
+    const targetDate = firstEventDate - (totalTimeSpan * targetDatePercentage / 100);
+
+    // Find closest event to target date
+    const closestEvent = filteredEvents.reduce((prev, curr) => {
+      const prevDiff = Math.abs(new Date(prev.event_date).getTime() - targetDate);
+      const currDiff = Math.abs(new Date(curr.event_date).getTime() - targetDate);
+      return currDiff < prevDiff ? curr : prev;
+    });
+
+    // Scroll that event to center - instant during drag, smooth on click
+    const element = document.querySelector(`[data-event-id="${closestEvent.id}"]`);
+    if (element) {
+      element.scrollIntoView({ behavior: isDragging ? 'instant' : 'smooth', block: 'center' });
+    }
+  };
+
   // Track scroll progress based on the event in the center of the viewport
   useEffect(() => {
     const handleScroll = () => {
@@ -103,13 +135,13 @@ export function TimelineView({
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
 
       // If at the very top, show 0%
-      if (scrollTop <= 10) {
+      if (scrollTop < 1) {
         setScrollProgress(0);
         return;
       }
 
       // If at the very bottom, show 100%
-      if (scrollTop >= docHeight - 10) {
+      if (scrollTop >= docHeight - 1) {
         setScrollProgress(100);
         return;
       }
@@ -253,28 +285,11 @@ export function TimelineView({
         </div>
 
         {/* Timeline Progress Indicator */}
-        {filteredEvents.length > 0 && (
-          <div className="max-w-4xl mx-auto flex items-center gap-3 pt-3">
-            {/* Last event year (on left) */}
-            <SmallText className="font-serif font-semibold text-secondary-500 text-xs whitespace-nowrap">
-              {filteredEvents[filteredEvents.length - 1].event_date.split('-')[0]}
-            </SmallText>
-
-            {/* Progress line with moving dot */}
-            <div className="relative flex-1 h-1 bg-secondary-200 rounded-full">
-              {/* Moving dot */}
-              <div
-                className="absolute top-1/2 w-2 h-2 bg-secondary-500 rounded-full transition-all duration-300 ease-out shadow-sm"
-                style={{ left: `${100 - scrollProgress}%`, transform: 'translate(-50%, -50%)' }}
-              />
-            </div>
-
-            {/* First event year (on right) */}
-            <SmallText className="font-serif font-semibold text-secondary-500 text-xs whitespace-nowrap">
-              {filteredEvents[0].event_date.split('-')[0]}
-            </SmallText>
-          </div>
-        )}
+        <TimelineProgressIndicator
+          filteredEvents={filteredEvents}
+          scrollProgress={scrollProgress}
+          onSeek={handleSeek}
+        />
       </div>
 
       <main className="max-w-4xl mx-auto px-4 py-6 md:px-6 md:py-8" ref={timelineRef}>

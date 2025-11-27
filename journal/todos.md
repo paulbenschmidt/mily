@@ -1,11 +1,5 @@
-## Rusty feedback
-UI
-- Include major/minor/memory on the top timeline
-- Scrubbable top timeline
-
 ## In Progress
 - ENHANCE: Update Google description text to be less clunky (search for it on Google with "timeline mily" and you'll see it)
-- ESSENTIAL: Track conversion for the LinkedIn post
 
 ## To Organize
 - FEATURE: Reflection prompts/cards that ask "What is a time where you felt very excited/sad?" to get people thinking about different events to add them
@@ -44,9 +38,10 @@ UI
     - If I add it as part of the profile, I can add a little blurb that says "this field will be used to calculate your age for each event". It'll also auto-add an event to the user's timeline for their birthday.
 
 ### Enhancement
+- ENHANCE: Update landing page timeline example to have larger font size (maybe shorten descriptions, too)
+    - Update screenshot
 - ENHANCE: Create UTM parameters when sharing out different pages
     - Log UTM parameters on signup so that we can track where users are coming from
-- ENHANCE: Update landing page timeline example to have larger font size (maybe shorten descriptions, too)
 - ENHANCE (needs polling): What should the design look like? (neumorphism, soft brutalism, etc)
 - ENHANCE: For friend requests, allow user blocking as first action
     - Currently a post request to friendship is required as the primary action

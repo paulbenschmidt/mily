@@ -20,6 +20,7 @@ By focusing on the user experience and doing things that didn't scale, they buil
 
 ---
 
+- Build system for tracking conversion on posts
 - Set up newsletter to update users on new features
 - OUTREACH: Add check box for newsletter?
 - OUTREACH: Post in Huffman Neighborhood group
