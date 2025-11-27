@@ -99,8 +99,9 @@ export function TimelineView({
   const handleSeek = (targetDatePercentage: number, isDragging = false) => {
 
     // NOTE: there is a minor bug that prevents users from clicking on the second event when the timeline is at the top.
-    // This is because the top event can never be at the center of the viewport, so when at the top of the timeline,
-    // the scroll position is set to be the rightmost possible position on the timeline.
+    // This is because the second event is too high up to be at the center of the viewport, so when attempting to
+    // scroll to it, it just scrolls to the top of the timeline (the first event) and moves the dot to the far right
+    // of the timeline.
 
     if (filteredEvents.length === 0) return;
 

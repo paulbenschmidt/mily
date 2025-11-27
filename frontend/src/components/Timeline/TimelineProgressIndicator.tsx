@@ -18,8 +18,12 @@ export function TimelineProgressIndicator({
   const mouseDownPos = useRef<{ x: number; y: number } | null>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
 
+  // Minimum movement (in pixels) required to distinguish a drag from a click/tap.
+  // Movements below this threshold trigger smooth scrolling (click behavior),
+  // while movements above trigger instant scrolling (drag behavior).
   const DRAG_THRESHOLD = 3; // pixels
 
+  // Calculate target percentage when clicking on the timeline
   const calculateTargetPercentage = (clientX: number): number => {
     if (!progressBarRef.current) return 0;
     const rect = progressBarRef.current.getBoundingClientRect();
@@ -28,6 +32,7 @@ export function TimelineProgressIndicator({
     return 100 - clickPercentage; // Inverted because timeline goes newest→oldest
   };
 
+  // Get client position (x and y) to determine if dragging across the timeline (mouse or touch)
   const getClientPosition = (e: MouseEvent | TouchEvent): { x: number; y: number } => {
     if ('touches' in e) {
       return { x: e.touches[0].clientX, y: e.touches[0].clientY };
@@ -35,6 +40,7 @@ export function TimelineProgressIndicator({
     return { x: e.clientX, y: e.clientY };
   };
 
+  // Get client X position for clicking on the timeline (mouse or touch)
   const getClientX = (e: MouseEvent | TouchEvent): number => {
     if ('touches' in e && e.touches[0]) {
       return e.touches[0].clientX;
@@ -45,6 +51,7 @@ export function TimelineProgressIndicator({
     return (e as MouseEvent).clientX;
   };
 
+  // Handle pointer down (mouse or touch) on the timeline to determine starting position
   const handlePointerDown = (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
     if (!onSeek) return;
     const pos = 'touches' in e ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : { x: e.clientX, y: e.clientY };
@@ -53,6 +60,7 @@ export function TimelineProgressIndicator({
     mouseDownPos.current = pos;
   };
 
+  // Handle pointer move (mouse or touch) while dragging across the timeline to determine movement
   const handlePointerMove = (e: MouseEvent | TouchEvent) => {
     if (!isDragging || !onSeek || !mouseDownPos.current) return;
 
@@ -67,6 +75,7 @@ export function TimelineProgressIndicator({
     }
   };
 
+  // Handle pointer up (mouse or touch) after dragging across the timeline to determine final position
   const handlePointerUp = (e: MouseEvent | TouchEvent) => {
     if (!onSeek) return;
 
@@ -97,7 +106,7 @@ export function TimelineProgressIndicator({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDragging]);
 
-  // Early return after all hooks
+  // Early return after all hooks to avoid React error
   if (filteredEvents.length === 0) {
     return null;
   }
