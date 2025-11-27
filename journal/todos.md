@@ -1,10 +1,5 @@
-## Rusty feedback
-UI
-- Scrubbable top timeline
-
 ## In Progress
 - ENHANCE: Update Google description text to be less clunky (search for it on Google with "timeline mily" and you'll see it)
-- ESSENTIAL: Track conversion for the LinkedIn post
 
 ## To Organize
 - FEATURE: Reflection prompts/cards that ask "What is a time where you felt very excited/sad?" to get people thinking about different events to add them
