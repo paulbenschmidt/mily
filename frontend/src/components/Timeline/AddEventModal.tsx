@@ -117,12 +117,8 @@ export function AddEventModal({
     setError(null);
 
     try {
-      // Validate required fields
-      if (!title || !year) {
-        throw new Error('Please fill in all required fields (title and year)');
-      }
 
-      // Process and validate date inputs
+      // Process and validate date inputs (additional validation is native to required fields)
       const { yearNum, monthNum, dayNum, isMonthApproximate, isDayApproximate } = processDateInputs(year, month, day);
 
       // Format date as YYYY-MM-DD (defaults to January 1st if month/day not provided)
