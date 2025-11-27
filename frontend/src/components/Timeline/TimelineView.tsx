@@ -97,6 +97,11 @@ export function TimelineView({
 
   // Handle seeking to a specific date position
   const handleSeek = (targetDatePercentage: number, isDragging = false) => {
+
+    // NOTE: there is a minor bug that prevents users from clicking on the second event when the timeline is at the top.
+    // This is because the top event can never be at the center of the viewport, so when at the top of the timeline,
+    // the scroll position is set to be the rightmost possible position on the timeline.
+
     if (filteredEvents.length === 0) return;
 
     const firstEventDate = new Date(filteredEvents[0].event_date).getTime();
@@ -129,13 +134,13 @@ export function TimelineView({
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
 
       // If at the very top, show 0%
-      if (scrollTop <= 10) {
+      if (scrollTop < 1) {
         setScrollProgress(0);
         return;
       }
 
       // If at the very bottom, show 100%
-      if (scrollTop >= docHeight - 10) {
+      if (scrollTop >= docHeight - 1) {
         setScrollProgress(100);
         return;
       }
