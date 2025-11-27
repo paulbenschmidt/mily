@@ -39,6 +39,16 @@ export interface TimelineEventType {
   updated_at: string;
 }
 
+export interface ShareType {
+  id: string;
+  user: UserType;
+  shared_with_email: string;
+  shared_with_user: UserType | null;
+  is_accepted: boolean;
+  accepted_at: string | null;
+  invitation_sent_at: string;
+}
+
 export interface AuthResponse {
   message: string;
   user?: UserType;

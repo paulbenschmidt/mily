@@ -1,69 +1,24 @@
 'use client';
 
+import { UserType, ShareType } from '@/types/api';
 import { useState, useEffect } from 'react';
 import { Button, Input, PageHeading, SmallText } from '@/components/ui';
 import { ShareTimelineModal, RemoveShareModal } from '@/components/Shares';
 import { authApiClient } from '@/utils/auth-api';
 
-interface Share {
-  id: string;
-  user: {
-    id: string;
-    email: string;
-    first_name: string;
-    last_name: string;
-    handle: string;
-    profile_picture: string;
-  };
-  shared_with_email: string;
-  shared_with_user: {
-    id: string;
-    email: string;
-    first_name: string;
-    last_name: string;
-    handle: string;
-    profile_picture: string;
-  } | null;
-  is_accepted: boolean;
-  accepted_at: string | null;
-  invitation_sent_at: string;
-}
-
-interface SharedWithMe {
-  id: string;
-  user: {
-    id: string;
-    email: string;
-    first_name: string;
-    last_name: string;
-    handle: string;
-  };
-  shared_with_email: string;
-  shared_with_user: {
-    id: string;
-    email: string;
-    first_name: string;
-    last_name: string;
-    handle: string;
-    profile_picture: string;
-  } | null;
-  is_accepted: boolean;
-  accepted_at: string | null;
-  invitation_sent_at: string;
-}
 
 type TabType = 'shared-by-you' | 'shared-with-you';
 
 export default function SharingPage() {
   const [activeTab, setActiveTab] = useState<TabType>('shared-by-you');
-  const [sharedByYou, setSharedByYou] = useState<Share[]>([]);
-  const [sharedWithMe, setSharedWithMe] = useState<SharedWithMe[]>([]);
+  const [sharedByYou, setSharedByYou] = useState<ShareType[]>([]);
+  const [sharedWithMe, setSharedWithMe] = useState<ShareType[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isShareTimelineModalOpen, setIsShareTimelineModalOpen] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [shareToRemove, setShareToRemove] = useState<Share | null>(null);
+  const [shareToRemove, setShareToRemove] = useState<ShareType | null>(null);
   const [isRemoving, setIsRemoving] = useState(false);
   const [processingShareId, setProcessingShareId] = useState<string | null>(null);
   const [isPublic, setIsPublic] = useState(false);
@@ -151,7 +106,7 @@ export default function SharingPage() {
     }
   }, [showSuccessMessage]);
 
-  const handleRemoveClick = (share: Share) => {
+  const handleRemoveClick = (share: ShareType) => {
     setShareToRemove(share);
   };
 
@@ -175,7 +130,7 @@ export default function SharingPage() {
     setShareToRemove(null);
   };
 
-  const handleAcceptInvitation = async (share: SharedWithMe) => {
+  const handleAcceptInvitation = async (share: ShareType) => {
     try {
       setProcessingShareId(share.id);
       await authApiClient.acceptShareInvitation(share.id);
@@ -190,7 +145,7 @@ export default function SharingPage() {
     }
   };
 
-  const handleRejectInvitation = async (share: SharedWithMe) => {
+  const handleRejectInvitation = async (share: ShareType) => {
     try {
       setProcessingShareId(share.id);
       await authApiClient.rejectShareInvitation(share.id);
@@ -254,7 +209,7 @@ export default function SharingPage() {
     return text.charAt(0).toUpperCase();
   };
 
-  const getDisplayName = (user: SharedWithMe['user'] | Share['shared_with_user']) => {
+  const getDisplayName = (user: ShareType['user'] | ShareType['shared_with_user']) => {
     if (!user) return '';
     const fullName = `${user.first_name} ${user.last_name}`.trim();
     return fullName || user.email;

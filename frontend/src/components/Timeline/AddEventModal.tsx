@@ -3,12 +3,13 @@
 import { useState, useEffect } from 'react';
 import { TimelineEventType, EventCategory, EventPrivacyLevel, EVENT_CATEGORIES, EVENT_PRIVACY_LEVELS } from '@/types/api';
 import { authApiClient } from '@/utils/auth-api';
-import { Input, Button, Subheading, Alert, Textarea, Select, SmallText } from '@/components/ui';
+import { Input, Button, Subheading, Alert, Textarea } from '@/components/ui';
 import { DateInput } from './DateInput';
 import { ToggleButtonGroup } from '@/components/Timeline';
 import { useAutoFocus } from '@/hooks/useAutoFocus';
 import { useModalKeyboardShortcuts } from '@/hooks/useModalKeyboardShortcuts';
 import { useDisableBodyScroll } from '@/hooks/disableBodyScroll';
+import { processDateInputs } from '@/utils/date-validation';
 
 const DEFAULT_CATEGORY: EventCategory = 'memory';
 const DEFAULT_PRIVACY_LEVEL: EventPrivacyLevel = 'private';
@@ -110,7 +111,6 @@ export function AddEventModal({
     onClose();
   };
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -122,40 +122,11 @@ export function AddEventModal({
         throw new Error('Please fill in all required fields (title and year)');
       }
 
-      // Validate year
-      const yearNum = parseInt(year);
-      const currentYear = new Date().getFullYear();
-      if (isNaN(yearNum) || yearNum < 1900 || yearNum > currentYear + 1) {
-        throw new Error('Please enter a valid year between 1900 and ' + (currentYear + 1));
-      }
-
-      // Provide default values
-      let monthNum = 1;
-      let isMonthApproximate = true;
-      let dayNum = 1;
-      let isDayApproximate = true;
-
-      // Reassign month and day if provided
-      if (month) {
-        monthNum = parseInt(month);
-        if (isNaN(monthNum) || monthNum < 1 || monthNum > 12) {
-          throw new Error('Please select a valid month');
-        }
-        isMonthApproximate = false;
-
-        if (day) {
-          dayNum = parseInt(day);
-          // Validate day is valid for the selected month/year
-          const daysInMonth = new Date(yearNum, monthNum, 0).getDate();
-          if (isNaN(dayNum) || dayNum < 1 || dayNum > daysInMonth) {
-            throw new Error('Please enter a valid day between 1 and ' + daysInMonth);
-          }
-          isDayApproximate = false;
-        }
-      }
+      // Process and validate date inputs
+      const { yearNum, monthNum, dayNum, isMonthApproximate, isDayApproximate } = processDateInputs(year, month, day);
 
       // Format date as YYYY-MM-DD (defaults to January 1st if month/day not provided)
-      const formattedDate = `${year}-${String(monthNum).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+      const formattedDate = `${yearNum}-${String(monthNum).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
 
       const eventData = {
         title,

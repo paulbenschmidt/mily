@@ -200,11 +200,6 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
                     {getStackedDate(event.event_date, event.is_day_approximate, event.is_month_approximate).month} {getStackedDate(event.event_date, event.is_day_approximate, event.is_month_approximate).day}
                   </BodyText>
                 )}
-                {/* {getStackedDate(event.event_date, event.is_day_approximate, event.is_month_approximate).day && (
-                  <Caption className="font-serif font-semibold text-secondary-400 leading-none mt-1" textClass="text-s">
-                    {getStackedDate(event.event_date, event.is_day_approximate, event.is_month_approximate).day}
-                  </Caption>
-                )} */}
               </div>
 
               {/* Content on the right */}

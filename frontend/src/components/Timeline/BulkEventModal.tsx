@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import { TimelineEventType } from '@/types/api';
 import { authApiClient } from '@/utils/auth-api';
-import { Input, Button, Subheading, Alert, Select, SmallText } from '@/components/ui';
+import { Input, Button, Subheading, Alert } from '@/components/ui';
 import { DateInput } from './DateInput';
 import { useDisableBodyScroll } from '@/hooks/disableBodyScroll';
+import { processDateInputs } from '@/utils/date-validation';
 
 interface EventFormData {
   title: string;
@@ -61,53 +62,20 @@ export function BulkEventModal({
     setError(null);
 
     try {
-      // Validate all forms
-      for (let i = 0; i < eventForms.length; i++) {
-        const form = eventForms[i];
-        if (!form.title || !form.year || !form.month) {
-          throw new Error(`Please fill in all required fields for event ${i + 1}`);
-        }
 
-        const yearNum = parseInt(form.year);
-        const currentYear = new Date().getFullYear();
-        if (isNaN(yearNum) || yearNum < 1900 || yearNum > currentYear + 1) {
-          throw new Error(`Please enter a valid year for "${form.title}"`);
-        }
-
-        const monthNum = parseInt(form.month);
-        if (isNaN(monthNum) || monthNum < 1 || monthNum > 12) {
-          throw new Error(`Please select a valid month for "${form.title}"`);
-        }
-
-        // Validate day if provided
-        let dayNum = 1;
-        let isDayApproximate = true;
-        if (form.day) {
-          dayNum = parseInt(form.day);
-          if (isNaN(dayNum) || dayNum < 1 || dayNum > 31) {
-            throw new Error(`Please enter a valid day for "${form.title}"`);
-          }
-          isDayApproximate = false;
-        }
-      }
-
-      // Create all events
+      // Create all events (validation handled by `required` attributes in form and `processDateInputs` function)
       const createdEvents: TimelineEventType[] = [];
       for (const form of eventForms) {
-        // Determine if day is approximate
-        let dayNum = 1;
-        let isDayApproximate = true;
-        if (form.day) {
-          dayNum = parseInt(form.day);
-          isDayApproximate = false;
-        }
 
-        const eventDate = `${form.year}-${form.month.padStart(2, '0')}-${dayNum.toString().padStart(2, '0')}`;
+        const { yearNum, monthNum, dayNum, isMonthApproximate, isDayApproximate } = processDateInputs(form.year, form.month, form.day);
+
+        const eventDate = `${yearNum}-${String(monthNum).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
 
         const event = await authApiClient.createEvent({
           title: form.title,
           description: '',
           event_date: eventDate,
+          is_month_approximate: isMonthApproximate,
           is_day_approximate: isDayApproximate,
           category: 'major', // Default to major for guided onboarding
           privacy_level: 'private', // Default to private
