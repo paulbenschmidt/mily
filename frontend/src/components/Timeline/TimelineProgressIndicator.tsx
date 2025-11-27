@@ -18,14 +18,6 @@ export function TimelineProgressIndicator({
   const mouseDownPos = useRef<{ x: number; y: number } | null>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
 
-  if (filteredEvents.length === 0) {
-    return null;
-  }
-
-  const firstEventDate = new Date(filteredEvents[0].event_date).getTime();
-  const lastEventDate = new Date(filteredEvents[filteredEvents.length - 1].event_date).getTime();
-  const totalTimeSpan = Math.abs(firstEventDate - lastEventDate);
-
   const DRAG_THRESHOLD = 3; // pixels
 
   const calculateTargetPercentage = (clientX: number): number => {
@@ -104,6 +96,15 @@ export function TimelineProgressIndicator({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDragging]);
+
+  // Early return after all hooks
+  if (filteredEvents.length === 0) {
+    return null;
+  }
+
+  const firstEventDate = new Date(filteredEvents[0].event_date).getTime();
+  const lastEventDate = new Date(filteredEvents[filteredEvents.length - 1].event_date).getTime();
+  const totalTimeSpan = Math.abs(firstEventDate - lastEventDate);
 
   return (
     <div className="max-w-4xl mx-auto flex items-center gap-5 pt-3">
