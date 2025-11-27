@@ -1,8 +1,3 @@
-- Allow users ability to update handle/first name/last name
-
-- Verify that shares data still loads now that I've swapped it out for UserType
-- Verify that my first name is showing user because I don't have a name
-
 ## Rusty feedback
 UI
 - Include major/minor/memory on the top timeline
