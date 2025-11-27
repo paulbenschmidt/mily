@@ -145,10 +145,10 @@ export function TimelineProgressIndicator({
               let dotClass = '';
               switch (event.category) {
                 case 'major':
-                  dotClass = 'w-2 h-2 bg-primary-400';
+                  dotClass = 'w-3 h-3 bg-primary-400';
                   break;
                 case 'minor':
-                  dotClass = 'w-1.5 h-1.5 bg-primary-300';
+                  dotClass = 'w-2 h-2 bg-primary-300';
                   break;
                 case 'memory':
                   dotClass = 'w-1 h-1 bg-primary-200';
