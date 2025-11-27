@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { authApiClient } from '@/utils/auth-api';
-import { PageHeading, SectionHeading, BodyText, Caption, Button, Alert } from '@/components/ui';
+import { PageHeading, SectionHeading, BodyText, Caption, Button, Alert, Input } from '@/components/ui';
 
 export default function SettingsPage() {
   const { user, logout, checkAuth } = useAuth();
@@ -110,7 +110,7 @@ export default function SettingsPage() {
       // Hide success message after 5 seconds
       setTimeout(() => setPasswordSuccess(false), 5000);
     } catch (err) {
-      setPasswordError(err instanceof Error ? err.message : 'Failed to change password. Please try again.');
+      setPasswordError('Failed to change password. Please try again.');
     } finally {
       setIsChangingPassword(false);
     }
@@ -152,7 +152,7 @@ export default function SettingsPage() {
       // Hide success message after 5 seconds
       setTimeout(() => setAccountSuccess(false), 5000);
     } catch (err) {
-      setAccountError(err instanceof Error ? err.message : 'Failed to update account information. Please try again.');
+      setAccountError('Failed to update account information. Please try again.');
     } finally {
       setIsSavingAccount(false);
     }
@@ -237,49 +237,45 @@ export default function SettingsPage() {
                 <BodyText className="font-medium text-secondary-400">{user.email}</BodyText>
               </div>
 
-              <div>
-                <label htmlFor="first-name" className="block mb-2">
-                  <BodyText className="font-medium">First Name</BodyText>
-                </label>
-                <input
-                  id="first-name"
-                  type="text"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand"
-                  placeholder="Enter first name"
-                />
-              </div>
+              <Input
+                id="first-name"
+                label="First Name"
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                placeholder="Enter first name"
+              />
+
+              <Input
+                id="last-name"
+                label="Last Name"
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                placeholder="Enter last name"
+              />
 
               <div>
-                <label htmlFor="last-name" className="block mb-2">
-                  <BodyText className="font-medium">Last Name</BodyText>
-                </label>
-                <input
-                  id="last-name"
-                  type="text"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand"
-                  placeholder="Enter last name"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="handle" className="block mb-2">
-                  <BodyText className="font-medium">Handle</BodyText>
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-2 text-secondary-600">@</span>
-                  <input
-                    id="handle"
-                    type="text"
-                    value={handle}
-                    onChange={(e) => setHandle(e.target.value)}
-                    className="w-full pl-7 pr-3 py-2 border border-secondary-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand"
-                    placeholder="Enter handle"
-                  />
+                <div className="flex items-center gap-1 mb-1">
+                  <label htmlFor="handle" className="block text-sm font-medium text-secondary-700">
+                    Handle
+                  </label>
+                  <div className="group relative">
+                    <svg className="w-4 h-4 text-secondary-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block w-64 p-2 bg-secondary-900 text-white text-xs rounded shadow-lg z-20">
+                      Your handle defines your timeline&apos;s unique URL when sharing (e.g., {process.env.NEXT_PUBLIC_FRONTEND_URL}/timeline/{handle})
+                    </div>
+                  </div>
                 </div>
+                <Input
+                  id="handle"
+                  type="text"
+                  value={handle}
+                  onChange={(e) => setHandle(e.target.value)}
+                  placeholder="yourhandle"
+                />
                 <Caption className="text-secondary-500 text-xs mt-1">
                   3-30 characters, letters, numbers, and underscores only
                 </Caption>
