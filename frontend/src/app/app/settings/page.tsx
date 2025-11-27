@@ -3,16 +3,25 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { authApiClient } from '@/utils/auth-api';
-import { PageHeading, SectionHeading, BodyText, Button, Alert } from '@/components/ui';
+import { PageHeading, SectionHeading, BodyText, Caption, Button, Alert, Input } from '@/components/ui';
 
 export default function SettingsPage() {
-  const { user, logout } = useAuth();
+  const { user, logout, checkAuth } = useAuth();
   const [isExporting, setIsExporting] = useState(false);
   const [exportSuccess, setExportSuccess] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState('');
+
+  // Account info edit state
+  const [isEditingAccount, setIsEditingAccount] = useState(false);
+  const [firstName, setFirstName] = useState(user?.first_name || '');
+  const [lastName, setLastName] = useState(user?.last_name || '');
+  const [handle, setHandle] = useState(user?.handle || '');
+  const [isSavingAccount, setIsSavingAccount] = useState(false);
+  const [accountSuccess, setAccountSuccess] = useState(false);
+  const [accountError, setAccountError] = useState('');
 
   // Password change state
   const [showPasswordChange, setShowPasswordChange] = useState(false);
@@ -101,9 +110,51 @@ export default function SettingsPage() {
       // Hide success message after 5 seconds
       setTimeout(() => setPasswordSuccess(false), 5000);
     } catch (err) {
-      setPasswordError(err instanceof Error ? err.message : 'Failed to change password. Please try again.');
+      setPasswordError('Failed to change password. Please try again.');
     } finally {
       setIsChangingPassword(false);
+    }
+  };
+
+  const handleSaveAccountInfo = async () => {
+    setAccountError('');
+    setAccountSuccess(false);
+
+    // Validation
+    if (!firstName.trim() || !lastName.trim() || !handle.trim()) {
+      setAccountError('All fields are required.');
+      return;
+    }
+
+    // Handle validation - alphanumeric and underscores only, 3-30 characters
+    const handleRegex = /^[a-zA-Z0-9_]{3,30}$/;
+    if (!handleRegex.test(handle)) {
+      setAccountError('Handle must be 3-30 characters and contain only letters, numbers, and underscores.');
+      return;
+    }
+
+    setIsSavingAccount(true);
+
+    try {
+      await authApiClient.updateUser({
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
+        handle: handle.trim(),
+      });
+
+      // Success - refresh user data from backend
+      await checkAuth();
+
+      // Exit edit mode and show success message
+      setIsEditingAccount(false);
+      setAccountSuccess(true);
+
+      // Hide success message after 5 seconds
+      setTimeout(() => setAccountSuccess(false), 5000);
+    } catch (err) {
+      setAccountError('Failed to update account information. Please try again.');
+    } finally {
+      setIsSavingAccount(false);
     }
   };
 
@@ -140,42 +191,126 @@ export default function SettingsPage() {
 
         {/* Account Information */}
         <section className="bg-white rounded-lg border border-secondary-200 p-6 mb-6">
-          <SectionHeading className="mb-4">Account Information</SectionHeading>
-          <div className="space-y-3">
-            <div>
-              <BodyText className="text-secondary-600 text-sm">Email</BodyText>
-              <BodyText className="font-medium">{user.email}</BodyText>
-            </div>
-            <div>
-              <BodyText className="text-secondary-600 text-sm">Name</BodyText>
-              <BodyText className="font-medium">{user.first_name} {user.last_name}</BodyText>
-            </div>
-            <div>
-              <BodyText className="text-secondary-600 text-sm">Handle</BodyText>
-              <BodyText className="font-medium">@{user.handle}</BodyText>
-            </div>
+          <div className="flex items-center justify-between mb-4">
+            <SectionHeading>Account Information</SectionHeading>
+            {!isEditingAccount && (
+              <Button
+                onClick={() => {
+                  setIsEditingAccount(true);
+                  setFirstName(user.first_name);
+                  setLastName(user.last_name);
+                  setHandle(user.handle);
+                }}
+                variant="secondary"
+                size="sm"
+              >
+                Edit
+              </Button>
+            )}
           </div>
-        </section>
 
-        {/* Data Export */}
-        <section className="bg-white rounded-lg border border-secondary-200 p-6 mb-6">
-          <SectionHeading className="mb-2">Export Your Data</SectionHeading>
-          <BodyText className="text-secondary-600 mb-4">
-            Download all your timeline events as a CSV file. This includes event dates, titles, notes, and other details.
-          </BodyText>
-          {exportSuccess && (
+          {accountSuccess && (
             <Alert variant="success" className="mb-4">
-              Your timeline has been exported successfully!
+              Account information updated successfully!
             </Alert>
           )}
-          <Button
-            onClick={handleExportEvents}
-            disabled={isExporting}
-            variant="secondary"
-            size="md"
-          >
-            {isExporting ? 'Exporting...' : 'Export Timeline as CSV'}
-          </Button>
+
+          {!isEditingAccount ? (
+            <div className="space-y-3">
+              <div>
+                <BodyText className="text-secondary-600 text-sm">Email</BodyText>
+                <BodyText className="font-medium">{user.email}</BodyText>
+              </div>
+              <div>
+                <BodyText className="text-secondary-600 text-sm">Name</BodyText>
+                <BodyText className="font-medium">{user.first_name} {user.last_name}</BodyText>
+              </div>
+              <div>
+                <BodyText className="text-secondary-600 text-sm">Handle</BodyText>
+                <BodyText className="font-medium">@{user.handle}</BodyText>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div>
+                <BodyText className="text-secondary-600 text-sm mb-1">Email</BodyText>
+                <BodyText className="font-medium text-secondary-400">{user.email}</BodyText>
+              </div>
+
+              <Input
+                id="first-name"
+                label="First Name"
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                placeholder="Enter first name"
+              />
+
+              <Input
+                id="last-name"
+                label="Last Name"
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                placeholder="Enter last name"
+              />
+
+              <div>
+                <div className="flex items-center gap-1 mb-1">
+                  <label htmlFor="handle" className="block text-sm font-medium text-secondary-700">
+                    Handle
+                  </label>
+                  <div className="group relative">
+                    <svg className="w-4 h-4 text-secondary-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block w-64 p-2 bg-secondary-900 text-white text-xs rounded shadow-lg z-20">
+                      Your handle defines your timeline&apos;s unique URL when sharing (e.g., {process.env.NEXT_PUBLIC_FRONTEND_URL}/timeline/{handle})
+                    </div>
+                  </div>
+                </div>
+                <Input
+                  id="handle"
+                  type="text"
+                  value={handle}
+                  onChange={(e) => setHandle(e.target.value)}
+                  placeholder="yourhandle"
+                />
+                <Caption className="text-secondary-500 text-xs mt-1">
+                  3-30 characters, letters, numbers, and underscores only
+                </Caption>
+              </div>
+
+              {accountError && (
+                <Alert variant="error">{accountError}</Alert>
+              )}
+
+              <div className="flex gap-3">
+                <Button
+                  onClick={handleSaveAccountInfo}
+                  disabled={isSavingAccount}
+                  variant="primary"
+                  size="md"
+                >
+                  {isSavingAccount ? 'Saving...' : 'Save Changes'}
+                </Button>
+                <Button
+                  onClick={() => {
+                    setIsEditingAccount(false);
+                    setFirstName(user.first_name);
+                    setLastName(user.last_name);
+                    setHandle(user.handle);
+                    setAccountError('');
+                  }}
+                  variant="secondary"
+                  size="md"
+                  disabled={isSavingAccount}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
         </section>
 
         {/* Password Change */}
@@ -276,6 +411,27 @@ export default function SettingsPage() {
               </div>
             </div>
           )}
+        </section>
+
+        {/* Data Export */}
+        <section className="bg-white rounded-lg border border-secondary-200 p-6 mb-6">
+          <SectionHeading className="mb-2">Export Your Data</SectionHeading>
+          <BodyText className="text-secondary-600 mb-4">
+            Download all your timeline events as a CSV file. This includes event dates, titles, notes, and other details.
+          </BodyText>
+          {exportSuccess && (
+            <Alert variant="success" className="mb-4">
+              Your timeline has been exported successfully!
+            </Alert>
+          )}
+          <Button
+            onClick={handleExportEvents}
+            disabled={isExporting}
+            variant="secondary"
+            size="md"
+          >
+            {isExporting ? 'Exporting...' : 'Export Timeline as CSV'}
+          </Button>
         </section>
 
         {/* Privacy Settings */}
