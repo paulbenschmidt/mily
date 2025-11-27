@@ -36,32 +36,51 @@ export function TimelineProgressIndicator({
     return 100 - clickPercentage; // Inverted because timeline goes newest→oldest
   };
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!onSeek) return;
-    setIsDragging(true);
-    setHasMoved(false);
-    mouseDownPos.current = { x: e.clientX, y: e.clientY };
+  const getClientPosition = (e: MouseEvent | TouchEvent): { x: number; y: number } => {
+    if ('touches' in e) {
+      return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }
+    return { x: e.clientX, y: e.clientY };
   };
 
-  const handleMouseMove = (e: MouseEvent) => {
+  const getClientX = (e: MouseEvent | TouchEvent): number => {
+    if ('touches' in e && e.touches[0]) {
+      return e.touches[0].clientX;
+    }
+    if ('changedTouches' in e && (e as TouchEvent).changedTouches[0]) {
+      return (e as TouchEvent).changedTouches[0].clientX;
+    }
+    return (e as MouseEvent).clientX;
+  };
+
+  const handlePointerDown = (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
+    if (!onSeek) return;
+    const pos = 'touches' in e ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : { x: e.clientX, y: e.clientY };
+    setIsDragging(true);
+    setHasMoved(false);
+    mouseDownPos.current = pos;
+  };
+
+  const handlePointerMove = (e: MouseEvent | TouchEvent) => {
     if (!isDragging || !onSeek || !mouseDownPos.current) return;
 
-    const deltaX = Math.abs(e.clientX - mouseDownPos.current.x);
-    const deltaY = Math.abs(e.clientY - mouseDownPos.current.y);
+    const { x, y } = getClientPosition(e);
+    const deltaX = Math.abs(x - mouseDownPos.current.x);
+    const deltaY = Math.abs(y - mouseDownPos.current.y);
     const hasMovedEnough = deltaX > DRAG_THRESHOLD || deltaY > DRAG_THRESHOLD;
 
     if (hasMovedEnough) {
       setHasMoved(true);
-      onSeek(calculateTargetPercentage(e.clientX), true);
+      onSeek(calculateTargetPercentage(x), true);
     }
   };
 
-  const handleMouseUp = (e: MouseEvent) => {
+  const handlePointerUp = (e: MouseEvent | TouchEvent) => {
     if (!onSeek) return;
 
-    // If mouse didn't move enough, treat as click with smooth scroll
+    // If pointer didn't move enough, treat as click/tap with smooth scroll
     if (!hasMoved) {
-      onSeek(calculateTargetPercentage(e.clientX), false);
+      onSeek(calculateTargetPercentage(getClientX(e)), false);
     }
 
     setIsDragging(false);
@@ -69,14 +88,18 @@ export function TimelineProgressIndicator({
     mouseDownPos.current = null;
   };
 
-  // Add/remove global mouse event listeners for dragging
+  // Add/remove global pointer event listeners for dragging
   useEffect(() => {
     if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener('mousemove', handlePointerMove);
+      window.addEventListener('mouseup', handlePointerUp);
+      window.addEventListener('touchmove', handlePointerMove);
+      window.addEventListener('touchend', handlePointerUp);
       return () => {
-        window.removeEventListener('mousemove', handleMouseMove);
-        window.removeEventListener('mouseup', handleMouseUp);
+        window.removeEventListener('mousemove', handlePointerMove);
+        window.removeEventListener('mouseup', handlePointerUp);
+        window.removeEventListener('touchmove', handlePointerMove);
+        window.removeEventListener('touchend', handlePointerUp);
       };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -93,8 +116,9 @@ export function TimelineProgressIndicator({
       <div
         ref={progressBarRef}
         className={`relative flex-1 ${onSeek ? 'cursor-pointer' : ''}`}
-        onMouseDown={handleMouseDown}
-        style={{ padding: '12px 0', margin: '-12px 0' }}
+        onMouseDown={handlePointerDown}
+        onTouchStart={handlePointerDown}
+        style={{ padding: '12px 0', margin: '-12px 0', touchAction: 'none' }}
       >
         {/* Actual visible progress line */}
         <div className="relative h-1 bg-secondary-200 rounded-full">
