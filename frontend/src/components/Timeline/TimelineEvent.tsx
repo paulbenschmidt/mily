@@ -272,7 +272,7 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
 
                   {/* Action buttons - shown when expanded */}
                   {(onEditEvent || onDeleteEvent) && (
-                    <div className="flex gap-6 justify-center pt-4 mt-4 border-t border-secondary-200">
+                    <div className="flex gap-6 justify-center pt-4 mt-4 pb-4 border-t border-secondary-200">
                       {onEditEvent && (
                         <Button
                           variant="secondary"

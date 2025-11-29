@@ -321,12 +321,12 @@ export function PhotoUpload({
                   }}
                   className={`absolute top-1 right-1 px-2 py-1 rounded-full transition-all ${
                     deleteConfirmId === photo.id
-                      ? 'bg-red-500 text-white'
-                      : 'bg-gray-700 text-white'
+                      ? 'bg-red-500 text-white p-2'
+                      : 'bg-gray-700 text-white p-2'
                   }`}
                 >
                   {deleteConfirmId === photo.id ? (
-                    <SmallText className="text-white font-medium text-sm ">Delete?</SmallText>
+                    <SmallText className="text-white font-medium text-sm p-2">Delete?</SmallText>
                   ) : (
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
