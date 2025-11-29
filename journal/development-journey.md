@@ -2,6 +2,7 @@
 
 - 2025-11-29:
     - Having photos makes me glad that I didn't include additional colors throughout the UI. Adding photos with their own colors makes the timeline pop a lot more than I was expecting. :)
+    - I learned that you can have two URL paths that both define different methods for the same path; otherwise, it'll match on the first one it encounters and return an error of "Method Not Allowed".
 - 2025-11-14:
     - I realized that my email verification should be sent using the root domain, so I updated that from `verify.mily.bio` to just `mily.bio`, and sent it from `hello@mily.bio` instead (and created an alias to forward to `paul@mily.bio`). I also made the email look prettier with HTML and a button.
     - I also learned that there are email testers like `https://www.mail-tester.com/`, so I used this and scored 10/10 for deliverability on the production site (the staging site has a broken link, so I got dinged for that on staging).

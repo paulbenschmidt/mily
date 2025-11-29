@@ -1,16 +1,3 @@
-- Add documentation for photos?
-- Add environment variable to specify maximum number of photos per event
-- Can't have two URL paths that both define different methods for the same path; otherwise, it'll match on the first one it encounters
-- The other issue with URL path matching: it matches the first one that satisfies
-- Update journal
-- Review the pendingPhotoFiles logic and see if there's a simpler way
-
-TODO:
-- Test on staging
-    - Test upload, delete, and reorder
-- Update env variables for backend
-- Apply migrations to prod prior to merge
-
 ## In Progress
 - ENHANCE: Allow profile pictures
 - ENHANCE: Use AWS CloudFront for caching photos (currently, every request is a separate S3 request)
