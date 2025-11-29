@@ -118,7 +118,7 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
   };
 
   // Check if there's expandable content (description, photos, or notes)
-  const hasExpandableContent = event.description || (event.photos && event.photos.length > 0) || event.notes;
+  const hasExpandableContent = event.description || (event.event_photos && event.event_photos.length > 0) || event.notes;
 
   const getEventSpacerHeight = () => {
     // Exit early if there is no next event
@@ -227,10 +227,10 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
                     </SmallText>
                   )}
 
-                  {event.photos && event.photos.length > 0 && (
+                  {event.event_photos && event.event_photos.length > 0 && (
                     <div className="mb-4">
                       <img
-                        src={event.photos[0]}
+                        src={event.event_photos[0].url}
                         alt={event.title}
                         className="w-full h-40 md:h-48 object-cover rounded-md"
                       />

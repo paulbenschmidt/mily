@@ -107,6 +107,11 @@ if 'test' in sys.argv or 'pytest' in sys.modules:
         'NAME': ':memory:',
     }
 
+# AWS S3 settings
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+AWS_DEFAULT_REGION = os.getenv('AWS_DEFAULT_REGION')
+AWS_S3_PHOTOS_BUCKET = os.getenv('AWS_S3_PHOTOS_BUCKET')
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

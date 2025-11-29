@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { TimelineEventType, EventCategory, EventPrivacyLevel, EVENT_CATEGORIES, EVENT_PRIVACY_LEVELS } from '@/types/api';
+import { TimelineEventType, EventCategory, EventPrivacyLevel, EVENT_CATEGORIES, EVENT_PRIVACY_LEVELS, EventPhotoType } from '@/types/api';
 import { authApiClient } from '@/utils/auth-api';
 import { Input, Button, Subheading, Alert, Textarea } from '@/components/ui';
 import { DateInput } from './DateInput';
 import { ToggleButtonGroup } from '@/components/Timeline';
+import { PhotoUpload, uploadPendingPhotos } from './PhotoUpload';
 import { useAutoFocus } from '@/hooks/useAutoFocus';
 import { useModalKeyboardShortcuts } from '@/hooks/useModalKeyboardShortcuts';
 import { useDisableBodyScroll } from '@/hooks/disableBodyScroll';
@@ -68,6 +69,8 @@ export function AddEventModal({
   const [category, setCategory] = useState<EventCategory>(DEFAULT_CATEGORY);
   const [privacyLevel, setPrivacyLevel] = useState<EventPrivacyLevel>(DEFAULT_PRIVACY_LEVEL);
   const [notes, setNotes] = useState('');
+  const [photos, setPhotos] = useState<EventPhotoType[]>([]);
+  const [pendingPhotoFiles, setPendingPhotoFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSelectionsLoaded, setIsSelectionsLoaded] = useState(false);
@@ -96,6 +99,7 @@ export function AddEventModal({
       setCategory(eventToEdit.category);
       setPrivacyLevel(eventToEdit.privacy_level);
       setNotes(eventToEdit.notes || '');
+      setPhotos(eventToEdit.event_photos || []);
       // Delay to show smooth transition from gray to selected
       setTimeout(() => setIsSelectionsLoaded(true), 50);
     } else if (!eventToEdit && isOpen) {
@@ -146,6 +150,20 @@ export function AddEventModal({
       } else {
         // Create new event
         updatedEvent = await authApiClient.createEvent(eventData);
+
+        // Upload pending photos if any
+        if (pendingPhotoFiles.length > 0) {
+          try {
+            await uploadPendingPhotos(updatedEvent.id, pendingPhotoFiles);
+            // Fetch the updated event with photos
+            updatedEvent = await authApiClient.getEvent(updatedEvent.id);
+          } catch (photoError) {
+            console.error('Failed to upload photos:', photoError);
+            // Event was created successfully, just photos failed
+            // We'll still show the event, user can add photos later
+          }
+        }
+
         onEventAdded(updatedEvent);
       }
 
@@ -167,6 +185,8 @@ export function AddEventModal({
     setCategory(DEFAULT_CATEGORY);
     setPrivacyLevel(DEFAULT_PRIVACY_LEVEL);
     setNotes('');
+    setPhotos([]);
+    setPendingPhotoFiles([]);
     setIsSelectionsLoaded(false);
   };
 
@@ -363,6 +383,18 @@ export function AddEventModal({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
+            />
+          </div>
+
+          {/* Photo Upload */}
+          <div className="mb-4">
+            <PhotoUpload
+              eventId={eventToEdit?.id}
+              existingPhotos={photos}
+              onPhotosChange={setPhotos}
+              pendingFiles={pendingPhotoFiles}
+              onPendingFilesChange={setPendingPhotoFiles}
+              maxPhotos={3}
             />
           </div>
 

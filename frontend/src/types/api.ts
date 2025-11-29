@@ -22,6 +22,22 @@ export type EventCategory = typeof EVENT_CATEGORIES[number];
 export const EVENT_PRIVACY_LEVELS = ['public', 'friends', 'private'] as const;
 export type EventPrivacyLevel = typeof EVENT_PRIVACY_LEVELS[number];
 
+export interface EventPhotoType {
+  id: string;
+  event: string;
+  s3_key: string;
+  filename: string;
+  content_type: string;
+  file_size: number;
+  width?: number;
+  height?: number;
+  caption: string;
+  display_order: number;
+  url: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface TimelineEventType {
   id: string;
   user: string;
@@ -33,7 +49,7 @@ export interface TimelineEventType {
   is_month_approximate: boolean;
   category: EventCategory;
   privacy_level: EventPrivacyLevel;
-  photos?: string[];
+  event_photos?: EventPhotoType[];
   tags?: string[];
   created_at: string;
   updated_at: string;

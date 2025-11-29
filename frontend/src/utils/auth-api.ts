@@ -327,6 +327,50 @@ class AuthApiClient {
     });
   }
 
+  // Get a single event by ID
+  async getEvent(eventId: string): Promise<TimelineEventType> {
+    return this.request<TimelineEventType>({
+      endpoint: `/events/${eventId}/`,
+    });
+  }
+
+  // Photo management endpoints
+  async requestPhotoUploadUrl(
+    eventId: string,
+    photoData: { filename: string; content_type: string; file_size: number }
+  ): Promise<{ upload_url: string; photo_id: string; s3_key: string }> {
+    return this.request<{ upload_url: string; photo_id: string; s3_key: string }>({
+      endpoint: `/events/${eventId}/photos/upload-url/`,
+      options: {
+        method: 'POST',
+        body: JSON.stringify(photoData),
+      },
+    });
+  }
+
+  async updatePhotoMetadata(
+    eventId: string,
+    photoId: string,
+    metadata: { caption?: string; display_order?: number; width?: number; height?: number }
+  ): Promise<void> {
+    await this.request<void>({
+      endpoint: `/events/${eventId}/photos/${photoId}/`,
+      options: {
+        method: 'PATCH',
+        body: JSON.stringify(metadata),
+      },
+    });
+  }
+
+  async deletePhoto(eventId: string, photoId: string): Promise<void> {
+    await this.request<void>({
+      endpoint: `/events/${eventId}/photos/${photoId}/`,
+      options: {
+        method: 'DELETE',
+      },
+    });
+  }
+
   // Send timeline share invitation
   async sendShareInvitation(email: string): Promise<{ id: string; shared_with_email: string }> {
     return await this.request<{ id: string; shared_with_email: string }>({
