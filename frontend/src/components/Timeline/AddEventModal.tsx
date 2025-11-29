@@ -249,8 +249,9 @@ export function AddEventModal({
       className="fixed inset-0 bg-secondary-500/30 backdrop-blur-sm flex items-start sm:items-center justify-center z-50 p-4 overflow-y-auto"
       onClick={handleBackdropClick}
     >
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md my-2 sm:my-0">
-        <div className="flex justify-between items-center border-b border-secondary-200 px-6 py-3">
+      {/* max-h makes it so that modal doesn't overflow the screen */}
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-md my-2 sm:my-0 max-h-[calc(100vh-2rem)] flex flex-col">
+        <div className="flex justify-between items-center border-b border-secondary-200 px-6 py-3 flex-shrink-0">
           <Subheading>{isEditMode ? 'Edit Event' : 'Add New Event'}</Subheading>
           <Button
             variant="text"
@@ -263,7 +264,7 @@ export function AddEventModal({
           </Button>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-6 py-4">
+        <form onSubmit={handleSubmit} className="px-6 py-4 overflow-y-auto flex-1">
           {error && (
             <Alert variant="error" className="mb-4">
               {error}

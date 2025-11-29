@@ -121,6 +121,9 @@ export function usePhotoReorder({
   const handleTouchStart = (index: number, e: React.TouchEvent) => {
     if (!eventId || isDraggable) return;
 
+    // Prevent default browser long-press behavior (context menu, image preview)
+    e.preventDefault();
+
     const touch = e.touches[0];
     setTouchStartPos({ x: touch.clientX, y: touch.clientY });
     handleLongPressStart(index);
@@ -142,6 +145,9 @@ export function usePhotoReorder({
       }
       return;
     }
+
+    // Prevent scrolling while dragging
+    e.preventDefault();
 
     const touch = e.touches[0];
     const element = document.elementFromPoint(touch.clientX, touch.clientY);
