@@ -311,8 +311,9 @@ export function PhotoUpload({
                 <img
                   src={photo.url}
                   alt={photo.filename}
-                  className="w-full h-full object-cover rounded-md pointer-events-none select-none"
+                  className="w-full h-full object-cover rounded-md select-none"
                   draggable={false}
+                  style={{ WebkitTouchCallout: 'none' }}
                 />
                 <button
                   type="button"
