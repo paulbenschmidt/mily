@@ -63,7 +63,7 @@ export function usePhotoReorder({
     if (e && e.currentTarget instanceof HTMLElement) {
       const dragImage = e.currentTarget.cloneNode(true) as HTMLElement;
       dragImage.style.position = 'absolute';
-      dragImage.style.top = '-9999px';
+      dragImage.style.top = '-9999px'; // Common practice to hide the drag image off-screen
       dragImage.style.width = e.currentTarget.offsetWidth + 'px';
       dragImage.style.height = e.currentTarget.offsetHeight + 'px';
       document.body.appendChild(dragImage);
