@@ -301,7 +301,7 @@ export function PhotoUpload({
                 onTouchStart={(e) => handleTouchStart(originalIndex, e)}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
-                style={isDraggable && draggedIndex === originalIndex ? { touchAction: 'none' } : undefined}
+                style={eventId ? { touchAction: 'none' } : undefined}
                 className={`relative aspect-square group transition-all duration-200 ${
                   draggedIndex === originalIndex ? 'opacity-50 scale-95 ring-2 ring-primary-400' : ''
                 } ${
