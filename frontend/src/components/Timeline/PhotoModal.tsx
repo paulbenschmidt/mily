@@ -97,7 +97,7 @@ export function PhotoModal({ photos, currentIndex, onClose, onNavigate }: PhotoM
       >
         <img
           src={currentPhoto.url}
-          alt={currentPhoto.caption || 'Event photo'}
+          alt="Event photo"
           className="max-w-full max-h-full object-contain rounded-lg pointer-events-auto"
           onClick={(e) => e.stopPropagation()}
         />
@@ -106,13 +106,6 @@ export function PhotoModal({ photos, currentIndex, onClose, onNavigate }: PhotoM
         {photos.length > 1 && (
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-3 py-1 bg-black/60 text-white text-sm rounded-full pointer-events-auto">
             {currentIndex + 1} / {photos.length}
-          </div>
-        )}
-
-        {/* Caption */}
-        {currentPhoto.caption && (
-          <div className="absolute bottom-12 left-0 right-0 px-4 py-2 bg-gradient-to-t from-black/60 to-transparent text-white text-center pointer-events-auto">
-            {currentPhoto.caption}
           </div>
         )}
       </div>

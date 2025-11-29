@@ -1,6 +1,4 @@
 - Add documentation for photos?
-- Add file size restrictions? Is 10MB too high?
-- Add captions for photos?
 - Add environment variable to specify maximum number of photos per event
 
 ## In Progress

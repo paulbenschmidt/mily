@@ -357,7 +357,7 @@ class AuthApiClient {
   async updatePhotoMetadata(
     eventId: string,
     photoId: string,
-    metadata: { caption?: string; display_order?: number; width?: number; height?: number }
+    metadata: { display_order?: number; width?: number; height?: number }
   ): Promise<void> {
     await this.request<void>({
       endpoint: `/events/${eventId}/photos/${photoId}/`,

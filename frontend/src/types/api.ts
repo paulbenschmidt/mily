@@ -31,7 +31,6 @@ export interface EventPhotoType {
   file_size: number;
   width?: number;
   height?: number;
-  caption: string;
   display_order: number;
   url: string;
   created_at: string;

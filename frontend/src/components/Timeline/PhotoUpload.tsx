@@ -90,6 +90,11 @@ export function PhotoUpload({
 }: PhotoUploadProps) {
   const [uploadingPhotos, setUploadingPhotos] = useState<UploadingPhoto[]>([]);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [isDraggable, setIsDraggable] = useState(false);
+  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
+  const [touchStartPos, setTouchStartPos] = useState<{ x: number; y: number } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const canAddMore = existingPhotos.length + uploadingPhotos.length + pendingFiles.length < maxPhotos;
@@ -231,6 +236,126 @@ export function PhotoUpload({
     }
   };
 
+  const handleReorderPhotos = async (fromIndex: number, toIndex: number) => {
+    if (!eventId || fromIndex === toIndex) return;
+
+    // Reorder locally first for immediate feedback
+    const reorderedPhotos = [...existingPhotos];
+    const [movedPhoto] = reorderedPhotos.splice(fromIndex, 1);
+    reorderedPhotos.splice(toIndex, 0, movedPhoto);
+
+    // Update local state
+    onPhotosChange(reorderedPhotos);
+
+    // Update display_order on backend
+    try {
+      await Promise.all(
+        reorderedPhotos.map((photo, index) =>
+          authApiClient.updatePhotoMetadata(eventId, photo.id, {
+            display_order: index
+          })
+        )
+      );
+
+      // Notify parent that photo operation completed
+      if (onPhotoOperationComplete) {
+        onPhotoOperationComplete();
+      }
+    } catch (error) {
+      console.error('Failed to reorder photos:', error);
+      // Revert on error
+      onPhotosChange(existingPhotos);
+      alert('Failed to reorder photos');
+    }
+  };
+
+  const handleDragStart = (index: number) => {
+    if (!isDraggable) {
+      setIsDraggable(true);
+    }
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedIndex !== null) {
+      setDragOverIndex(index);
+    }
+  };
+
+  const handleDragEnd = () => {
+    if (draggedIndex !== null && dragOverIndex !== null && draggedIndex !== dragOverIndex) {
+      handleReorderPhotos(draggedIndex, dragOverIndex);
+    }
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+    setIsDraggable(false);
+  };
+
+  const handleLongPressStart = (index: number, e: React.MouseEvent | React.TouchEvent) => {
+    const timer = setTimeout(() => {
+      setIsDraggable(true);
+      setDraggedIndex(index);
+    }, 500); // 500ms long press
+    setLongPressTimer(timer);
+  };
+
+  const handleLongPressEnd = () => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
+  };
+
+  const handleTouchStart = (index: number, e: React.TouchEvent) => {
+    if (!eventId || isDraggable) return;
+
+    const touch = e.touches[0];
+    setTouchStartPos({ x: touch.clientX, y: touch.clientY });
+    handleLongPressStart(index, e);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDraggable || draggedIndex === null) {
+      // Cancel long press if user moves finger before drag starts
+      if (longPressTimer && touchStartPos) {
+        const touch = e.touches[0];
+        const deltaX = Math.abs(touch.clientX - touchStartPos.x);
+        const deltaY = Math.abs(touch.clientY - touchStartPos.y);
+
+        // If moved more than 10px, cancel long press
+        if (deltaX > 10 || deltaY > 10) {
+          handleLongPressEnd();
+          setTouchStartPos(null);
+        }
+      }
+      return;
+    }
+
+    const touch = e.touches[0];
+    const element = document.elementFromPoint(touch.clientX, touch.clientY);
+
+    // Find the photo element
+    const photoElement = element?.closest('[data-photo-index]');
+    if (photoElement) {
+      const index = parseInt(photoElement.getAttribute('data-photo-index') || '0');
+      setDragOverIndex(index);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    handleLongPressEnd();
+    setTouchStartPos(null);
+
+    if (draggedIndex !== null && dragOverIndex !== null && draggedIndex !== dragOverIndex) {
+      handleReorderPhotos(draggedIndex, dragOverIndex);
+    }
+
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+    setIsDraggable(false);
+  };
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
@@ -245,35 +370,72 @@ export function PhotoUpload({
       {/* Photo Grid */}
       <div className="grid grid-cols-3 gap-2">
         {/* Existing Photos */}
-        {existingPhotos.map((photo) => (
-          <div key={photo.id} className="relative aspect-square group">
-            <img
-              src={photo.url}
-              alt={photo.filename}
-              className="w-full h-full object-cover rounded-md"
-            />
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDeleteExisting(photo.id);
-              }}
-              className={`absolute top-1 right-1 px-2 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-all ${
-                deleteConfirmId === photo.id
-                  ? 'opacity-100 bg-red-500 text-white'
-                  : 'bg-gray-700 text-white'
-              }`}
-            >
-              {deleteConfirmId === photo.id ? (
-                <SmallText className="text-white font-medium text-sm ">Delete?</SmallText>
-              ) : (
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              )}
-            </button>
-          </div>
-        ))}
+        {(() => {
+          // Create a preview of the reordered array while dragging
+          let displayPhotos = [...existingPhotos];
+          if (draggedIndex !== null && dragOverIndex !== null && draggedIndex !== dragOverIndex) {
+            const [movedPhoto] = displayPhotos.splice(draggedIndex, 1);
+            displayPhotos.splice(dragOverIndex, 0, movedPhoto);
+          }
+
+          return displayPhotos.map((photo, displayIndex) => {
+            const originalIndex = existingPhotos.findIndex(p => p.id === photo.id);
+
+            return (
+              <div
+                key={photo.id}
+                data-photo-index={displayIndex}
+                draggable={!!(eventId && isDraggable)}
+                onDragStart={() => handleDragStart(originalIndex)}
+                onDragOver={(e) => handleDragOver(e, displayIndex)}
+                onDragEnd={handleDragEnd}
+                onContextMenu={(e) => eventId && e.preventDefault()}
+                onMouseDown={(e) => {
+                  if (eventId && !isDraggable) {
+                    handleLongPressStart(originalIndex, e);
+                  }
+                }}
+                onMouseUp={handleLongPressEnd}
+                onMouseLeave={handleLongPressEnd}
+                onTouchStart={(e) => handleTouchStart(originalIndex, e)}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+                style={isDraggable && draggedIndex === originalIndex ? { touchAction: 'none' } : undefined}
+                className={`relative aspect-square group transition-all duration-200 ${
+                  draggedIndex === originalIndex ? 'opacity-50 scale-95 ring-2 ring-primary-400' : ''
+                } ${
+                  eventId && !isDraggable ? 'cursor-grab' : eventId && isDraggable ? 'cursor-grabbing' : ''
+                }`}
+              >
+                <img
+                  src={photo.url}
+                  alt={photo.filename}
+                  className="w-full h-full object-cover rounded-md"
+                />
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteExisting(photo.id);
+                  }}
+                  className={`absolute top-1 right-1 px-2 py-1 rounded-full transition-all ${
+                    deleteConfirmId === photo.id
+                      ? 'bg-red-500 text-white'
+                      : 'bg-gray-700 text-white'
+                  }`}
+                >
+                  {deleteConfirmId === photo.id ? (
+                    <SmallText className="text-white font-medium text-sm ">Delete?</SmallText>
+                  ) : (
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+            );
+          });
+        })()}
 
         {/* Uploading Photos */}
         {uploadingPhotos.map((photo) => (

@@ -67,6 +67,7 @@ export function AddEventModal({
   const [month, setMonth] = useState('');
   const [day, setDay] = useState('');
   const [category, setCategory] = useState<EventCategory>(DEFAULT_CATEGORY);
+  const [showNotes, setShowNotes] = useState(false);
   const [privacyLevel, setPrivacyLevel] = useState<EventPrivacyLevel>(DEFAULT_PRIVACY_LEVEL);
   const [notes, setNotes] = useState('');
   const [photos, setPhotos] = useState<EventPhotoType[]>([]);
@@ -331,8 +332,17 @@ export function AddEventModal({
             <Textarea
               id="description"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
+              onChange={(e) => {
+                setDescription(e.target.value);
+                // Auto-resize textarea up to max height
+                e.target.style.height = 'auto';
+                const maxHeight = 120; // ~5 lines
+                const newHeight = Math.min(e.target.scrollHeight, maxHeight);
+                e.target.style.height = newHeight + 'px';
+                e.target.style.overflow = e.target.scrollHeight > maxHeight ? 'auto' : 'hidden';
+              }}
+              rows={1}
+              style={{ minHeight: '2.5rem', resize: 'none' }}
             />
           </div>
 
@@ -385,10 +395,20 @@ export function AddEventModal({
           <hr className="border-secondary-200 my-4" />
 
           <div className="mb-4">
-            <div className="flex items-center gap-2 mb-1">
-              <label htmlFor="notes" className="block text-sm font-medium text-secondary-700">
-                Personal Notes
-              </label>
+            <button
+              type="button"
+              onClick={() => setShowNotes(!showNotes)}
+              className="flex items-center gap-2 text-sm font-medium text-secondary-700 hover:text-secondary-900 transition-colors"
+            >
+              <svg
+                className={`w-4 h-4 transition-transform ${showNotes ? 'rotate-90' : ''}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+              Personal Notes
               <div className="group relative">
                 <svg className="w-4 h-4 text-secondary-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -400,13 +420,18 @@ export function AddEventModal({
                   </div>
                 </div>
               </div>
-            </div>
-            <Textarea
-              id="notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={2}
-            />
+            </button>
+
+            {showNotes && (
+              <div className="mt-2 animate-in slide-in-from-top-2">
+                <Textarea
+                  id="notes"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  rows={2}
+                />
+              </div>
+            )}
           </div>
 
           <div className="flex justify-end gap-3 mt-6">

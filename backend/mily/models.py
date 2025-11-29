@@ -117,7 +117,6 @@ class EventPhoto(models.Model):
     file_size = models.IntegerField(help_text="File size in bytes")
     width = models.IntegerField(null=True, blank=True, help_text="Image width in pixels")
     height = models.IntegerField(null=True, blank=True, help_text="Image height in pixels")
-    caption = models.TextField(blank=True, help_text="Optional photo caption")
     display_order = models.IntegerField(default=0, help_text="Order for displaying multiple photos")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

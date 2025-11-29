@@ -332,18 +332,19 @@ class EventViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-    @action(detail=True, methods=["patch"], url_path="photos/(?P<photo_id>[^/.]+)")
-    def update_photo(self, request, pk=None, photo_id=None):
+    @action(detail=True, methods=["patch", "delete"], url_path="photos/(?P<photo_id>[^/.]+)")
+    def manage_photo(self, request, pk=None, photo_id=None):
         """
-        Update photo metadata (caption, display_order, dimensions).
+        Manage a photo: update metadata (PATCH) or delete (DELETE).
 
-        Request body:
+        PATCH - Update photo metadata:
         {
-            "caption": "Optional caption",
             "display_order": 0,
             "width": 1920,
             "height": 1080
         }
+
+        DELETE - Delete photo from database and S3.
         """
         event = self.get_object()
 
@@ -355,52 +356,39 @@ class EventViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        # Update allowed fields
-        if "caption" in request.data:
-            photo.caption = request.data["caption"]
-        if "display_order" in request.data:
-            photo.display_order = request.data["display_order"]
-        if "width" in request.data:
-            photo.width = request.data["width"]
-        if "height" in request.data:
-            photo.height = request.data["height"]
+        if request.method == "PATCH":
+            # Update allowed fields
+            if "display_order" in request.data:
+                photo.display_order = request.data["display_order"]
+            if "width" in request.data:
+                photo.width = request.data["width"]
+            if "height" in request.data:
+                photo.height = request.data["height"]
 
-        photo.save()
+            photo.save()
 
-        serializer = EventPhotoSerializer(photo)
-        return Response(serializer.data)
+            serializer = EventPhotoSerializer(photo)
+            return Response(serializer.data)
 
-    @action(detail=True, methods=["delete"], url_path="photos/(?P<photo_id>[^/.]+)")
-    def delete_photo(self, request, pk=None, photo_id=None):
-        """Delete a photo from both database and S3."""
-        event = self.get_object()
+        elif request.method == "DELETE":
+            s3_key = photo.s3_key
 
-        try:
-            photo = EventPhoto.objects.get(id=photo_id, event=event)
-        except EventPhoto.DoesNotExist:
+            try:
+                # Delete from S3
+                delete_photo_from_s3(s3_key)
+                logger.info("Deleted photo from S3: %s", s3_key)
+            except Exception as e:
+                logger.error("Failed to delete photo from S3 (%s): %s", s3_key, str(e))
+                # Continue with database deletion even if S3 deletion fails
+
+            # Delete from database
+            photo.delete()
+            logger.info("Deleted photo %s from event %s", photo_id, event.id)
+
             return Response(
-                {"error": "Photo not found"},
-                status=status.HTTP_404_NOT_FOUND
+                {"success": True, "message": "Photo deleted successfully"},
+                status=status.HTTP_200_OK
             )
-
-        s3_key = photo.s3_key
-
-        try:
-            # Delete from S3
-            delete_photo_from_s3(s3_key)
-            logger.info("Deleted photo from S3: %s", s3_key)
-        except Exception as e:
-            logger.error("Failed to delete photo from S3 (%s): %s", s3_key, str(e))
-            # Continue with database deletion even if S3 deletion fails
-
-        # Delete from database
-        photo.delete()
-        logger.info("Deleted photo %s from event %s", photo_id, event.id)
-
-        return Response(
-            {"success": True, "message": "Photo deleted successfully"},
-            status=status.HTTP_200_OK
-        )
 
 
 class ShareViewSet(viewsets.ModelViewSet):

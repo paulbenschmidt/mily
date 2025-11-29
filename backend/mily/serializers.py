@@ -68,7 +68,6 @@ class EventPhotoSerializer(serializers.ModelSerializer):
             "file_size",
             "width",
             "height",
-            "caption",
             "display_order",
             "url",
             "created_at",
