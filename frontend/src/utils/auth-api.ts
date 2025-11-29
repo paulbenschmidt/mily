@@ -59,7 +59,6 @@ class AuthApiClient {
       (typeof errorData.detail === 'string' ? errorData.detail : null) ||
       `Request failed: ${response.status} ${response.statusText}`;
 
-    console.log(errorData);
     const error = new Error(errorMessage) as Error & { errorCode?: string; email?: string };
     error.errorCode = typeof errorData.error_code === 'string' ? errorData.error_code : undefined;
     error.email = typeof errorData.email === 'string' ? errorData.email : undefined;
@@ -87,16 +86,11 @@ class AuthApiClient {
       }
     }
 
-    console.log(url);
-    console.log(options);
-
     let response = await fetch(url, {
       ...options,
       headers,
       credentials: 'include',
     });
-
-    console.log(response);
 
     // If we get a 401, try to refresh the token
     if (response.status === 401 && !skipAuth) {
