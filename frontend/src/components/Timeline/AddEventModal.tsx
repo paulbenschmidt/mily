@@ -110,6 +110,19 @@ export function AddEventModal({
     }
   }, [eventToEdit, isOpen]);
 
+  const handlePhotoOperationComplete = async () => {
+    // Fetch the latest event data and update parent state
+    if (eventToEdit && onEventUpdated) {
+      try {
+        const updatedEvent = await authApiClient.getEvent(eventToEdit.id);
+        onEventUpdated(updatedEvent);
+        setPhotos(updatedEvent.event_photos || []);
+      } catch (error) {
+        console.error('Failed to fetch updated event:', error);
+      }
+    }
+  };
+
   const onModalClose = () => {
     resetForm();
     onClose();
@@ -257,34 +270,6 @@ export function AddEventModal({
           </div>
 
           <div className="mb-4">
-            <div className="flex items-center gap-2 mb-1">
-              <label htmlFor="description" className="block text-sm font-medium text-secondary-700">
-                Description
-              </label>
-              <div className="group relative">
-                <svg className="w-4 h-4 text-secondary-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-10">
-                  Shareable details about this event
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                    <div className="border-4 border-transparent border-t-gray-800"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
-              Event Date
-            </label>
             <DateInput
               year={year}
               month={month}
@@ -323,6 +308,44 @@ export function AddEventModal({
               value={category}
               onChange={setCategory}
               disabled={!isSelectionsLoaded}
+            />
+          </div>
+
+          <div className="mb-4">
+            <div className="flex items-center gap-2 mb-1">
+              <label htmlFor="description" className="block text-sm font-medium text-secondary-700">
+                Description
+              </label>
+              <div className="group relative">
+                <svg className="w-4 h-4 text-secondary-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-10">
+                  Shareable details about this event
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                    <div className="border-4 border-transparent border-t-gray-800"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={3}
+            />
+          </div>
+
+          {/* Photo Upload */}
+          <div className="mb-4">
+            <PhotoUpload
+              eventId={eventToEdit?.id}
+              existingPhotos={photos}
+              onPhotosChange={setPhotos}
+              pendingFiles={pendingPhotoFiles}
+              onPendingFilesChange={setPendingPhotoFiles}
+              maxPhotos={3}
+              onPhotoOperationComplete={handlePhotoOperationComplete}
             />
           </div>
 
@@ -383,18 +406,6 @@ export function AddEventModal({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
-            />
-          </div>
-
-          {/* Photo Upload */}
-          <div className="mb-4">
-            <PhotoUpload
-              eventId={eventToEdit?.id}
-              existingPhotos={photos}
-              onPhotosChange={setPhotos}
-              pendingFiles={pendingPhotoFiles}
-              onPendingFilesChange={setPendingPhotoFiles}
-              maxPhotos={3}
             />
           </div>
 

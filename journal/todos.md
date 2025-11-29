@@ -1,6 +1,7 @@
 - Add documentation for photos?
 - Add file size restrictions? Is 10MB too high?
 - Add captions for photos?
+- Add environment variable to specify maximum number of photos per event
 
 ## In Progress
 - ENHANCE: Update Google description text to be less clunky (search for it on Google with "timeline mily" and you'll see it)

@@ -59,6 +59,7 @@ class AuthApiClient {
       (typeof errorData.detail === 'string' ? errorData.detail : null) ||
       `Request failed: ${response.status} ${response.statusText}`;
 
+    console.log(errorData);
     const error = new Error(errorMessage) as Error & { errorCode?: string; email?: string };
     error.errorCode = typeof errorData.error_code === 'string' ? errorData.error_code : undefined;
     error.email = typeof errorData.email === 'string' ? errorData.email : undefined;
@@ -86,11 +87,16 @@ class AuthApiClient {
       }
     }
 
+    console.log(url);
+    console.log(options);
+
     let response = await fetch(url, {
       ...options,
       headers,
       credentials: 'include',
     });
+
+    console.log(response);
 
     // If we get a 401, try to refresh the token
     if (response.status === 401 && !skipAuth) {
@@ -337,10 +343,10 @@ class AuthApiClient {
   // Photo management endpoints
   async requestPhotoUploadUrl(
     eventId: string,
-    photoData: { filename: string; content_type: string; file_size: number }
+    photoData: { filename: string; content_type: string; file_size: number; width?: number; height?: number }
   ): Promise<{ upload_url: string; photo_id: string; s3_key: string }> {
     return this.request<{ upload_url: string; photo_id: string; s3_key: string }>({
-      endpoint: `/events/${eventId}/photos/upload-url/`,
+      endpoint: `/events/${eventId}/get-photo-upload-url/`,
       options: {
         method: 'POST',
         body: JSON.stringify(photoData),

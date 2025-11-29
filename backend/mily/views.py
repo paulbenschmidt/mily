@@ -235,7 +235,8 @@ class EventViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-    @action(detail=True, methods=["post"], url_path="photos/upload-url")
+    # NOTE: the `events/<ID>/photos/<ETC>` path is reserved for photo edits (to avoid URL clashes)
+    @action(detail=True, methods=["post"], url_path="get-photo-upload-url")
     def get_photo_upload_url(self, request, pk=None):
         """
         Generate a presigned URL for uploading a photo to S3.
@@ -260,6 +261,8 @@ class EventViewSet(viewsets.ModelViewSet):
         filename = request.data.get("filename")
         content_type = request.data.get("content_type")
         file_size = request.data.get("file_size")
+        width = request.data.get("width")
+        height = request.data.get("height")
 
         if not all([filename, content_type, file_size]):
             return Response(
@@ -292,8 +295,6 @@ class EventViewSet(viewsets.ModelViewSet):
             )
 
         try:
-            from .aws_s3 import make_event_photo_key, create_presigned_put_url
-
             # Generate S3 key
             s3_key = make_event_photo_key(
                 str(event.user_id),
@@ -308,7 +309,9 @@ class EventViewSet(viewsets.ModelViewSet):
                 filename=filename,
                 content_type=content_type,
                 file_size=file_size,
-                display_order=event.event_photos.count()
+                display_order=event.event_photos.count(),
+                width=width,
+                height=height
             )
 
             # Generate presigned URL

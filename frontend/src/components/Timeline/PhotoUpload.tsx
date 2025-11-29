@@ -1,54 +1,55 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { EventPhotoType } from '@/types/api';
 import { authApiClient } from '@/utils/auth-api';
-import { SmallText } from '@/components/ui';
+import { SmallText, Caption } from '@/components/ui';
+
+/**
+ * Upload a single photo to an event.
+ * Gets dimensions, requests presigned URL, and uploads to S3.
+ */
+async function uploadSinglePhoto(eventId: string, file: File): Promise<void> {
+  // Step 1: Get image dimensions
+  const img = new Image();
+  const imageUrl = URL.createObjectURL(file);
+  img.src = imageUrl;
+  await new Promise((resolve) => {
+    img.onload = resolve;
+  });
+  URL.revokeObjectURL(imageUrl);
+
+  // Step 2: Request presigned URL with dimensions
+  const { upload_url } = await authApiClient.requestPhotoUploadUrl(eventId, {
+    filename: file.name,
+    content_type: file.type,
+    file_size: file.size,
+    width: img.width,
+    height: img.height
+  });
+
+  // Step 3: Upload to S3
+  const uploadResponse = await fetch(upload_url, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': file.type,
+    },
+    body: file
+  });
+
+  if (!uploadResponse.ok) {
+    throw new Error('Failed to upload to S3');
+  }
+}
 
 /**
  * Upload pending files to an event after it's been created.
  * Returns the updated event with photos.
  */
 export async function uploadPendingPhotos(eventId: string, files: File[]): Promise<EventPhotoType[]> {
-  const uploadedPhotos: EventPhotoType[] = [];
-
   for (const file of files) {
     try {
-      // Step 1: Request presigned URL
-      const { upload_url, photo_id } = await authApiClient.requestPhotoUploadUrl(eventId, {
-        filename: file.name,
-        content_type: file.type,
-        file_size: file.size
-      });
-
-      // Step 2: Upload to S3
-      const uploadResponse = await fetch(upload_url, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': file.type,
-        },
-        body: file
-      });
-
-      if (!uploadResponse.ok) {
-        throw new Error('Failed to upload to S3');
-      }
-
-      // Step 3: Get image dimensions
-      const img = new Image();
-      const imageUrl = URL.createObjectURL(file);
-      img.src = imageUrl;
-      await new Promise((resolve) => {
-        img.onload = resolve;
-      });
-      URL.revokeObjectURL(imageUrl);
-
-      // Step 4: Update photo metadata with dimensions
-      await authApiClient.updatePhotoMetadata(eventId, photo_id, {
-        width: img.width,
-        height: img.height
-      });
-
+      await uploadSinglePhoto(eventId, file);
     } catch (error) {
       console.error(`Failed to upload ${file.name}:`, error);
       // Continue with other files even if one fails
@@ -67,6 +68,7 @@ interface PhotoUploadProps {
   onPendingFilesChange?: (files: File[]) => void;
   pendingFiles?: File[];
   maxPhotos?: number;
+  onPhotoOperationComplete?: () => void;
 }
 
 interface UploadingPhoto {
@@ -83,12 +85,26 @@ export function PhotoUpload({
   onPhotosChange,
   onPendingFilesChange,
   pendingFiles = [],
-  maxPhotos = 3
+  maxPhotos = 3,
+  onPhotoOperationComplete
 }: PhotoUploadProps) {
   const [uploadingPhotos, setUploadingPhotos] = useState<UploadingPhoto[]>([]);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const canAddMore = existingPhotos.length + uploadingPhotos.length + pendingFiles.length < maxPhotos;
+
+  // Reset delete confirmation when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      if (deleteConfirmId) {
+        setDeleteConfirmId(null);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [deleteConfirmId]);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -147,49 +163,25 @@ export function PhotoUpload({
 
   const uploadPhoto = async (file: File, uploadId: string, eventId: string) => {
     try {
-      // Step 1: Request presigned URL
-      const { upload_url, photo_id } = await authApiClient.requestPhotoUploadUrl(eventId, {
-        filename: file.name,
-        content_type: file.type,
-        file_size: file.size
-      });
-
-      // Step 2: Upload to S3
+      // Update progress indicator
       setUploadingPhotos(prev => prev.map(p =>
         p.id === uploadId ? { ...p, progress: 50 } : p
       ));
 
-      const uploadResponse = await fetch(upload_url, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': file.type,
-        },
-        body: file
-      });
+      // Use shared upload logic
+      await uploadSinglePhoto(eventId, file);
 
-      if (!uploadResponse.ok) {
-        throw new Error('Failed to upload to S3');
-      }
-
-      // Step 3: Get image dimensions
-      const img = new Image();
-      img.src = URL.createObjectURL(file);
-      await new Promise((resolve) => {
-        img.onload = resolve;
-      });
-
-      // Step 4: Update photo metadata with dimensions
-      await authApiClient.updatePhotoMetadata(eventId, photo_id, {
-        width: img.width,
-        height: img.height
-      });
-
-      // Step 5: Fetch updated event to get the new photo with presigned URL
+      // Fetch updated event to get the new photo with presigned URL
       const updatedEvent = await authApiClient.getEvent(eventId);
 
       // Remove from uploading and add to existing
       setUploadingPhotos(prev => prev.filter(p => p.id !== uploadId));
       onPhotosChange(updatedEvent.event_photos || []);
+
+      // Notify parent that photo operation completed
+      if (onPhotoOperationComplete) {
+        onPhotoOperationComplete();
+      }
 
     } catch (error) {
       console.error('Upload error:', error);
@@ -202,9 +194,23 @@ export function PhotoUpload({
   const handleDeleteExisting = async (photoId: string) => {
     if (!eventId) return;
 
+    // First click: show confirmation
+    if (deleteConfirmId !== photoId) {
+      setDeleteConfirmId(photoId);
+      return;
+    }
+
+    // Second click: actually delete
+    setDeleteConfirmId(null);
+
     try {
       await authApiClient.deletePhoto(eventId, photoId);
       onPhotosChange(existingPhotos.filter(p => p.id !== photoId));
+
+      // Notify parent that photo operation completed
+      if (onPhotoOperationComplete) {
+        onPhotoOperationComplete();
+      }
     } catch (error) {
       console.error('Delete error:', error);
       alert('Failed to delete photo');
@@ -231,9 +237,9 @@ export function PhotoUpload({
         <label className="block text-sm font-medium text-secondary-700">
           Photos
         </label>
-        <SmallText className="text-secondary-500">
+        <Caption className="text-secondary-500">
           {existingPhotos.length + uploadingPhotos.length + pendingFiles.length}/{maxPhotos}
-        </SmallText>
+        </Caption>
       </div>
 
       {/* Photo Grid */}
@@ -248,12 +254,23 @@ export function PhotoUpload({
             />
             <button
               type="button"
-              onClick={() => handleDeleteExisting(photo.id)}
-              className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteExisting(photo.id);
+              }}
+              className={`absolute top-1 right-1 px-2 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-all ${
+                deleteConfirmId === photo.id
+                  ? 'opacity-100 bg-red-500 text-white'
+                  : 'bg-gray-700 text-white'
+              }`}
             >
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              {deleteConfirmId === photo.id ? (
+                <SmallText className="text-white font-medium text-sm ">Delete?</SmallText>
+              ) : (
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              )}
             </button>
           </div>
         ))}
@@ -297,11 +314,6 @@ export function PhotoUpload({
               alt={file.name}
               className="w-full h-full object-cover rounded-md"
             />
-            <div className="absolute inset-0 bg-secondary-900/40 flex items-center justify-center rounded-md">
-              <SmallText className="text-white text-center px-2">
-                Will upload on save
-              </SmallText>
-            </div>
             <button
               type="button"
               onClick={() => handleDeletePending(index)}
@@ -341,9 +353,12 @@ export function PhotoUpload({
 
       {/* Help Text */}
       {canAddMore && (
-        <SmallText className="text-secondary-500">
-          Add up to {maxPhotos - existingPhotos.length - uploadingPhotos.length - pendingFiles.length} more photo{maxPhotos - existingPhotos.length - uploadingPhotos.length - pendingFiles.length !== 1 ? 's' : ''} (max 10MB each)
-        </SmallText>
+        <Caption className="text-secondary-500">
+          {(existingPhotos.length + uploadingPhotos.length + pendingFiles.length === 0
+            ? `Can add ${maxPhotos} photos`
+            : `Can add ${maxPhotos - existingPhotos.length - uploadingPhotos.length - pendingFiles.length} more photo${maxPhotos - existingPhotos.length - uploadingPhotos.length - pendingFiles.length !== 1 ? 's' : ''}`
+          ) + ' (max 10MB each)'}
+        </Caption>
       )}
       {!eventId && pendingFiles.length > 0 && (
         <SmallText className="text-secondary-600 italic">

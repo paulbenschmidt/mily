@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { TimelineEventType } from '@/types/api';
 import { SmallText, Caption, Button, Card, BodyText } from '@/components/ui';
+import { PhotoModal } from './PhotoModal';
 
 interface TimelineEventProps {
   event: TimelineEventType;
@@ -16,6 +17,8 @@ interface TimelineEventProps {
 
 export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent, nextEvent, mode = 'owner' }: TimelineEventProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [photoModalOpen, setPhotoModalOpen] = useState(false);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
 
   const getPrivacyIcon = (privacyLevel: string) => {
     const iconClass = "w-3.5 h-3.5 text-secondary-400";
@@ -228,12 +231,26 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
                   )}
 
                   {event.event_photos && event.event_photos.length > 0 && (
-                    <div className="mb-4">
-                      <img
-                        src={event.event_photos[0].url}
-                        alt={event.title}
-                        className="w-full h-40 md:h-48 object-cover rounded-md"
-                      />
+                    <div className="mt-4 mb-4">
+                      <div className="grid grid-cols-3 gap-2">
+                        {event.event_photos.map((photo, index) => (
+                          <button
+                            key={photo.id}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedPhotoIndex(index);
+                              setPhotoModalOpen(true);
+                            }}
+                            className="relative aspect-square overflow-hidden rounded-md hover:opacity-90 transition-opacity"
+                          >
+                            <img
+                              src={photo.url}
+                              alt={photo.caption || `Photo ${index + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   )}
 
@@ -285,6 +302,16 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
 
       {/* Spacer for events with appropriate spacing */}
       <div className={`flex items-center justify-center ${getEventSpacerHeight()}`} />
+
+      {/* Photo Modal */}
+      {photoModalOpen && event.event_photos && event.event_photos.length > 0 && (
+        <PhotoModal
+          photos={event.event_photos}
+          currentIndex={selectedPhotoIndex}
+          onClose={() => setPhotoModalOpen(false)}
+          onNavigate={setSelectedPhotoIndex}
+        />
+      )}
     </div>
   );
 }

@@ -10,14 +10,26 @@ import uuid
 import boto3
 from django.conf import settings
 
-# Initialize boto3 session with AWS credentials
-session = boto3.session.Session(
+# Initialize boto3 S3 client with explicit credentials from environment variables
+# This prevents boto3 from falling back to local AWS SSO credentials
+if not all([
+    settings.AWS_ACCESS_KEY_ID,
+    settings.AWS_SECRET_ACCESS_KEY,
+    settings.AWS_DEFAULT_REGION,
+    settings.AWS_S3_PHOTOS_BUCKET
+]):
+    raise ValueError(
+        "AWS credentials not configured. Please set AWS_ACCESS_KEY_ID, "
+        "AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION, and AWS_S3_PHOTOS_BUCKET "
+        "in your environment variables."
+    )
+
+s3_client = boto3.client(
+    "s3",
     aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
     aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
     region_name=settings.AWS_DEFAULT_REGION,
 )
-
-s3_client = session.client("s3")
 
 BUCKET_NAME = settings.AWS_S3_PHOTOS_BUCKET
 
