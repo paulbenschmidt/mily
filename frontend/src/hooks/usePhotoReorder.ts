@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { EventPhotoType } from '@/types/api';
 import { authApiClient } from '@/utils/auth-api';
 
@@ -20,6 +20,9 @@ export function usePhotoReorder({
   const [isDraggable, setIsDraggable] = useState(false);
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
   const [touchStartPos, setTouchStartPos] = useState<{ x: number; y: number } | null>(null);
+
+  // Ref to track active touch - avoids stale closure issues in event handlers
+  const isTouchActiveRef = useRef(false);
 
   const reorderPhotos = async (fromIndex: number, toIndex: number) => {
     if (!eventId || fromIndex === toIndex) return;
@@ -100,7 +103,7 @@ export function usePhotoReorder({
     const timer = setTimeout(() => {
       setIsDraggable(true);
       setDraggedIndex(index);
-    }, 500); // 500ms long press
+    }, 300); // 300ms long press
     setLongPressTimer(timer);
   };
 
@@ -111,8 +114,8 @@ export function usePhotoReorder({
     }
 
     // Only reset for mouse gestures (not during active touch)
-    // Touch cleanup is handled by handleTouchEnd/handleTouchCancel for mobile
-    if (touchStartPos === null && isDraggable && draggedIndex !== null && dragOverIndex === null) {
+    // Using ref instead of state to avoid stale closure issues
+    if (!isTouchActiveRef.current && isDraggable && draggedIndex !== null && dragOverIndex === null) {
       setIsDraggable(false);
       setDraggedIndex(null);
     }
@@ -126,6 +129,7 @@ export function usePhotoReorder({
     // This works in conjunction with touch-action: none and -webkit-touch-callout: none
     e.preventDefault();
 
+    isTouchActiveRef.current = true;
     const touch = e.touches[0];
     setTouchStartPos({ x: touch.clientX, y: touch.clientY });
     handleLongPressStart(index);
@@ -163,6 +167,8 @@ export function usePhotoReorder({
   };
 
   const handleTouchEnd = () => {
+    isTouchActiveRef.current = false;
+
     // Clear timer directly (don't call handleLongPressEnd to avoid race conditions)
     if (longPressTimer) {
       clearTimeout(longPressTimer);
@@ -180,6 +186,8 @@ export function usePhotoReorder({
   };
 
   const handleTouchCancel = () => {
+    isTouchActiveRef.current = false;
+
     if (longPressTimer) {
       clearTimeout(longPressTimer);
       setLongPressTimer(null);
