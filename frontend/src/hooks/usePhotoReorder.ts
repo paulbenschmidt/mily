@@ -2,6 +2,10 @@ import { useState, useRef } from 'react';
 import { EventPhotoType } from '@/types/api';
 import { authApiClient } from '@/utils/auth-api';
 
+// NOTE: Mobile browsers are very finnicky and struggle to support this reordering. I'm able to get it working on my
+// phone by timing the long press and drag just right, but sometimes I miss the window. I'm going to leave it like this
+// for now since mobile support will eventually be done as an app, not on a web browser.
+
 interface UsePhotoReorderProps {
   eventId?: string;
   photos: EventPhotoType[];
