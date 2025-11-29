@@ -109,6 +109,12 @@ export function usePhotoReorder({
       clearTimeout(longPressTimer);
       setLongPressTimer(null);
     }
+
+    // If user long-pressed but didn't drag, reset the drag state
+    if (isDraggable && draggedIndex !== null && dragOverIndex === null) {
+      setIsDraggable(false);
+      setDraggedIndex(null);
+    }
   };
 
   // Mobile touch handlers
