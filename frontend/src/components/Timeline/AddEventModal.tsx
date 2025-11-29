@@ -85,7 +85,7 @@ export function AddEventModal({
     }
   }, [isOpen, eventToEdit]);
 
-  // Auto-resize description textarea when content changes or modal opens
+  // Auto-resize description textarea when modal opens (for edit mode with existing text)
   useEffect(() => {
     if (isOpen && description) {
       const textarea = document.getElementById('description') as HTMLTextAreaElement;
@@ -325,6 +325,8 @@ export function AddEventModal({
             />
           </div>
 
+          <hr className="border-secondary-200 my-4" />
+
           <div className="mb-4">
             <div className="flex items-center gap-2 mb-1">
               <label htmlFor="description" className="block text-sm font-medium text-secondary-700">
@@ -370,6 +372,8 @@ export function AddEventModal({
               onPhotoOperationComplete={handlePhotoOperationComplete}
             />
           </div>
+
+          <hr className="border-secondary-200 my-4" />
 
           <div>
             <div className="flex items-center gap-2 mb-2">

@@ -2,6 +2,8 @@
 - Add environment variable to specify maximum number of photos per event
 - Can't have two URL paths that both define different methods for the same path; otherwise, it'll match on the first one it encounters
 - The other issue with URL path matching: it matches the first one that satisfies
+- Update journal
+- Review the pendingPhotoFiles logic and see if there's a simpler way
 
 TODO:
 - Test on staging
@@ -10,6 +12,8 @@ TODO:
 - Apply migrations to prod prior to merge
 
 ## In Progress
+- ENHANCE: Allow profile pictures
+- ENHANCE: Use AWS CloudFront for caching photos (currently, every request is a separate S3 request)
 - ENHANCE: Surface errors from backend to frontend; standardize the pattern
 - ENHANCE: Update Google description text to be less clunky (search for it on Google with "timeline mily" and you'll see it)
 - CLEANUP: Remove popup when login fails (the red error is good enough)
