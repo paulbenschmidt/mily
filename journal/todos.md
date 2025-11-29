@@ -1,5 +1,12 @@
 - Add documentation for photos?
 - Add environment variable to specify maximum number of photos per event
+- Can't have two URL paths that both define different methods for the same path; otherwise, it'll match on the first one it encounters
+- The other issue with URL path matching: it matches the first one that satisfies
+
+TODO:
+- Test on staging
+- Update env variables for backend
+- Apply migrations to prod prior to merge
 
 ## In Progress
 - ENHANCE: Update Google description text to be less clunky (search for it on Google with "timeline mily" and you'll see it)

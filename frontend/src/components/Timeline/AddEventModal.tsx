@@ -85,6 +85,20 @@ export function AddEventModal({
     }
   }, [isOpen, eventToEdit]);
 
+  // Auto-resize description textarea when content changes or modal opens
+  useEffect(() => {
+    if (isOpen && description) {
+      const textarea = document.getElementById('description') as HTMLTextAreaElement;
+      if (textarea) {
+        textarea.style.height = 'auto';
+        const maxHeight = 120; // ~5 lines
+        const newHeight = Math.min(textarea.scrollHeight, maxHeight);
+        textarea.style.height = newHeight + 'px';
+        textarea.style.overflow = textarea.scrollHeight > maxHeight ? 'auto' : 'hidden';
+      }
+    }
+  }, [isOpen, description]);
+
   // Load event data when in edit mode
   useEffect(() => {
     if (eventToEdit && isOpen) {
