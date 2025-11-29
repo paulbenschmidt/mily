@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { EventPhotoType } from '@/types/api';
 import { authApiClient } from '@/utils/auth-api';
 import { SmallText, Caption } from '@/components/ui';
+import { usePhotoReorder } from '@/hooks/usePhotoReorder';
 
 /**
  * Upload a single photo to an event.
@@ -57,7 +58,7 @@ export async function uploadPendingPhotos(eventId: string, files: File[]): Promi
     try {
       await uploadSinglePhoto(eventId, file);
     } catch (error) {
-      console.error(`Failed to upload ${file.name}:`, error);
+      console.error(`Failed to upload ${file.name}`);
       // Continue with other files even if one fails
     }
   }
@@ -73,7 +74,6 @@ interface PhotoUploadProps {
   onPhotosChange: (photos: EventPhotoType[]) => void;
   onPendingFilesChange?: (files: File[]) => void;
   pendingFiles?: File[];
-  maxPhotos?: number;
   onPhotoOperationComplete?: () => void;
 }
 
@@ -91,18 +91,33 @@ export function PhotoUpload({
   onPhotosChange,
   onPendingFilesChange,
   pendingFiles = [],
-  maxPhotos = 3,
   onPhotoOperationComplete
 }: PhotoUploadProps) {
   const [uploadingPhotos, setUploadingPhotos] = useState<UploadingPhoto[]>([]);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
-  const [isDraggable, setIsDraggable] = useState(false);
-  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
-  const [touchStartPos, setTouchStartPos] = useState<{ x: number; y: number } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Photo reordering logic (drag & drop)
+  const {
+    draggedIndex,
+    dragOverIndex,
+    isDraggable,
+    handleDragStart,
+    handleDragOver,
+    handleDragEnd,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+    handleLongPressStart,
+    handleLongPressEnd,
+  } = usePhotoReorder({
+    eventId,
+    photos: existingPhotos,
+    onPhotosChange,
+    onPhotoOperationComplete
+  });
+
+  const maxPhotos = Number(process.env.NEXT_PUBLIC_MAX_PHOTOS_PER_EVENT);
   const canAddMore = existingPhotos.length + uploadingPhotos.length + pendingFiles.length < maxPhotos;
 
   // Reset delete confirmation when clicking outside
@@ -195,7 +210,7 @@ export function PhotoUpload({
       }
 
     } catch (error) {
-      console.error('Upload error:', error);
+      console.error('Upload error');
       setUploadingPhotos(prev => prev.map(p =>
         p.id === uploadId ? { ...p, error: 'Upload failed' } : p
       ));
@@ -212,7 +227,7 @@ export function PhotoUpload({
     }
 
     // Second click: actually delete
-    setDeleteConfirmId(null);
+    setDeleteConfirmId(null); // Reset confirmation prior to delete in case of failure
 
     try {
       await authApiClient.deletePhoto(eventId, photoId);
@@ -223,7 +238,7 @@ export function PhotoUpload({
         onPhotoOperationComplete();
       }
     } catch (error) {
-      console.error('Delete error:', error);
+      console.error('Delete error');
       alert('Failed to delete photo');
     }
   };
@@ -231,7 +246,7 @@ export function PhotoUpload({
   const handleDeleteUploading = (uploadId: string) => {
     const photo = uploadingPhotos.find(p => p.id === uploadId);
     if (photo) {
-      URL.revokeObjectURL(photo.preview);
+      URL.revokeObjectURL(photo.preview); // Free up memory
       setUploadingPhotos(prev => prev.filter(p => p.id !== uploadId));
     }
   };
@@ -240,126 +255,6 @@ export function PhotoUpload({
     if (onPendingFilesChange) {
       onPendingFilesChange(pendingFiles.filter((_, i) => i !== index));
     }
-  };
-
-  const handleReorderPhotos = async (fromIndex: number, toIndex: number) => {
-    if (!eventId || fromIndex === toIndex) return;
-
-    // Reorder locally first for immediate feedback
-    const reorderedPhotos = [...existingPhotos];
-    const [movedPhoto] = reorderedPhotos.splice(fromIndex, 1);
-    reorderedPhotos.splice(toIndex, 0, movedPhoto);
-
-    // Update local state
-    onPhotosChange(reorderedPhotos);
-
-    // Update display_order on backend
-    try {
-      await Promise.all(
-        reorderedPhotos.map((photo, index) =>
-          authApiClient.updatePhotoMetadata(eventId, photo.id, {
-            display_order: index
-          })
-        )
-      );
-
-      // Notify parent that photo operation completed
-      if (onPhotoOperationComplete) {
-        onPhotoOperationComplete();
-      }
-    } catch (error) {
-      console.error('Failed to reorder photos:', error);
-      // Revert on error
-      onPhotosChange(existingPhotos);
-      alert('Failed to reorder photos');
-    }
-  };
-
-  const handleDragStart = (index: number) => {
-    if (!isDraggable) {
-      setIsDraggable(true);
-    }
-    setDraggedIndex(index);
-  };
-
-  const handleDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    if (draggedIndex !== null) {
-      setDragOverIndex(index);
-    }
-  };
-
-  const handleDragEnd = () => {
-    if (draggedIndex !== null && dragOverIndex !== null && draggedIndex !== dragOverIndex) {
-      handleReorderPhotos(draggedIndex, dragOverIndex);
-    }
-    setDraggedIndex(null);
-    setDragOverIndex(null);
-    setIsDraggable(false);
-  };
-
-  const handleLongPressStart = (index: number, e: React.MouseEvent | React.TouchEvent) => {
-    const timer = setTimeout(() => {
-      setIsDraggable(true);
-      setDraggedIndex(index);
-    }, 500); // 500ms long press
-    setLongPressTimer(timer);
-  };
-
-  const handleLongPressEnd = () => {
-    if (longPressTimer) {
-      clearTimeout(longPressTimer);
-      setLongPressTimer(null);
-    }
-  };
-
-  const handleTouchStart = (index: number, e: React.TouchEvent) => {
-    if (!eventId || isDraggable) return;
-
-    const touch = e.touches[0];
-    setTouchStartPos({ x: touch.clientX, y: touch.clientY });
-    handleLongPressStart(index, e);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDraggable || draggedIndex === null) {
-      // Cancel long press if user moves finger before drag starts
-      if (longPressTimer && touchStartPos) {
-        const touch = e.touches[0];
-        const deltaX = Math.abs(touch.clientX - touchStartPos.x);
-        const deltaY = Math.abs(touch.clientY - touchStartPos.y);
-
-        // If moved more than 10px, cancel long press
-        if (deltaX > 10 || deltaY > 10) {
-          handleLongPressEnd();
-          setTouchStartPos(null);
-        }
-      }
-      return;
-    }
-
-    const touch = e.touches[0];
-    const element = document.elementFromPoint(touch.clientX, touch.clientY);
-
-    // Find the photo element
-    const photoElement = element?.closest('[data-photo-index]');
-    if (photoElement) {
-      const index = parseInt(photoElement.getAttribute('data-photo-index') || '0');
-      setDragOverIndex(index);
-    }
-  };
-
-  const handleTouchEnd = () => {
-    handleLongPressEnd();
-    setTouchStartPos(null);
-
-    if (draggedIndex !== null && dragOverIndex !== null && draggedIndex !== dragOverIndex) {
-      handleReorderPhotos(draggedIndex, dragOverIndex);
-    }
-
-    setDraggedIndex(null);
-    setDragOverIndex(null);
-    setIsDraggable(false);
   };
 
   return (
@@ -392,7 +287,7 @@ export function PhotoUpload({
                 key={photo.id}
                 data-photo-index={displayIndex}
                 draggable={!!(eventId && isDraggable)}
-                onDragStart={() => handleDragStart(originalIndex)}
+                onDragStart={(e) => handleDragStart(originalIndex, e)}
                 onDragOver={(e) => handleDragOver(e, displayIndex)}
                 onDragEnd={handleDragEnd}
                 onContextMenu={(e) => eventId && e.preventDefault()}

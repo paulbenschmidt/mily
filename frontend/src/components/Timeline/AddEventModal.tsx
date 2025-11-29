@@ -368,7 +368,6 @@ export function AddEventModal({
               onPhotosChange={setPhotos}
               pendingFiles={pendingPhotoFiles}
               onPendingFilesChange={setPendingPhotoFiles}
-              maxPhotos={Number(process.env.NEXT_PUBLIC_MAX_PHOTOS_PER_EVENT)}
               onPhotoOperationComplete={handlePhotoOperationComplete}
             />
           </div>
