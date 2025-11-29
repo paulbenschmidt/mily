@@ -372,7 +372,7 @@ export function PhotoUpload({
         {/* Existing Photos */}
         {(() => {
           // Create a preview of the reordered array while dragging
-          let displayPhotos = [...existingPhotos];
+          const displayPhotos = [...existingPhotos];
           if (draggedIndex !== null && dragOverIndex !== null && draggedIndex !== dragOverIndex) {
             const [movedPhoto] = displayPhotos.splice(draggedIndex, 1);
             displayPhotos.splice(dragOverIndex, 0, movedPhoto);
