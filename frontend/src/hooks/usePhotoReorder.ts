@@ -110,8 +110,9 @@ export function usePhotoReorder({
       setLongPressTimer(null);
     }
 
-    // If user long-pressed but didn't drag, reset the drag state
-    if (isDraggable && draggedIndex !== null && dragOverIndex === null) {
+    // Only reset for mouse gestures (not during active touch)
+    // Touch cleanup is handled by handleTouchEnd/handleTouchCancel for mobile
+    if (touchStartPos === null && isDraggable && draggedIndex !== null && dragOverIndex === null) {
       setIsDraggable(false);
       setDraggedIndex(null);
     }
@@ -162,13 +163,28 @@ export function usePhotoReorder({
   };
 
   const handleTouchEnd = () => {
-    handleLongPressEnd();
+    // Clear timer directly (don't call handleLongPressEnd to avoid race conditions)
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
     setTouchStartPos(null);
 
     if (draggedIndex !== null && dragOverIndex !== null && draggedIndex !== dragOverIndex) {
       reorderPhotos(draggedIndex, dragOverIndex);
     }
 
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+    setIsDraggable(false);
+  };
+
+  const handleTouchCancel = () => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
+    setTouchStartPos(null);
     setDraggedIndex(null);
     setDragOverIndex(null);
     setIsDraggable(false);
@@ -189,8 +205,9 @@ export function usePhotoReorder({
     handleTouchStart,
     handleTouchMove,
     handleTouchEnd,
+    handleTouchCancel,
 
-    // Utility
+    // Utility (desktop only)
     handleLongPressStart,
     handleLongPressEnd,
   };

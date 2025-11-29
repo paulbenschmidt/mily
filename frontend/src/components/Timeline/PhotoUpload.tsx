@@ -108,6 +108,7 @@ export function PhotoUpload({
     handleTouchStart,
     handleTouchMove,
     handleTouchEnd,
+    handleTouchCancel,
     handleLongPressStart,
     handleLongPressEnd,
   } = usePhotoReorder({
@@ -301,6 +302,7 @@ export function PhotoUpload({
                 onTouchStart={(e) => handleTouchStart(originalIndex, e)}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
+                onTouchCancel={handleTouchCancel}
                 style={eventId ? { touchAction: 'none', WebkitTouchCallout: 'none', userSelect: 'none' } : undefined}
                 className={`relative aspect-square group transition-all duration-200 ${
                   draggedIndex === originalIndex ? 'opacity-50 scale-95 ring-2 ring-primary-400' : ''
