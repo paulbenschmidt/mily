@@ -5,10 +5,12 @@
 
 TODO:
 - Test on staging
+    - Test upload, delete, and reorder
 - Update env variables for backend
 - Apply migrations to prod prior to merge
 
 ## In Progress
+- ENHANCE: Surface errors from backend to frontend; standardize the pattern
 - ENHANCE: Update Google description text to be less clunky (search for it on Google with "timeline mily" and you'll see it)
 - CLEANUP: Remove popup when login fails (the red error is good enough)
 - BUG: Better error handling for password reset. Does this still work? (It failed when Andy Hickey tried to reset his)

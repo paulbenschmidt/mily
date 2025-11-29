@@ -1,5 +1,6 @@
 import uuid
 
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -115,6 +116,8 @@ class EventPhoto(models.Model):
     filename = models.CharField(max_length=255, help_text="Original filename")
     content_type = models.CharField(max_length=100, help_text="MIME type (e.g., image/jpeg)")
     file_size = models.IntegerField(help_text="File size in bytes")
+    # Dimensions are currently not being used but are kept in case we want to use them for gallery-style photo display
+    # or for smart cropping photos to a standard size
     width = models.IntegerField(null=True, blank=True, help_text="Image width in pixels")
     height = models.IntegerField(null=True, blank=True, help_text="Image height in pixels")
     display_order = models.IntegerField(default=0, help_text="Order for displaying multiple photos")
@@ -132,11 +135,11 @@ class EventPhoto(models.Model):
         return f"Photo for {self.event.title} - {self.filename}"
 
     def save(self, *args, **kwargs):
-        """Enforce maximum of 3 photos per event."""
+        """Enforce maximum number of photos per event."""
         if not self.pk:  # Only check on creation
             photo_count = EventPhoto.objects.filter(event=self.event).count()
-            if photo_count >= 3:
-                raise ValueError("Maximum of 3 photos per event")
+            if photo_count >= settings.MAX_PHOTOS_PER_EVENT:
+                raise ValueError(f"Maximum of {settings.MAX_PHOTOS_PER_EVENT} photos per event")
         super().save(*args, **kwargs)
 
 

@@ -14,7 +14,6 @@ import { processDateInputs } from '@/utils/date-validation';
 
 const DEFAULT_CATEGORY: EventCategory = 'memory';
 const DEFAULT_PRIVACY_LEVEL: EventPrivacyLevel = 'private';
-
 const TITLE_PLACEHOLDERS = [
   'Started first job',
   'Moved to Chicago',
@@ -42,6 +41,7 @@ const TITLE_PLACEHOLDERS = [
   'Learned a new language',
   'Got promoted',
 ];
+const INPUT_DESCRIPTION_MAX_HEIGHT = 120; // ~5 lines
 
 interface AddEventModalProps {
   isOpen: boolean;
@@ -91,10 +91,9 @@ export function AddEventModal({
       const textarea = document.getElementById('description') as HTMLTextAreaElement;
       if (textarea) {
         textarea.style.height = 'auto';
-        const maxHeight = 120; // ~5 lines
-        const newHeight = Math.min(textarea.scrollHeight, maxHeight);
+        const newHeight = Math.min(textarea.scrollHeight, INPUT_DESCRIPTION_MAX_HEIGHT);
         textarea.style.height = newHeight + 'px';
-        textarea.style.overflow = textarea.scrollHeight > maxHeight ? 'auto' : 'hidden';
+        textarea.style.overflow = textarea.scrollHeight > INPUT_DESCRIPTION_MAX_HEIGHT ? 'auto' : 'hidden';
       }
     }
   }, [isOpen, description]);
@@ -126,14 +125,14 @@ export function AddEventModal({
   }, [eventToEdit, isOpen]);
 
   const handlePhotoOperationComplete = async () => {
-    // Fetch the latest event data and update parent state
+    // Fetch the latest event data and update parent state (to update state when adding/deleting photos)
     if (eventToEdit && onEventUpdated) {
       try {
         const updatedEvent = await authApiClient.getEvent(eventToEdit.id);
         onEventUpdated(updatedEvent);
         setPhotos(updatedEvent.event_photos || []);
       } catch (error) {
-        console.error('Failed to fetch updated event:', error);
+        console.error('Failed to fetch updated event');
       }
     }
   };
@@ -186,7 +185,7 @@ export function AddEventModal({
             // Fetch the updated event with photos
             updatedEvent = await authApiClient.getEvent(updatedEvent.id);
           } catch (photoError) {
-            console.error('Failed to upload photos:', photoError);
+            console.error('Failed to upload photos');
             // Event was created successfully, just photos failed
             // We'll still show the event, user can add photos later
           }
@@ -350,10 +349,9 @@ export function AddEventModal({
                 setDescription(e.target.value);
                 // Auto-resize textarea up to max height
                 e.target.style.height = 'auto';
-                const maxHeight = 120; // ~5 lines
-                const newHeight = Math.min(e.target.scrollHeight, maxHeight);
+                const newHeight = Math.min(e.target.scrollHeight, INPUT_DESCRIPTION_MAX_HEIGHT);
                 e.target.style.height = newHeight + 'px';
-                e.target.style.overflow = e.target.scrollHeight > maxHeight ? 'auto' : 'hidden';
+                e.target.style.overflow = e.target.scrollHeight > INPUT_DESCRIPTION_MAX_HEIGHT ? 'auto' : 'hidden';
               }}
               rows={1}
               style={{ minHeight: '2.5rem', resize: 'none' }}
@@ -368,7 +366,7 @@ export function AddEventModal({
               onPhotosChange={setPhotos}
               pendingFiles={pendingPhotoFiles}
               onPendingFilesChange={setPendingPhotoFiles}
-              maxPhotos={3}
+              maxPhotos={Number(process.env.NEXT_PUBLIC_MAX_PHOTOS_PER_EVENT)}
               onPhotoOperationComplete={handlePhotoOperationComplete}
             />
           </div>

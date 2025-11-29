@@ -3,6 +3,7 @@ from typing import Any
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
+from .aws_s3 import create_presigned_get_url
 from .models import (
     Event,
     EventPhoto,
@@ -77,7 +78,6 @@ class EventPhotoSerializer(serializers.ModelSerializer):
 
     def get_url(self, obj: EventPhoto) -> str:
         """Generate presigned URL for viewing the photo."""
-        from .aws_s3 import create_presigned_get_url
         try:
             return create_presigned_get_url(obj.s3_key)
         except Exception:

@@ -25,6 +25,7 @@ const nextConfig: NextConfig = {
   env: {
     // Make backend environment variables available to frontend
     NEXT_PUBLIC_API_URL: apiUrl,
+    NEXT_PUBLIC_MAX_PHOTOS_PER_EVENT: '3',
   },
   // Add CORS headers
   async headers() {

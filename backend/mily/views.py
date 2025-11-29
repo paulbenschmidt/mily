@@ -235,7 +235,6 @@ class EventViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-    # NOTE: the `events/<ID>/photos/<ETC>` path is reserved for photo edits (to avoid URL clashes)
     @action(detail=True, methods=["post"], url_path="get-photo-upload-url")
     def get_photo_upload_url(self, request, pk=None):
         """
@@ -288,9 +287,9 @@ class EventViewSet(viewsets.ModelViewSet):
 
         # Validate photo count limit (max 3 photos per event)
         current_photo_count = event.event_photos.count()
-        if current_photo_count >= 3:
+        if current_photo_count >= settings.MAX_PHOTOS_PER_EVENT:
             return Response(
-                {"error": "Maximum of 3 photos per event. Please delete a photo before adding a new one."},
+                {"error": f"Maximum of {settings.MAX_PHOTOS_PER_EVENT} photos per event. Please delete a photo before adding a new one."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -328,7 +327,7 @@ class EventViewSet(viewsets.ModelViewSet):
         except Exception as e:
             logger.error("Error generating upload URL: %s", str(e))
             return Response(
-                {"error": "Failed to generate upload URL", "details": str(e)},
+                {"error": "Failed to upload photo", "details": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 

@@ -62,7 +62,7 @@ export function PhotoModal({ photos, currentIndex, onClose, onNavigate }: PhotoM
             e.stopPropagation();
             onNavigate(currentIndex - 1);
           }}
-          className="absolute left-0 top-0 bottom-0 w-32 flex items-center justify-start pl-4 hover:bg-white/5 transition-colors z-10 group"
+          className="absolute left-0 top-0 bottom-0 w-24 flex items-center justify-start pl-4 hover:bg-white/5 transition-colors z-10 group"
           aria-label="Previous photo"
         >
           <div className="p-2 rounded-full group-hover:bg-white/10 transition-colors">
@@ -80,7 +80,7 @@ export function PhotoModal({ photos, currentIndex, onClose, onNavigate }: PhotoM
             e.stopPropagation();
             onNavigate(currentIndex + 1);
           }}
-          className="absolute right-0 top-0 bottom-0 w-32 flex items-center justify-end pr-4 hover:bg-white/5 transition-colors z-10 group"
+          className="absolute right-0 top-0 bottom-0 w-24 flex items-center justify-end pr-4 hover:bg-white/5 transition-colors z-10 group"
           aria-label="Next photo"
         >
           <div className="p-2 rounded-full group-hover:bg-white/10 transition-colors">

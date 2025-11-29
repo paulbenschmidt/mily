@@ -51,14 +51,14 @@ def make_event_photo_key(user_id: str, event_id: str, filename: str) -> str:
     return f"users/{user_id}/events/{event_id}/{uuid.uuid4()}.{ext}"
 
 
-def create_presigned_put_url(key: str, content_type: str, expires_in: int = 600) -> str:
+def create_presigned_put_url(key: str, content_type: str, expires_in: int = 3600) -> str:
     """
     Generate a presigned URL for uploading a photo to S3.
 
     Args:
         key: S3 object key (path)
         content_type: MIME type of the file (e.g., 'image/jpeg')
-        expires_in: URL expiration time in seconds (default: 10 minutes)
+        expires_in: URL expiration time in seconds (default: 1 hour; generous to allow for slow connections)
 
     Returns:
         Presigned URL string that can be used to PUT the file
@@ -74,13 +74,13 @@ def create_presigned_put_url(key: str, content_type: str, expires_in: int = 600)
     )
 
 
-def create_presigned_get_url(key: str, expires_in: int = 900) -> str:
+def create_presigned_get_url(key: str, expires_in: int = 7200) -> str:
     """
     Generate a presigned URL for downloading a photo from S3.
 
     Args:
         key: S3 object key (path)
-        expires_in: URL expiration time in seconds (default: 15 minutes)
+        expires_in: URL expiration time in seconds (default: 2 hours; to avoid multiple calls during the same session)
 
     Returns:
         Presigned URL string that can be used to GET the file

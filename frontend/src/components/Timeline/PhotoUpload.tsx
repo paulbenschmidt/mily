@@ -13,19 +13,28 @@ async function uploadSinglePhoto(eventId: string, file: File): Promise<void> {
   // Step 1: Get image dimensions
   const img = new Image();
   const imageUrl = URL.createObjectURL(file);
-  img.src = imageUrl;
-  await new Promise((resolve) => {
-    img.onload = resolve;
+
+  // Wait for image to load and get dimensions
+  await new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve();
+    img.onerror = () => reject(new Error('Failed to load image'));
+    img.src = imageUrl;
   });
-  URL.revokeObjectURL(imageUrl);
+
+  const width = img.naturalWidth || img.width;
+  const height = img.naturalHeight || img.height;
+
+  URL.revokeObjectURL(imageUrl); // Free up memory after reading the dimensions
+
+  console.log(`Image dimensions: ${width}x${height}`); // Debug log
 
   // Step 2: Request presigned URL with dimensions
   const { upload_url } = await authApiClient.requestPhotoUploadUrl(eventId, {
     filename: file.name,
     content_type: file.type,
     file_size: file.size,
-    width: img.width,
-    height: img.height
+    width: width,
+    height: height
   });
 
   // Step 3: Upload to S3
