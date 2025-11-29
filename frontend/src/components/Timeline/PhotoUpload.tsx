@@ -10,11 +10,10 @@ import { SmallText, Caption } from '@/components/ui';
  * Gets dimensions, requests presigned URL, and uploads to S3.
  */
 async function uploadSinglePhoto(eventId: string, file: File): Promise<void> {
-  // Step 1: Get image dimensions
+  // Step 1: Load image and get dimensions
   const img = new Image();
   const imageUrl = URL.createObjectURL(file);
 
-  // Wait for image to load and get dimensions
   await new Promise<void>((resolve, reject) => {
     img.onload = () => resolve();
     img.onerror = () => reject(new Error('Failed to load image'));
@@ -26,10 +25,8 @@ async function uploadSinglePhoto(eventId: string, file: File): Promise<void> {
 
   URL.revokeObjectURL(imageUrl); // Free up memory after reading the dimensions
 
-  console.log(`Image dimensions: ${width}x${height}`); // Debug log
-
-  // Step 2: Request presigned URL with dimensions
-  const { upload_url } = await authApiClient.requestPhotoUploadUrl(eventId, {
+  // Step 2: Create EventPhoto record and get presigned URL for S3 upload
+  const { upload_url } = await authApiClient.createPhotoUpload(eventId, {
     filename: file.name,
     content_type: file.type,
     file_size: file.size,
@@ -446,7 +443,7 @@ export function PhotoUpload({
           });
         })()}
 
-        {/* Uploading Photos */}
+        {/* Uploading Photos (used when editing an event since photos can be uploaded immediately) */}
         {uploadingPhotos.map((photo) => (
           <div key={photo.id} className="relative aspect-square group">
             <img
@@ -477,7 +474,7 @@ export function PhotoUpload({
           </div>
         ))}
 
-        {/* Pending Photos (not yet uploaded) */}
+        {/* Pending Photos (used when adding a new event since photos can't be uploaded until the event is created) */}
         {pendingFiles.map((file, index) => (
           <div key={`pending-${index}`} className="relative aspect-square group">
             <img
@@ -530,11 +527,6 @@ export function PhotoUpload({
             : `Can add ${maxPhotos - existingPhotos.length - uploadingPhotos.length - pendingFiles.length} more photo${maxPhotos - existingPhotos.length - uploadingPhotos.length - pendingFiles.length !== 1 ? 's' : ''}`
           ) + ' (max 10MB each)'}
         </Caption>
-      )}
-      {!eventId && pendingFiles.length > 0 && (
-        <SmallText className="text-secondary-600 italic">
-          Photos will be uploaded after you create the event
-        </SmallText>
       )}
     </div>
   );

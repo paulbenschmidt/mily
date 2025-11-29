@@ -112,5 +112,9 @@ export function PhotoModal({ photos, currentIndex, onClose, onNavigate }: PhotoM
     </div>
   );
 
+  // Render as portal to document.body to escape parent DOM hierarchy
+  // This prevents the modal from being affected by parent z-index stacking contexts
+  // and ensures it appears above all other content (including event cards that might have click handlers)
+  // This was specifically added to avoid collapsing the event card when the modal is opened
   return createPortal(modalContent, document.body);
 }

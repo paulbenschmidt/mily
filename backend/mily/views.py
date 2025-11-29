@@ -235,10 +235,10 @@ class EventViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-    @action(detail=True, methods=["post"], url_path="get-photo-upload-url")
-    def get_photo_upload_url(self, request, pk=None):
+    @action(detail=True, methods=["post"], url_path="create-photo-upload")
+    def create_photo_upload(self, request, pk=None):
         """
-        Generate a presigned URL for uploading a photo to S3.
+        Create EventPhoto record and generate presigned URL for uploading to S3.
 
         Request body:
         {

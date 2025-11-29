@@ -341,12 +341,12 @@ class AuthApiClient {
   }
 
   // Photo management endpoints
-  async requestPhotoUploadUrl(
+  async createPhotoUpload(
     eventId: string,
     photoData: { filename: string; content_type: string; file_size: number; width?: number; height?: number }
   ): Promise<{ upload_url: string; photo_id: string; s3_key: string }> {
     return this.request<{ upload_url: string; photo_id: string; s3_key: string }>({
-      endpoint: `/events/${eventId}/get-photo-upload-url/`,
+      endpoint: `/events/${eventId}/create-photo-upload/`,
       options: {
         method: 'POST',
         body: JSON.stringify(photoData),

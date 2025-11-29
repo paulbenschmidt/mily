@@ -178,7 +178,7 @@ export function AddEventModal({
         // Create new event
         updatedEvent = await authApiClient.createEvent(eventData);
 
-        // Upload pending photos if any
+        // Upload photos after event is created
         if (pendingPhotoFiles.length > 0) {
           try {
             await uploadPendingPhotos(updatedEvent.id, pendingPhotoFiles);
