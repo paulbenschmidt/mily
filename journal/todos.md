@@ -1,5 +1,17 @@
 ## In Progress
+- ENHANCE: Allow profile pictures
+- ENHANCE: Use AWS CloudFront for caching photos (currently, every request is a separate S3 request)
+- ENHANCE: Surface errors from backend to frontend; standardize the pattern
 - ENHANCE: Update Google description text to be less clunky (search for it on Google with "timeline mily" and you'll see it)
+- CLEANUP: Remove popup when login fails (the red error is good enough)
+- BUG: Better error handling for password reset. Does this still work? (It failed when Andy Hickey tried to reset his)
+- BUG: Get rid of accidental text highlighting when using the scrubber to navigate the timeline
+
+- ENHANCE: Add S3 bucket rule to convert photos to S3 Standard-IA (infrequent access) or Glacier after 365 days
+- ENHANCE: Add S3 bucket logging to a separate bucket
+- ENHANCE: Set up AWS spend monitoring
+- ENHANCE: Go through AWS welcome guides
+- ENHANCE: Pre-sign all photo URLs (if I do this I should likely paginate the events response)
 
 ## To Organize
 - FEATURE: Reflection prompts/cards that ask "What is a time where you felt very excited/sad?" to get people thinking about different events to add them
@@ -61,6 +73,7 @@
 - TECHDEBT: Go through CloudFlare email
 
 ## Backlog
+- PRE-APP DEPLOYMENT: Check out https://tryrubberduck.com/ to scan the app prior to submitting to App Store.
 - FEATURE: Allow users to create multiple timelines
     - Rusty mentioned that it could be nice for parents who want to maintain separate timelines for children
     - Reviews suggest that users who are authors also would like this feature when creating timelines for fictional characters

@@ -12,12 +12,15 @@ from rest_framework.exceptions import NotFound
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
+from .aws_s3 import make_event_photo_key, create_presigned_put_url, delete_photo_from_s3
 from .models import (
     Event,
+    EventPhoto,
     Share,
 )
 from .serializers import (
     EventSerializer,
+    EventPhotoSerializer,
     EventPublicSerializer,
     UserPublicSerializer,
     UserPrivateSerializer,
@@ -210,6 +213,15 @@ class EventViewSet(viewsets.ModelViewSet):
         logger.info("Deleting event %s for user %s", event_id, user_id)
 
         try:
+            # Delete associated photos from S3 before deleting the event
+            for photo in instance.event_photos.all():
+                try:
+                    delete_photo_from_s3(photo.s3_key)
+                    logger.info("Deleted photo from S3: %s", photo.s3_key)
+                except Exception as e:
+                    logger.error("Failed to delete photo from S3 (%s): %s", photo.s3_key, str(e))
+                    # Continue with event deletion even if S3 deletion fails
+
             self.perform_destroy(instance)
             logger.info("Event %s successfully deleted", event_id)
             return Response(
@@ -221,6 +233,160 @@ class EventViewSet(viewsets.ModelViewSet):
             return Response(
                 {"error": "Failed to delete event", "details": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    @action(detail=True, methods=["post"], url_path="create-photo-upload")
+    def create_photo_upload(self, request, pk=None):
+        """
+        Create EventPhoto record and generate presigned URL for uploading to S3.
+
+        Request body:
+        {
+            "filename": "photo.jpg",
+            "content_type": "image/jpeg",
+            "file_size": 1024000
+        }
+
+        Response:
+        {
+            "upload_url": "https://...",
+            "photo_id": "uuid",
+            "s3_key": "users/.../events/.../uuid.jpg"
+        }
+        """
+        event = self.get_object()
+
+        # Validate request data
+        filename = request.data.get("filename")
+        content_type = request.data.get("content_type")
+        file_size = request.data.get("file_size")
+        width = request.data.get("width")
+        height = request.data.get("height")
+
+        if not all([filename, content_type, file_size]):
+            return Response(
+                {"error": "filename, content_type, and file_size are required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Validate content type
+        allowed_types = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"]
+        if content_type not in allowed_types:
+            return Response(
+                {"error": f"Invalid content type. Allowed: {', '.join(allowed_types)}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Validate file size (max 10MB)
+        max_size = 10 * 1024 * 1024  # 10MB
+        if file_size > max_size:
+            return Response(
+                {"error": f"File size exceeds maximum of {max_size / 1024 / 1024}MB"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Validate photo count limit (max 3 photos per event)
+        current_photo_count = event.event_photos.count()
+        if current_photo_count >= settings.MAX_PHOTOS_PER_EVENT:
+            return Response(
+                {"error": f"Maximum of {settings.MAX_PHOTOS_PER_EVENT} photos per event. Please delete a photo before adding a new one."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            # Generate S3 key
+            s3_key = make_event_photo_key(
+                str(event.user_id),
+                str(event.id),
+                filename
+            )
+
+            # Create photo record
+            photo = EventPhoto.objects.create(
+                event=event,
+                s3_key=s3_key,
+                filename=filename,
+                content_type=content_type,
+                file_size=file_size,
+                display_order=event.event_photos.count(),
+                width=width,
+                height=height
+            )
+
+            # Generate presigned URL
+            upload_url = create_presigned_put_url(s3_key, content_type)
+
+            logger.info("Generated upload URL for event %s, photo %s", event.id, photo.id)
+
+            return Response({
+                "upload_url": upload_url,
+                "photo_id": str(photo.id),
+                "s3_key": s3_key
+            })
+
+        except Exception as e:
+            logger.error("Error generating upload URL: %s", str(e))
+            return Response(
+                {"error": "Failed to upload photo", "details": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    @action(detail=True, methods=["patch", "delete"], url_path="photos/(?P<photo_id>[^/.]+)")
+    def manage_photo(self, request, pk=None, photo_id=None):
+        """
+        Manage a photo: update metadata (PATCH) or delete (DELETE).
+
+        PATCH - Update photo metadata:
+        {
+            "display_order": 0,
+            "width": 1920,
+            "height": 1080
+        }
+
+        DELETE - Delete photo from database and S3.
+        """
+        event = self.get_object()
+
+        try:
+            photo = EventPhoto.objects.get(id=photo_id, event=event)
+        except EventPhoto.DoesNotExist:
+            return Response(
+                {"error": "Photo not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        if request.method == "PATCH":
+            # Update allowed fields
+            if "display_order" in request.data:
+                photo.display_order = request.data["display_order"]
+            if "width" in request.data:
+                photo.width = request.data["width"]
+            if "height" in request.data:
+                photo.height = request.data["height"]
+
+            photo.save()
+
+            serializer = EventPhotoSerializer(photo)
+            return Response(serializer.data)
+
+        elif request.method == "DELETE":
+            s3_key = photo.s3_key
+
+            try:
+                # Delete from S3
+                delete_photo_from_s3(s3_key)
+                logger.info("Deleted photo from S3: %s", s3_key)
+            except Exception as e:
+                logger.error("Failed to delete photo from S3 (%s): %s", s3_key, str(e))
+                # Continue with database deletion even if S3 deletion fails
+
+            # Delete from database
+            photo.delete()
+            logger.info("Deleted photo %s from event %s", photo_id, event.id)
+
+            return Response(
+                {"success": True, "message": "Photo deleted successfully"},
+                status=status.HTTP_200_OK
             )
 
 

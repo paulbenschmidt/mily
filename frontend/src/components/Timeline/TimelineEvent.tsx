@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { TimelineEventType } from '@/types/api';
 import { SmallText, Caption, Button, Card, BodyText } from '@/components/ui';
+import { PhotoModal } from './PhotoModal';
 
 interface TimelineEventProps {
   event: TimelineEventType;
@@ -16,6 +17,8 @@ interface TimelineEventProps {
 
 export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent, nextEvent, mode = 'owner' }: TimelineEventProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [photoModalOpen, setPhotoModalOpen] = useState(false);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
 
   const getPrivacyIcon = (privacyLevel: string) => {
     const iconClass = "w-3.5 h-3.5 text-secondary-400";
@@ -118,7 +121,7 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
   };
 
   // Check if there's expandable content (description, photos, or notes)
-  const hasExpandableContent = event.description || (event.photos && event.photos.length > 0) || event.notes;
+  const hasExpandableContent = event.description || (event.event_photos && event.event_photos.length > 0) || event.notes;
 
   const getEventSpacerHeight = () => {
     // Exit early if there is no next event
@@ -216,6 +219,16 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
                   </SmallText>
                 )}
 
+                {/* Photo indicator when collapsed */}
+                {!isExpanded && event.event_photos && event.event_photos.length > 0 && (
+                  <div className="flex items-center gap-1.5 text-secondary-500 mt-2">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <SmallText className="text-secondary-500">{event.event_photos.length}</SmallText>
+                  </div>
+                )}
+
                 {/* Expandable content: full description, photos, notes, and buttons */}
                 {isExpanded && (
                   <div className="overflow-hidden transition-all duration-300 ease-in-out animate-in slide-in-from-top-2">
@@ -227,13 +240,27 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
                     </SmallText>
                   )}
 
-                  {event.photos && event.photos.length > 0 && (
-                    <div className="mb-4">
-                      <img
-                        src={event.photos[0]}
-                        alt={event.title}
-                        className="w-full h-40 md:h-48 object-cover rounded-md"
-                      />
+                  {event.event_photos && event.event_photos.length > 0 && (
+                    <div className="mt-4 mb-4">
+                      <div className="grid grid-cols-3 gap-2">
+                        {event.event_photos.map((photo, index) => (
+                          <button
+                            key={photo.id}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedPhotoIndex(index);
+                              setPhotoModalOpen(true);
+                            }}
+                            className="relative aspect-square overflow-hidden rounded-md hover:opacity-90 transition-opacity"
+                          >
+                            <img
+                              src={photo.url}
+                              alt={`Photo ${index + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   )}
 
@@ -245,7 +272,7 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
 
                   {/* Action buttons - shown when expanded */}
                   {(onEditEvent || onDeleteEvent) && (
-                    <div className="flex gap-6 justify-center pt-4 mt-4 border-t border-secondary-200">
+                    <div className="flex gap-6 justify-center pt-4 mt-4 pb-4 border-t border-secondary-200">
                       {onEditEvent && (
                         <Button
                           variant="secondary"
@@ -285,6 +312,16 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
 
       {/* Spacer for events with appropriate spacing */}
       <div className={`flex items-center justify-center ${getEventSpacerHeight()}`} />
+
+      {/* Photo Modal */}
+      {photoModalOpen && event.event_photos && event.event_photos.length > 0 && (
+        <PhotoModal
+          photos={event.event_photos}
+          currentIndex={selectedPhotoIndex}
+          onClose={() => setPhotoModalOpen(false)}
+          onNavigate={setSelectedPhotoIndex}
+        />
+      )}
     </div>
   );
 }

@@ -3,8 +3,10 @@ from typing import Any
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
+from .aws_s3 import create_presigned_get_url
 from .models import (
     Event,
+    EventPhoto,
     EventPrivacyLevel,
     Share,
 )
@@ -52,8 +54,39 @@ class UserPrivateSerializer(serializers.ModelSerializer):
 UserSerializer = UserPrivateSerializer
 
 
+class EventPhotoSerializer(serializers.ModelSerializer):
+    """Serializer for event photos with presigned URLs for viewing."""
+    url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = EventPhoto
+        fields = [
+            "id",
+            "event",
+            "s3_key",
+            "filename",
+            "content_type",
+            "file_size",
+            "width",
+            "height",
+            "display_order",
+            "url",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "event", "s3_key", "created_at", "updated_at", "url"]
+
+    def get_url(self, obj: EventPhoto) -> str:
+        """Generate presigned URL for viewing the photo."""
+        try:
+            return create_presigned_get_url(obj.s3_key)
+        except Exception:
+            return ""
+
+
 class EventSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(read_only=True)
+    event_photos = EventPhotoSerializer(many=True, read_only=True)
 
     class Meta:
         model = Event
@@ -69,12 +102,12 @@ class EventSerializer(serializers.ModelSerializer):
             "is_month_approximate",
             "location",
             "privacy_level",
-            "photos",
+            "event_photos",
             "tags",
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at", "event_photos"]
 
     def validate_privacy_level(self, value: str) -> str:
         if value not in EventPrivacyLevel.values:
@@ -85,6 +118,7 @@ class EventSerializer(serializers.ModelSerializer):
 class EventPublicSerializer(serializers.ModelSerializer):
     """Serializer for public event data (excludes personal notes)."""
     user = serializers.PrimaryKeyRelatedField(read_only=True)
+    event_photos = EventPhotoSerializer(many=True, read_only=True)
 
     class Meta:
         model = Event
@@ -99,12 +133,12 @@ class EventPublicSerializer(serializers.ModelSerializer):
             "is_month_approximate",
             "location",
             "privacy_level",
-            "photos",
+            "event_photos",
             "tags",
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at", "event_photos"]
 
     def validate_privacy_level(self, value: str) -> str:
         if value not in EventPrivacyLevel.values:

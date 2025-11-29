@@ -1,5 +1,6 @@
 import uuid
 
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -65,7 +66,6 @@ class Event(models.Model):
     notes = models.TextField(blank=True) # Personal reflection notes
     location = models.CharField(max_length=200, blank=True)
     privacy_level = models.CharField(max_length=10, choices=EventPrivacyLevel.choices, default=EventPrivacyLevel.PRIVATE)
-    photos = models.JSONField(default=list, blank=True)  # Store photo URLs/metadata
     tags = models.JSONField(default=list, blank=True)  # Store event tags as array of strings
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -103,6 +103,44 @@ class Event(models.Model):
                 shared_with_user=viewer
             ).exists()
         return False
+
+
+class EventPhoto(models.Model):
+    """
+    Photos attached to timeline events.
+    Stores metadata and S3 keys for photos stored in AWS S3.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='event_photos')
+    s3_key = models.CharField(max_length=500, help_text="S3 object key (path) for the photo")
+    filename = models.CharField(max_length=255, help_text="Original filename")
+    content_type = models.CharField(max_length=100, help_text="MIME type (e.g., image/jpeg)")
+    file_size = models.IntegerField(help_text="File size in bytes")
+    # Dimensions are currently not being used but are kept in case we want to use them for gallery-style photo display
+    # or for smart cropping photos to a standard size
+    width = models.IntegerField(null=True, blank=True, help_text="Image width in pixels")
+    height = models.IntegerField(null=True, blank=True, help_text="Image height in pixels")
+    display_order = models.IntegerField(default=0, help_text="Order for displaying multiple photos")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'event_photos'
+        ordering = ['display_order', 'created_at']
+        indexes = [
+            models.Index(fields=['event', 'display_order']),
+        ]
+
+    def __str__(self):
+        return f"Photo for {self.event.title} - {self.filename}"
+
+    def save(self, *args, **kwargs):
+        """Enforce maximum number of photos per event."""
+        if not self.pk:  # Only check on creation
+            photo_count = EventPhoto.objects.filter(event=self.event).count()
+            if photo_count >= settings.MAX_PHOTOS_PER_EVENT:
+                raise ValueError(f"Maximum of {settings.MAX_PHOTOS_PER_EVENT} photos per event")
+        super().save(*args, **kwargs)
 
 
 class Share(models.Model):

@@ -36,7 +36,7 @@ export function DateInput({
   return (
     <div className="flex gap-2">
       <div className="flex-1 min-w-[80px] max-w-[100px]">
-        <label htmlFor={yearId} className="block text-xs font-medium text-secondary-600 mb-1">
+        <label htmlFor={yearId} className="block text-sm font-medium text-secondary-700 mb-1">
           {yearLabel}
         </label>
         <Input
@@ -56,7 +56,7 @@ export function DateInput({
         />
       </div>
       <div className="flex-1 min-w-[120px] max-w-[140px]">
-        <label htmlFor={monthId} className="block text-xs font-medium text-secondary-600 mb-1">
+        <label htmlFor={monthId} className="block text-sm font-medium text-secondary-700 mb-1">
           {monthLabel}
         </label>
         <Select
@@ -81,7 +81,7 @@ export function DateInput({
         </Select>
       </div>
       <div className="flex-1 min-w-[60px] max-w-[80px]">
-        <label htmlFor={dayId} className="block text-xs font-medium text-secondary-600 mb-1">
+        <label htmlFor={dayId} className="block text-sm font-medium text-secondary-700 mb-1">
           {dayLabel}
         </label>
         <Input

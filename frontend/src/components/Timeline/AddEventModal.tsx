@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { TimelineEventType, EventCategory, EventPrivacyLevel, EVENT_CATEGORIES, EVENT_PRIVACY_LEVELS } from '@/types/api';
+import { TimelineEventType, EventCategory, EventPrivacyLevel, EVENT_CATEGORIES, EVENT_PRIVACY_LEVELS, EventPhotoType } from '@/types/api';
 import { authApiClient } from '@/utils/auth-api';
 import { Input, Button, Subheading, Alert, Textarea } from '@/components/ui';
 import { DateInput } from './DateInput';
 import { ToggleButtonGroup } from '@/components/Timeline';
+import { PhotoUpload, uploadPendingPhotos } from './PhotoUpload';
 import { useAutoFocus } from '@/hooks/useAutoFocus';
 import { useModalKeyboardShortcuts } from '@/hooks/useModalKeyboardShortcuts';
 import { useDisableBodyScroll } from '@/hooks/disableBodyScroll';
@@ -13,7 +14,6 @@ import { processDateInputs } from '@/utils/date-validation';
 
 const DEFAULT_CATEGORY: EventCategory = 'memory';
 const DEFAULT_PRIVACY_LEVEL: EventPrivacyLevel = 'private';
-
 const TITLE_PLACEHOLDERS = [
   'Started first job',
   'Moved to Chicago',
@@ -41,6 +41,7 @@ const TITLE_PLACEHOLDERS = [
   'Learned a new language',
   'Got promoted',
 ];
+const INPUT_DESCRIPTION_MAX_HEIGHT = 120; // ~5 lines
 
 interface AddEventModalProps {
   isOpen: boolean;
@@ -66,8 +67,11 @@ export function AddEventModal({
   const [month, setMonth] = useState('');
   const [day, setDay] = useState('');
   const [category, setCategory] = useState<EventCategory>(DEFAULT_CATEGORY);
+  const [showNotes, setShowNotes] = useState(false);
   const [privacyLevel, setPrivacyLevel] = useState<EventPrivacyLevel>(DEFAULT_PRIVACY_LEVEL);
   const [notes, setNotes] = useState('');
+  const [photos, setPhotos] = useState<EventPhotoType[]>([]);
+  const [pendingPhotoFiles, setPendingPhotoFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSelectionsLoaded, setIsSelectionsLoaded] = useState(false);
@@ -80,6 +84,19 @@ export function AddEventModal({
       setTitlePlaceholder(TITLE_PLACEHOLDERS[randomIndex]);
     }
   }, [isOpen, eventToEdit]);
+
+  // Auto-resize description textarea when modal opens (for edit mode with existing text)
+  useEffect(() => {
+    if (isOpen && description) {
+      const textarea = document.getElementById('description') as HTMLTextAreaElement;
+      if (textarea) {
+        textarea.style.height = 'auto';
+        const newHeight = Math.min(textarea.scrollHeight, INPUT_DESCRIPTION_MAX_HEIGHT);
+        textarea.style.height = newHeight + 'px';
+        textarea.style.overflow = textarea.scrollHeight > INPUT_DESCRIPTION_MAX_HEIGHT ? 'auto' : 'hidden';
+      }
+    }
+  }, [isOpen, description]);
 
   // Load event data when in edit mode
   useEffect(() => {
@@ -96,6 +113,7 @@ export function AddEventModal({
       setCategory(eventToEdit.category);
       setPrivacyLevel(eventToEdit.privacy_level);
       setNotes(eventToEdit.notes || '');
+      setPhotos(eventToEdit.event_photos || []);
       // Delay to show smooth transition from gray to selected
       setTimeout(() => setIsSelectionsLoaded(true), 50);
     } else if (!eventToEdit && isOpen) {
@@ -105,6 +123,19 @@ export function AddEventModal({
       setIsSelectionsLoaded(false);
     }
   }, [eventToEdit, isOpen]);
+
+  const handlePhotoOperationComplete = async () => {
+    // Fetch the latest event data and update parent state (to update state when adding/deleting photos)
+    if (eventToEdit && onEventUpdated) {
+      try {
+        const updatedEvent = await authApiClient.getEvent(eventToEdit.id);
+        onEventUpdated(updatedEvent);
+        setPhotos(updatedEvent.event_photos || []);
+      } catch (error) {
+        console.error('Failed to fetch updated event');
+      }
+    }
+  };
 
   const onModalClose = () => {
     resetForm();
@@ -146,6 +177,20 @@ export function AddEventModal({
       } else {
         // Create new event
         updatedEvent = await authApiClient.createEvent(eventData);
+
+        // Upload photos after event is created
+        if (pendingPhotoFiles.length > 0) {
+          try {
+            await uploadPendingPhotos(updatedEvent.id, pendingPhotoFiles);
+            // Fetch the updated event with photos
+            updatedEvent = await authApiClient.getEvent(updatedEvent.id);
+          } catch (photoError) {
+            console.error('Failed to upload photos');
+            // Event was created successfully, just photos failed
+            // We'll still show the event, user can add photos later
+          }
+        }
+
         onEventAdded(updatedEvent);
       }
 
@@ -167,6 +212,8 @@ export function AddEventModal({
     setCategory(DEFAULT_CATEGORY);
     setPrivacyLevel(DEFAULT_PRIVACY_LEVEL);
     setNotes('');
+    setPhotos([]);
+    setPendingPhotoFiles([]);
     setIsSelectionsLoaded(false);
   };
 
@@ -202,8 +249,9 @@ export function AddEventModal({
       className="fixed inset-0 bg-secondary-500/30 backdrop-blur-sm flex items-start sm:items-center justify-center z-50 p-4 overflow-y-auto"
       onClick={handleBackdropClick}
     >
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md my-2 sm:my-0">
-        <div className="flex justify-between items-center border-b border-secondary-200 px-6 py-3">
+      {/* max-h makes it so that modal doesn't overflow the screen */}
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-md my-2 sm:my-0 max-h-[calc(100vh-2rem)] flex flex-col">
+        <div className="flex justify-between items-center border-b border-secondary-200 px-6 py-3 flex-shrink-0">
           <Subheading>{isEditMode ? 'Edit Event' : 'Add New Event'}</Subheading>
           <Button
             variant="text"
@@ -216,7 +264,7 @@ export function AddEventModal({
           </Button>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-6 py-4">
+        <form onSubmit={handleSubmit} className="px-6 py-4 overflow-y-auto flex-1">
           {error && (
             <Alert variant="error" className="mb-4">
               {error}
@@ -237,34 +285,6 @@ export function AddEventModal({
           </div>
 
           <div className="mb-4">
-            <div className="flex items-center gap-2 mb-1">
-              <label htmlFor="description" className="block text-sm font-medium text-secondary-700">
-                Description
-              </label>
-              <div className="group relative">
-                <svg className="w-4 h-4 text-secondary-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-10">
-                  Shareable details about this event
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                    <div className="border-4 border-transparent border-t-gray-800"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
-              Event Date
-            </label>
             <DateInput
               year={year}
               month={month}
@@ -306,6 +326,55 @@ export function AddEventModal({
             />
           </div>
 
+          <hr className="border-secondary-200 my-4" />
+
+          <div className="mb-4">
+            <div className="flex items-center gap-2 mb-1">
+              <label htmlFor="description" className="block text-sm font-medium text-secondary-700">
+                Description
+              </label>
+              <div className="group relative">
+                <svg className="w-4 h-4 text-secondary-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-10">
+                  Shareable details about this event
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                    <div className="border-4 border-transparent border-t-gray-800"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => {
+                setDescription(e.target.value);
+                // Auto-resize textarea up to max height
+                e.target.style.height = 'auto';
+                const newHeight = Math.min(e.target.scrollHeight, INPUT_DESCRIPTION_MAX_HEIGHT);
+                e.target.style.height = newHeight + 'px';
+                e.target.style.overflow = e.target.scrollHeight > INPUT_DESCRIPTION_MAX_HEIGHT ? 'auto' : 'hidden';
+              }}
+              rows={1}
+              style={{ minHeight: '2.5rem', resize: 'none' }}
+            />
+          </div>
+
+          {/* Photo Upload */}
+          <div className="mb-4">
+            <PhotoUpload
+              eventId={eventToEdit?.id}
+              existingPhotos={photos}
+              onPhotosChange={setPhotos}
+              pendingFiles={pendingPhotoFiles}
+              onPendingFilesChange={setPendingPhotoFiles}
+              onPhotoOperationComplete={handlePhotoOperationComplete}
+            />
+          </div>
+
+          <hr className="border-secondary-200 my-4" />
+
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="block text-sm font-medium text-secondary-700">
@@ -342,10 +411,20 @@ export function AddEventModal({
           <hr className="border-secondary-200 my-4" />
 
           <div className="mb-4">
-            <div className="flex items-center gap-2 mb-1">
-              <label htmlFor="notes" className="block text-sm font-medium text-secondary-700">
-                Personal Notes
-              </label>
+            <button
+              type="button"
+              onClick={() => setShowNotes(!showNotes)}
+              className="flex items-center gap-2 text-sm font-medium text-secondary-700 hover:text-secondary-900 transition-colors"
+            >
+              <svg
+                className={`w-4 h-4 transition-transform ${showNotes ? 'rotate-90' : ''}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+              Personal Notes
               <div className="group relative">
                 <svg className="w-4 h-4 text-secondary-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -357,13 +436,18 @@ export function AddEventModal({
                   </div>
                 </div>
               </div>
-            </div>
-            <Textarea
-              id="notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={2}
-            />
+            </button>
+
+            {showNotes && (
+              <div className="mt-2 animate-in slide-in-from-top-2">
+                <Textarea
+                  id="notes"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  rows={2}
+                />
+              </div>
+            )}
           </div>
 
           <div className="flex justify-end gap-3 mt-6">

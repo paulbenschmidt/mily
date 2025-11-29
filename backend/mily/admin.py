@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from .models import User, Event, Share
+from .models import User, Event, EventPhoto, Share
 
 
 @admin.register(User)
@@ -40,10 +40,36 @@ class EventAdmin(admin.ModelAdmin):
             'fields': ('event_date', 'location')
         }),
         ('Content', {
-            'fields': ('notes', 'photos')
+            'fields': ('notes', 'tags')
         }),
         ('Settings', {
             'fields': ('privacy_level',),
+        }),
+        ('Metadata', {
+            'fields': ('id', 'created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+
+@admin.register(EventPhoto)
+class EventPhotoAdmin(admin.ModelAdmin):
+    """Admin interface for EventPhoto model"""
+    list_display = ('filename', 'event', 'content_type', 'file_size', 'display_order', 'created_at')
+    list_filter = ('content_type', 'created_at')
+    search_fields = ('filename', 'event__title', 'caption', 's3_key')
+    readonly_fields = ('id', 's3_key', 'created_at', 'updated_at')
+    raw_id_fields = ('event',)
+
+    fieldsets = (
+        (None, {
+            'fields': ('event', 'filename', 's3_key')
+        }),
+        ('File Info', {
+            'fields': ('content_type', 'file_size', 'width', 'height')
+        }),
+        ('Display', {
+            'fields': ('caption', 'display_order')
         }),
         ('Metadata', {
             'fields': ('id', 'created_at', 'updated_at'),
