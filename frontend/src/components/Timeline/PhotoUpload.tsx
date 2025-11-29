@@ -301,7 +301,7 @@ export function PhotoUpload({
                 onTouchStart={(e) => handleTouchStart(originalIndex, e)}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
-                style={eventId ? { touchAction: 'none' } : undefined}
+                style={eventId ? { touchAction: 'none', WebkitTouchCallout: 'none', userSelect: 'none' } : undefined}
                 className={`relative aspect-square group transition-all duration-200 ${
                   draggedIndex === originalIndex ? 'opacity-50 scale-95 ring-2 ring-primary-400' : ''
                 } ${
@@ -311,7 +311,8 @@ export function PhotoUpload({
                 <img
                   src={photo.url}
                   alt={photo.filename}
-                  className="w-full h-full object-cover rounded-md"
+                  className="w-full h-full object-cover rounded-md pointer-events-none select-none"
+                  draggable={false}
                 />
                 <button
                   type="button"

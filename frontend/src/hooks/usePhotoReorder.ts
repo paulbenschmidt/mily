@@ -121,6 +121,10 @@ export function usePhotoReorder({
   const handleTouchStart = (index: number, e: React.TouchEvent) => {
     if (!eventId || isDraggable) return;
 
+    // Prevent default browser behavior (context menu, image preview, etc.)
+    // This works in conjunction with touch-action: none and -webkit-touch-callout: none
+    e.preventDefault();
+
     const touch = e.touches[0];
     setTouchStartPos({ x: touch.clientX, y: touch.clientY });
     handleLongPressStart(index);
