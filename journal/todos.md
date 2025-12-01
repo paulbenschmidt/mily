@@ -1,78 +1,91 @@
 ## In Progress
-- ENHANCE: Allow profile pictures
-- ENHANCE: Use AWS CloudFront for caching photos (currently, every request is a separate S3 request)
-- ENHANCE: Surface errors from backend to frontend; standardize the pattern
+- ENHANCE: Dim the thumbnail photo slightly to avoid it being too bright/too contrasty with the timeline
+    - Add a gray border around the thumbnail photo to make it pop
+- ENHANCE: For photo icon, show it on the right (it looks a little left-heavy on mobile) and maybe don't show number of photos
+- BUG: Fix HEIC photo upload (it failed on Rusty's laptop upload)
+- ENHANCE: Reorganize TimelineEvent card so that date and title are on the same vertical plane, and the description runs the full length of the card with a photo icon on the right of the description if a photo is present
 - ENHANCE: Update Google description text to be less clunky (search for it on Google with "timeline mily" and you'll see it)
-- CLEANUP: Remove popup when login fails (the red error is good enough)
-- BUG: Better error handling for password reset. Does this still work? (It failed when Andy Hickey tried to reset his)
 - BUG: Get rid of accidental text highlighting when using the scrubber to navigate the timeline
-
-- ENHANCE: Add S3 bucket rule to convert photos to S3 Standard-IA (infrequent access) or Glacier after 365 days
-- ENHANCE: Add S3 bucket logging to a separate bucket
-- ENHANCE: Set up AWS spend monitoring
-- ENHANCE: Go through AWS welcome guides
-- ENHANCE: Pre-sign all photo URLs (if I do this I should likely paginate the events response)
-
-## To Organize
-- FEATURE: Reflection prompts/cards that ask "What is a time where you felt very excited/sad?" to get people thinking about different events to add them
-    - Bob mentioned that this could be helpful for folks who didn't know what to add. I also see this as a helpful conversation tool where people can get a random prompt, and have the other person answer with a specific timeline event. Or it could be a game: guess what event the timeline owner first thought of when seeing this prompt.
-- FEATURE: Notification reminders to reflect (either email or in-app). These can likely be every 6 months or every year.
+- CLEANUP: Remove popup when login fails (the red error is good enough)
+- BUG: Make reordering photos more reliable
 
 ## Sprint Backlog
-### Essential
+- ESSENTIAL: Go through NeonDB production checklist email
+    - Implement Data Encryption at Rest to protect database in case of breach
+    - Database backup
 - ESSENTIAL: Create notifications icon
-- ESSENTIAL: Ensure that error responses returned are more generic and user-friendly (i.e. don't disclose internal error details)
-- ESSENTIAL: Have navigation bar along the bottom include: Timeline, Friends, Shop, Donate, Settings
-    - This would help clear up space in the top part of the UI for things like "My Timeline" or "Friend Timeline"
-- ESSENTIAL: Create testimonials on landing page
-- ESSENTIAL (needs polling): Implement premium payment system
-
-### Feature
 - FEATURE: Create "View" dropdown. Options include:
-    - Photo view (horizontal) vs timeline view (vertical) - feedback from Rusty
+    - Story (photo) view (horizontal) vs timeline view (vertical) - feedback from Rusty
     - Preview as Friend (without private events, and privacy icons, and personal notes)-- should this be a separate page?
     - Expand/collapse all cards
-- FEATURE: Add a waiting list/email capture if your freemium isn't ready - You want to convert interest even if the product isn't 100% ready
-- FEATURE: Set up basic analytics - You need to see where people drop off. Vercel Analytics should tell you this, but make sure you're tracking the key events (started timeline, added first event, added 5+ events)
-- FEATURE: Enable photos on events
-    - Look into serving photos through Railway buckets? Vercel Blob is probably a better way to go.
-    - AWS S3 + CloudFront would be most cost-effective at scale but is more complicated to set up.
+- ENHANCE: Set up AWS spend monitoring
+- ENHANCE: Go through AWS welcome guides
+- ENHANCE: Update landing page timeline example to have larger font size (maybe shorten descriptions, too)
+    - Update screenshot
+- BUG: Clicking on the Get Started/Login link on Landing Page with a valid token creates a white screen that requires refresh
+- TECHDEBT: Surface errors from backend to frontend; standardize the pattern
+    - Ensure that error responses returned are more generic and user-friendly (i.e. don't disclose internal error details)
+    - Better error handling for password reset. Does this still work? (It failed when Andy Hickey tried to reset his)
+- TECHDEBT: Go through SemRush emails
+- TECHDEBT: Go through CloudFlare email
+- FEATURE: Tagging people in events
+    - When tagged, send a notification to the user on whether they want to add the event to their timeline, too
+    - Reach out to Jonathon Roy/Rusty for feedback on this feature once it's implemented
+    -
+
+## To Organize
+
+
+## Backlog
+- IDEA: Financial models
+    - Freemium (tiered subscription model where users pay for premium features, like more photos)
+    - Pay what you want (donation-based)
+    - Sales of physical products (like custom wood timelines)
+    - Pick-and-choose financial model (pay for photos, or integrations, or X)
+    - Paid integrations with other services (people pay to enable access to outside services)
+- ENHANCE: Set up AWS Anamoly Detection
+- ENHANCE: Continually revise the landing page as you get a clearer sense of what users want through conversations
+- ENHANCE: Add S3 bucket rule to convert photos to S3 Standard-IA (infrequent access) or Glacier after 365 days
+- ENHANCE: Add S3 bucket logging to a separate bucket
+- ENHANCE: Allow profile pictures
+- ESSENTIAL: Create testimonials on landing page
+- ESSENTIAL: Have navigation bar along the bottom include: Timeline, Friends, Shop, Donate, Settings
+    - This would help clear up space in the top part of the UI for things like "My Timeline" or "Friend Timeline"
+- ESSENTIAL:(needs polling) Create payment system for premium features
     - Actually, let's make it so that users can add 10 photos before getting paywalled.
     - $24/year ($2/month) or $5/month
     - Maybe you could start the cost slightly higher than lower it over time as more users sign up, that way you could make it a marketing strategy to get more users to sign up and also give people updates on user growth (in a way that doesn't feel like spam). Maybe you could make it a challenge to get to 1000 users and then lower the cost.
-    - Consider not letting photos be visible when user is authenticated, to avoid robots spamming photo API calls. That'll force users to create accounts.
+- FEATURE: Add a waiting list/email capture if your freemium isn't ready
+    - You want to convert interest even if the product isn't 100% ready
+- FEATURE: Set up basic analytics
+    - You need to see where people drop off. Vercel Analytics should tell you this, but make sure you're tracking the key events (started timeline, added first event, added 5+ events)
 - FEATURE (needs polling): Add tags to events and allow users to filter by them
     - Add AI-generated "tags" to events so that users can auto-filter events?
     - Should be URL-parameter for easy sharing (like `?tags=entrepreneurship`)
     - Maybe even create a description for each tag that talks about the arc of that tag
-- FEATURE (needs polling): Add age to profile (which auto-creates an event for the user's birthday)
-    - This would allow users to see how old they were when experienced an event (which would allow users to weave timelines and see how their lives tracked when accounting for age)
-    - If I add it as part of the profile, I can add a little blurb that says "this field will be used to calculate your age for each event". It'll also auto-add an event to the user's timeline for their birthday.
-
-### Enhancement
-- ENHANCE: Update landing page timeline example to have larger font size (maybe shorten descriptions, too)
-    - Update screenshot
-- ENHANCE: Create UTM parameters when sharing out different pages
-    - Log UTM parameters on signup so that we can track where users are coming from
-- ENHANCE (needs polling): What should the design look like? (neumorphism, soft brutalism, etc)
-- ENHANCE: For friend requests, allow user blocking as first action
-    - Currently a post request to friendship is required as the primary action
-- ENHANCE: Add logo to email verification (once I have enough consistent email deliverability to not get flagged as spam)
-- BUG: Clicking on the Get Started/Login link on Landing Page with a valid token creates a white screen that requires refresh
-
-### Security
+- TECHDEBT: Set up cron jobs
+    - to delete users after 30 days of `deactivated_at` and `is_active=False`
+    - to clear out blacklisted tokens
 - SECURITY: Legal review of Terms and Privacy Policy
     - Get a lawyer to review and add formal policy language
     - Add the technical/compliance details I mentioned
     - Consider creating a separate formal "Privacy Policy" page with legal language, keeping this as a "Privacy & Trust" values page
-- SECURITY: Implement cron job to clear out blacklisted tokens
+- ENHANCE: Create UTM parameters when sharing out different pages
+    - Log UTM parameters on signup so that we can track where users are coming from
+- ENHANCE: Use AWS CloudFront for caching photos (currently, every request is a separate S3 request)
 
-### Tech Debt
-- TECHDEBT: Set up cron job to delete users after 30 days of `deactivated_at` and `is_active=False`
-- TECHDEBT: Go through SemRush emails
-- TECHDEBT: Go through CloudFlare email
-
-## Backlog
+## Ideas
+- ENHANCE: Paginate the events response (you are currently grabbing ALL events, with the photo information and pre-signed URLs every time)
+    - This may not be an issue, but if a user has a lot of events, it could be a problem.
+- FEATURE (needs polling): Add age to profile (which auto-creates an event for the user's birthday)
+    - This would allow users to see how old they were when experienced an event (which would allow users to weave timelines and see how their lives tracked when accounting for age)
+    - If I add it as part of the profile, I can add a little blurb that says "this field will be used to calculate your age for each event". It'll also auto-add an event to the user's timeline for their birthday.
+- ENHANCE (needs polling): What should the design look like? (neumorphism, soft brutalism, etc)
+- ENHANCE: Consider not letting photos be visible when user is authenticated, to avoid robots spamming photo API calls. That'll force users to create accounts.
+- FEATURE: Notification reminders to reflect (either email or in-app). These can likely be every 6 months or every year.
+- FEATURE: Reflection prompts/cards that ask "What is a time where you felt very excited/sad?" to get people thinking about different events to add them
+    - Bob mentioned that this could be helpful for folks who didn't know what to add. I also see this as a helpful conversation tool where people can get a random prompt, and have the other person answer with a specific timeline event. Or it could be a game: guess what event the timeline owner first thought of when seeing this prompt.
+- ENHANCE: Add logo to email verification (once I have enough consistent email deliverability to not get flagged as spam)
 - PRE-APP DEPLOYMENT: Check out https://tryrubberduck.com/ to scan the app prior to submitting to App Store.
 - FEATURE: Allow users to create multiple timelines
     - Rusty mentioned that it could be nice for parents who want to maintain separate timelines for children
@@ -122,7 +135,6 @@
     - So that you don't have to remember to export poetry when deploying to Railway
 - ENHANCE: Implement OpenAPI schema generation so that frontend inherits data models from backend (DRY)
 - ENHANCE: Change static/media to use S3
-- ENHANCE: Implement Data Encryption at Rest to protect database in case of breach
 - WORKFLOW: Set up MCP for Context7
 - TECHDEBT: Refactor views to be either class-based or function-based
 - ENHANCE: Set up Google Analytics once I have many more users or I want to track specific features
@@ -131,4 +143,3 @@
 - DREAM: Widget that is shareable on dating profiles/LinkedIn/Facebook/Instagram/YouTube/Reddit
 - FEATURE: Add emotions of event? (e.g. happy, sad, angry, etc)
     - Then mood can be tracked over time, and distribution of emotions can be visualized
-- FEATURE: Tagging people in events

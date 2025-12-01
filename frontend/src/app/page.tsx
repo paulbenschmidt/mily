@@ -1,8 +1,7 @@
 'use client'
 
-import { Button } from "@/components/ui/Button"
 import Link from "next/link"
-import Image from "next/image"
+import NextImage from "next/image"
 import { MarketingHeader } from "@/components/MarketingHeader"
 import { MarketingFooter } from "@/components/MarketingFooter"
 
@@ -108,7 +107,7 @@ export default function Home() {
           <div className="mt-16 lg:mt-20">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-br from-purple-200/20 to-purple-400/20 rounded-lg blur-xl transform translate-y-4"></div>
-              <Image
+              <NextImage
                 src="/timeline_example.png"
                 alt="Mily timeline example showing life events"
                 width={1200}

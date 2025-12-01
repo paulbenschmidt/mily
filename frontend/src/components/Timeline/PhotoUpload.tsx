@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import NextImage from 'next/image';
 import { EventPhotoType } from '@/types/api';
 import { authApiClient } from '@/utils/auth-api';
 import { SmallText, Caption } from '@/components/ui';
@@ -310,10 +311,12 @@ export function PhotoUpload({
                   eventId && !isDraggable ? 'cursor-grab' : eventId && isDraggable ? 'cursor-grabbing' : ''
                 }`}
               >
-                <img
+                <NextImage
                   src={photo.url}
                   alt={photo.filename}
-                  className="w-full h-full object-cover rounded-md select-none"
+                  fill
+                  sizes="(max-width: 768px) 33vw, 120px"
+                  className="object-cover rounded-md select-none"
                   draggable={false}
                   style={{ WebkitTouchCallout: 'none' }}
                 />

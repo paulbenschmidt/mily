@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import Image from 'next/image'
+import NextImage from 'next/image'
 
 interface LogoProps {
   onClick?: () => void
@@ -25,7 +25,7 @@ export function Logo({ onClick, href, size = 'md' }: LogoProps) {
 
   const logoContent = (
     <div className={`${sizeClasses[size]} rounded-full bg-primary-350 flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity`}>
-      <Image
+      <NextImage
         src="/mily_logo.svg"
         alt="Mily Logo"
         width={iconSizes[size]}

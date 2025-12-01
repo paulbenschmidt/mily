@@ -21,11 +21,28 @@ for (const path of envPaths) {
 // Get API URL with fallback for Vercel deployment
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
+// Get S3 bucket name for image optimization
+const s3BucketName = process.env.AWS_S3_PHOTOS_BUCKET;
+
 const nextConfig: NextConfig = {
   env: {
     // Make backend environment variables available to frontend
-    NEXT_PUBLIC_API_URL: apiUrl,
     NEXT_PUBLIC_MAX_PHOTOS_PER_EVENT: '3',
+    NEXT_PUBLIC_FRONTEND_URL: process.env.FRONTEND_URL,
+  },
+  images: {
+    remotePatterns: s3BucketName ? [
+      {
+        protocol: 'https',
+        hostname: `${s3BucketName}.s3.amazonaws.com`,
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: `${s3BucketName}.s3.*.amazonaws.com`,
+        pathname: '/**',
+      },
+    ] : [],
   },
   // Add CORS headers
   async headers() {

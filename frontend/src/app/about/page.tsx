@@ -1,7 +1,7 @@
 'use client'
 
 import Link from "next/link"
-import Image from "next/image"
+import NextImage from "next/image"
 import { Button } from "@/components/ui/Button"
 import { MarketingHeader } from "@/components/MarketingHeader"
 import { MarketingFooter } from "@/components/MarketingFooter"
@@ -79,7 +79,7 @@ export default function AboutPage() {
                   paul@mily.bio
                 </a>
               </div>
-              <Image
+              <NextImage
                 src="/self_portrait.jpeg"
                 alt="Paul"
                 width={350}

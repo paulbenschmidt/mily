@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import NextImage from 'next/image';
 import { TimelineEventType } from '@/types/api';
 import { SmallText, Caption, Button, Card, BodyText } from '@/components/ui';
 import { PhotoModal } from './PhotoModal';
@@ -253,10 +254,12 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
                             }}
                             className="relative aspect-square overflow-hidden rounded-md hover:opacity-90 transition-opacity"
                           >
-                            <img
+                            <NextImage
                               src={photo.url}
                               alt={`Photo ${index + 1}`}
-                              className="w-full h-full object-cover"
+                              fill
+                              sizes="(max-width: 768px) 33vw, 120px"
+                              className="object-cover"
                             />
                           </button>
                         ))}
