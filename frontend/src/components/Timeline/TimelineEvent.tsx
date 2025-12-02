@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import NextImage from 'next/image';
 import { TimelineEventType } from '@/types/api';
 import { SmallText, Caption, Button, Card, BodyText } from '@/components/ui';
@@ -88,32 +88,23 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
     }
   };
 
-  const getStackedDate = (dateString: string, isDayApproximate: boolean, isMonthApproximate: boolean) => {
+  const formatEventDate = (dateString: string, isDayApproximate: boolean, isMonthApproximate: boolean) => {
     const [year, month, day] = dateString.split('-').map(Number);
     const date = new Date(year, month - 1, day);
-    return {
-      month: isMonthApproximate ? null : date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase(),
-      day: isDayApproximate ? null : date.getDate().toString(),
-      year: year.toString()
-    };
-  };
 
-  const formatEventDateLine = (
-    dateString: string,
-    isDayApproximate: boolean,
-    isMonthApproximate: boolean
-  ) => {
-    const { year, month, day } = getStackedDate(dateString, isDayApproximate, isMonthApproximate);
+    const monthStr = isMonthApproximate ? null : date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+    const dayStr = isDayApproximate ? null : date.getDate().toString();
+    const yearStr = year.toString();
 
-    if (month && day) {
-      return `${year} ${month} ${day}`;
+    if (monthStr && dayStr) {
+      return `${yearStr} ${monthStr} ${dayStr}`;
     }
 
-    if (month) {
-      return `${year} ${month}`;
+    if (monthStr) {
+      return `${yearStr} ${monthStr}`;
     }
 
-    return year;
+    return yearStr;
   };
 
   const handleEdit = (e: React.MouseEvent) => {
@@ -169,8 +160,6 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
     }
   };
 
-
-
   return (
     <div className="relative flex flex-col">
       {/* Line connecting to next event - positioned at parent level to extend through everything */}
@@ -212,25 +201,11 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
           >
 
             <div className="flex gap-3 md:gap-4 items-center">
-              {/* Stacked date on the left */}
-              {/* <div className="flex flex-col items-center justify-start min-w-[35px] md:min-w-[45px]">
-                <Caption className="font-serif font-semibold text-secondary-500 leading-none mt-1">
-                  {getStackedDate(event.event_date, event.is_day_approximate, event.is_month_approximate).year}
-                </Caption>
-                {getStackedDate(event.event_date, event.is_day_approximate, event.is_month_approximate).month && (
-                  <BodyText className={`font-serif text-secondary-500 leading-none mt-1.5`} textClass="text-xs">
-                    {getStackedDate(event.event_date, event.is_day_approximate, event.is_month_approximate).month} {getStackedDate(event.event_date, event.is_day_approximate, event.is_month_approximate).day}
-                  </BodyText>
-                )}
-              </div> */}
-
-              {/* Content on the right */}
               <div className="flex-1 min-w-0">
 
                   <div className="flex items-center justify-between gap-2 mb-1">
-                  {/* <BodyText className={`font-serif text-secondary-500 leading-none mt-1.5`} textClass="text-xs"> */}
                   <Caption className="font-serif font-semibold text-secondary-500 leading-none mt-1">
-                    {formatEventDateLine(
+                    {formatEventDate(
                       event.event_date,
                       event.is_day_approximate,
                       event.is_month_approximate
