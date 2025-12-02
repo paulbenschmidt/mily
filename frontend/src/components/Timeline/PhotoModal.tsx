@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import NextImage from 'next/image';
 import { EventPhotoType } from '@/types/api';
 
 interface PhotoModalProps {
@@ -47,22 +48,22 @@ export function PhotoModal({ photos, currentIndex, onClose, onNavigate }: PhotoM
       {/* Close button */}
       <button
         onClick={onClose}
-        className="absolute top-4 right-4 p-2 text-white hover:bg-white/10 rounded-full transition-colors z-20"
+        className="absolute top-4 right-4 p-5 text-white hover:bg-white/10 rounded-full transition-colors z-20"
         aria-label="Close"
       >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
 
-      {/* Previous button - large clickable area */}
+      {/* Previous button - left half of screen */}
       {currentIndex > 0 && (
         <button
           onClick={(e) => {
             e.stopPropagation();
             onNavigate(currentIndex - 1);
           }}
-          className="absolute left-0 top-0 bottom-0 w-24 flex items-center justify-start pl-4 hover:bg-white/5 transition-colors z-10 group"
+          className="absolute left-0 top-0 bottom-0 w-1/2 flex items-center justify-start pl-4 z-10 group"
           aria-label="Previous photo"
         >
           <div className="p-2 rounded-full group-hover:bg-white/10 transition-colors">
@@ -73,14 +74,14 @@ export function PhotoModal({ photos, currentIndex, onClose, onNavigate }: PhotoM
         </button>
       )}
 
-      {/* Next button - large clickable area */}
+      {/* Next button - right half of screen */}
       {currentIndex < photos.length - 1 && (
         <button
           onClick={(e) => {
             e.stopPropagation();
             onNavigate(currentIndex + 1);
           }}
-          className="absolute right-0 top-0 bottom-0 w-24 flex items-center justify-end pr-4 hover:bg-white/5 transition-colors z-10 group"
+          className="absolute right-0 top-0 bottom-0 w-1/2 flex items-center justify-end pr-4 z-10 group"
           aria-label="Next photo"
         >
           <div className="p-2 rounded-full group-hover:bg-white/10 transition-colors">
@@ -95,12 +96,15 @@ export function PhotoModal({ photos, currentIndex, onClose, onNavigate }: PhotoM
       <div
         className="relative flex items-center justify-center w-full h-full px-16 py-16 pointer-events-none"
       >
-        <img
-          src={currentPhoto.url}
-          alt="Event photo"
-          className="max-w-full max-h-full object-contain rounded-lg pointer-events-auto"
-          onClick={(e) => e.stopPropagation()}
-        />
+        <div className="relative w-full h-full pointer-events-auto" onClick={(e) => e.stopPropagation()}>
+          <NextImage
+            src={currentPhoto.url}
+            alt="Event photo"
+            fill
+            sizes="(min-width: 1024px) 800px, 100vw"
+            className="object-contain rounded-lg"
+          />
+        </div>
 
         {/* Photo counter */}
         {photos.length > 1 && (

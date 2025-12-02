@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import NextImage from 'next/image';
 import { EventPhotoType } from '@/types/api';
 import { authApiClient } from '@/utils/auth-api';
 import { SmallText, Caption } from '@/components/ui';
@@ -304,16 +305,18 @@ export function PhotoUpload({
                 onTouchEnd={handleTouchEnd}
                 onTouchCancel={handleTouchCancel}
                 style={eventId ? { touchAction: 'none', WebkitTouchCallout: 'none', userSelect: 'none' } : undefined}
-                className={`relative aspect-square group transition-all duration-200 ${
+                className={`relative aspect-square group transition-all duration-200 border-2 border-secondary-200 rounded-md ${
                   draggedIndex === originalIndex ? 'opacity-50 scale-95 ring-2 ring-primary-400' : ''
                 } ${
                   eventId && !isDraggable ? 'cursor-grab' : eventId && isDraggable ? 'cursor-grabbing' : ''
                 }`}
               >
-                <img
+                <NextImage
                   src={photo.url}
                   alt={photo.filename}
-                  className="w-full h-full object-cover rounded-md select-none"
+                  fill
+                  sizes="(max-width: 768px) 33vw, 120px"
+                  className="object-cover rounded-md select-none"
                   draggable={false}
                   style={{ WebkitTouchCallout: 'none' }}
                 />

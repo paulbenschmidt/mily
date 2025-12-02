@@ -1,5 +1,6 @@
 'use client';
 
+import NextImage from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import { SectionHeading, Subheading, Caption, Card, Button, BodyText } from '@/components/ui';
 
@@ -31,11 +32,15 @@ export default function ProfilePage() {
         <div className="md:col-span-1">
           <Card className="p-6">
             {user.profile_picture ? (
-              <img
-                src={user.profile_picture}
-                alt="Profile"
-                className="w-full aspect-square rounded-lg object-cover mb-4"
-              />
+              <div className="relative w-full aspect-square mb-4">
+                <NextImage
+                  src={user.profile_picture}
+                  alt="Profile"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 300px"
+                  className="rounded-lg object-cover"
+                />
+              </div>
             ) : (
               <div className="w-full aspect-square rounded-lg bg-secondary-100 flex items-center justify-center mb-4">
                 <svg className="w-20 h-20 text-secondary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
