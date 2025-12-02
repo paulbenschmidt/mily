@@ -1,7 +1,5 @@
 ## In Progress
-- ENHANCE: For photo icon, show it on the right (it looks a little left-heavy on mobile) and maybe don't show number of photos
 - BUG: Fix HEIC photo upload (it failed on Rusty's laptop upload)
-- ENHANCE: Reorganize TimelineEvent card so that date and title are on the same vertical plane, and the description runs the full length of the card with a photo icon on the right of the description if a photo is present
 - ENHANCE: Update Google description text to be less clunky (search for it on Google with "timeline mily" and you'll see it)
 - BUG: Get rid of accidental text highlighting when using the scrubber to navigate the timeline
 - CLEANUP: Remove popup when login fails (the red error is good enough)
