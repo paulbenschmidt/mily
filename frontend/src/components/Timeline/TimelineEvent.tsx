@@ -252,7 +252,7 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
                               setSelectedPhotoIndex(index);
                               setPhotoModalOpen(true);
                             }}
-                            className="relative aspect-square overflow-hidden rounded-md hover:opacity-90 transition-opacity"
+                            className="relative aspect-square overflow-hidden rounded-md border-2 border-secondary-200 hover:opacity-90 transition-opacity"
                           >
                             <NextImage
                               src={photo.url}

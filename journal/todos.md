@@ -1,6 +1,4 @@
 ## In Progress
-- ENHANCE: Dim the thumbnail photo slightly to avoid it being too bright/too contrasty with the timeline
-    - Add a gray border around the thumbnail photo to make it pop
 - ENHANCE: For photo icon, show it on the right (it looks a little left-heavy on mobile) and maybe don't show number of photos
 - BUG: Fix HEIC photo upload (it failed on Rusty's laptop upload)
 - ENHANCE: Reorganize TimelineEvent card so that date and title are on the same vertical plane, and the description runs the full length of the card with a photo icon on the right of the description if a photo is present

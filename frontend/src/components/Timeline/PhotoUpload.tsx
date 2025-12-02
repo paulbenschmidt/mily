@@ -305,7 +305,7 @@ export function PhotoUpload({
                 onTouchEnd={handleTouchEnd}
                 onTouchCancel={handleTouchCancel}
                 style={eventId ? { touchAction: 'none', WebkitTouchCallout: 'none', userSelect: 'none' } : undefined}
-                className={`relative aspect-square group transition-all duration-200 ${
+                className={`relative aspect-square group transition-all duration-200 border-2 border-secondary-200 rounded-md ${
                   draggedIndex === originalIndex ? 'opacity-50 scale-95 ring-2 ring-primary-400' : ''
                 } ${
                   eventId && !isDraggable ? 'cursor-grab' : eventId && isDraggable ? 'cursor-grabbing' : ''
