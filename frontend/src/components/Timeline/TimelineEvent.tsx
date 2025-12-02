@@ -22,33 +22,31 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
 
   const getPrivacyIcon = (privacyLevel: string) => {
-    const iconClass = "w-3.5 h-3.5 text-secondary-400";
+    const config: Record<string, { path: string; label: string }> = {
+      public: {
+        path: "M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9",
+        label: "Public"
+      },
+      friends: {
+        path: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
+        label: "Friends"
+      },
+      private: {
+        path: "M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z",
+        label: "Private"
+      }
+    };
 
-    switch (privacyLevel) {
-      case 'public':
-        // Globe icon (visible to everyone)
-        return (
-          <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-label="Public">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-          </svg>
-        );
-      case 'friends':
-        // Simplified people/users icon (friends only)
-        return (
-          <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-label="Friends only">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
-        );
-      case 'private':
-        // Lock icon (private/locked)
-        return (
-          <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-label="Private">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-          </svg>
-        );
-      default:
-        return null;
-    }
+    const item = config[privacyLevel];
+    if (!item) return null;
+
+    return (
+      <div className="w-5 h-5 rounded-full bg-secondary-100 flex items-center justify-center" aria-label={item.label} role="img">
+        <svg className="w-3 h-3 text-secondary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.path} />
+        </svg>
+      </div>
+    );
   };
 
   const getBackgroundCircleSize = (category: string) => {
@@ -90,14 +88,23 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
     }
   };
 
-  const getStackedDate = (dateString: string, isDayApproximate: boolean, isMonthApproximate: boolean) => {
+  const formatEventDate = (dateString: string, isDayApproximate: boolean, isMonthApproximate: boolean) => {
     const [year, month, day] = dateString.split('-').map(Number);
     const date = new Date(year, month - 1, day);
-    return {
-      month: isMonthApproximate ? null : date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase(),
-      day: isDayApproximate ? null : date.getDate().toString(),
-      year: year.toString()
-    };
+
+    const monthStr = isMonthApproximate ? null : date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+    const dayStr = isDayApproximate ? null : date.getDate().toString();
+    const yearStr = year.toString();
+
+    if (monthStr && dayStr) {
+      return `${yearStr} ${monthStr} ${dayStr}`;
+    }
+
+    if (monthStr) {
+      return `${yearStr} ${monthStr}`;
+    }
+
+    return yearStr;
   };
 
   const handleEdit = (e: React.MouseEvent) => {
@@ -194,39 +201,43 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
           >
 
             <div className="flex gap-3 md:gap-4 items-center">
-              {/* Stacked date on the left */}
-              <div className="flex flex-col items-center justify-start min-w-[35px] md:min-w-[45px]">
-                <Caption className="font-serif font-semibold text-secondary-500 leading-none mt-1">
-                  {getStackedDate(event.event_date, event.is_day_approximate, event.is_month_approximate).year}
-                </Caption>
-                {getStackedDate(event.event_date, event.is_day_approximate, event.is_month_approximate).month && (
-                  <BodyText className={`font-serif text-secondary-500 leading-none mt-1.5`} textClass="text-xs">
-                    {getStackedDate(event.event_date, event.is_day_approximate, event.is_month_approximate).month} {getStackedDate(event.event_date, event.is_day_approximate, event.is_month_approximate).day}
-                  </BodyText>
-                )}
-              </div>
-
-              {/* Content on the right */}
               <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-2">
-                  <BodyText className="font-semibold flex-1">{event.title}</BodyText>
+
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                  <Caption className="font-serif font-semibold text-secondary-500 leading-none mt-1">
+                    {formatEventDate(
+                      event.event_date,
+                      event.is_day_approximate,
+                      event.is_month_approximate
+                    )}
+                  </Caption>
                   {mode === 'owner' && getPrivacyIcon(event.privacy_level)}
                 </div>
 
-                {/* Description preview when collapsed */}
-                {event.description && !isExpanded && (
-                  <SmallText className="leading-relaxed whitespace-pre-wrap mt-1.5 md:mt-2 line-clamp-2 md:line-clamp-1">
-                    {event.description}
-                  </SmallText>
+                <div className="flex items-center justify-between gap-2">
+                  <BodyText className="font-semibold flex-1">{event.title}</BodyText>
+                </div>
+
+                {/* Description when collapsed */}
+                {!isExpanded && event.description && (
+                  <div className="mt-1 md:mt-1.5">
+                    <SmallText className="leading-relaxed whitespace-pre-wrap line-clamp-2 md:line-clamp-1">
+                      {event.description}
+                    </SmallText>
+                  </div>
                 )}
 
-                {/* Photo indicator when collapsed */}
+                {/* Photo chip when collapsed */}
                 {!isExpanded && event.event_photos && event.event_photos.length > 0 && (
-                  <div className="flex items-center gap-1.5 text-secondary-500 mt-2">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <SmallText className="text-secondary-500">{event.event_photos.length}</SmallText>
+                  <div className="mt-2 flex">
+                    <div className="inline-flex items-center gap-1 rounded-full bg-secondary-100 border border-secondary-200 px-2 py-0.5 text-secondary-500">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <Caption className="text-secondary-500">
+                        {event.event_photos.length} {event.event_photos.length === 1 ? 'photo' : 'photos'}
+                      </Caption>
+                    </div>
                   </div>
                 )}
 
