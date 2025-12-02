@@ -200,7 +200,7 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
             onClick={handleCardClick}
           >
 
-            <div className="flex gap-3 md:gap-4 items-center">
+            <div className="flex gap-3 md:gap-4 items-center px-1 md:px-2">
               <div className="flex-1 min-w-0">
 
                   <div className="flex items-center justify-between gap-2 mb-1">
@@ -218,10 +218,12 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
                   <BodyText className="font-semibold flex-1">{event.title}</BodyText>
                 </div>
 
-                {/* Description when collapsed */}
-                {!isExpanded && event.description && (
+                {/* Description - transitions from clamped to full */}
+                {event.description && (
                   <div className="mt-1 md:mt-1.5">
-                    <SmallText className="leading-relaxed whitespace-pre-wrap line-clamp-2 md:line-clamp-1">
+                    <SmallText className={`leading-relaxed whitespace-pre-wrap transition-all duration-500 ${
+                      isExpanded ? '' : 'line-clamp-2 md:line-clamp-1'
+                    }`}>
                       {event.description}
                     </SmallText>
                   </div>
@@ -241,17 +243,12 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
                   </div>
                 )}
 
-                {/* Expandable content: full description, photos, notes, and buttons */}
-                {isExpanded && (
-                  <div className="overflow-hidden transition-all duration-300 ease-in-out animate-in slide-in-from-top-2">
-
-                  {/* Full description when expanded */}
-                  {event.description && (
-                    <SmallText className="leading-relaxed whitespace-pre-wrap mt-1.5 md:mt-2">
-                      {event.description}
-                    </SmallText>
-                  )}
-
+                {/* Expandable content: photos, notes, and buttons */}
+                <div
+                  className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                    isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+                  }`}
+                >
                   {event.event_photos && event.event_photos.length > 0 && (
                     <div className="mt-4 mb-4">
                       <div className="grid grid-cols-3 gap-2">
@@ -315,8 +312,7 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
                       )}
                     </div>
                   )}
-                  </div>
-                )}
+                </div>
               </div>
             </div>
           </Card>
