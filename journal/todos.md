@@ -3,7 +3,10 @@
 - ENHANCE: Update Google description text to be less clunky (search for it on Google with "timeline mily" and you'll see it)
 - BUG: Get rid of accidental text highlighting when using the scrubber to navigate the timeline
 - CLEANUP: Remove popup when login fails (the red error is good enough)
+    - Get rid of "Failed to fetch user profile" popup
 - BUG: Make reordering photos more reliable
+- BUG: Disable scrolling on PhotoModal
+- ENHANCE: Move AddEvent button to lower right corner
 
 ## Sprint Backlog
 - ESSENTIAL: Go through NeonDB production checklist email
@@ -27,12 +30,14 @@
 - FEATURE: Tagging people in events
     - When tagged, send a notification to the user on whether they want to add the event to their timeline, too
     - Reach out to Jonathon Roy/Rusty for feedback on this feature once it's implemented
-    -
 
 ## To Organize
 
 
 ## Backlog
+- ENHANCE: Add Counter to social proof for timelines created once you have 100+ users
+- ESSENTIAL: Create testimonials on landing page
+- ENHANCE: Create story for "landing page" character and update the landing page and demo timeline to match
 - IDEA: Financial models
     - Freemium (tiered subscription model where users pay for premium features, like more photos)
     - Pay what you want (donation-based)
@@ -44,7 +49,6 @@
 - ENHANCE: Add S3 bucket rule to convert photos to S3 Standard-IA (infrequent access) or Glacier after 365 days
 - ENHANCE: Add S3 bucket logging to a separate bucket
 - ENHANCE: Allow profile pictures
-- ESSENTIAL: Create testimonials on landing page
 - ESSENTIAL: Have navigation bar along the bottom include: Timeline, Friends, Shop, Donate, Settings
     - This would help clear up space in the top part of the UI for things like "My Timeline" or "Friend Timeline"
 - ESSENTIAL:(needs polling) Create payment system for premium features
