@@ -18,7 +18,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
-from .models import Share
+from .models import Notification, NotificationType, Share
 from .serializers import UserPrivateSerializer
 from .throttling import AuthRateThrottle
 
@@ -118,7 +118,20 @@ def register_view(request):
         pending_shares = Share.objects.filter(
             shared_with_email=email,
             shared_with_user__isnull=True
-        )
+        ).select_related('user').order_by('created_at')
+
+        # Create notifications for each pending share
+        for share in pending_shares:
+            sender_name = f"{share.user.first_name} {share.user.last_name}".strip() or share.user.email
+            Notification.objects.create(
+                recipient=user,
+                notification_type=NotificationType.SHARE_INVITATION,
+                title="Timeline shared with you",
+                message=f"{sender_name} shared their timeline with you.",
+                action_url="/app/sharing?tab=shared-with-you"
+            )
+
+        # Link the shares to the new user
         pending_shares.update(shared_with_user=user)
 
         return Response({

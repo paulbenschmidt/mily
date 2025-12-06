@@ -1,4 +1,4 @@
-import { UserType, TimelineEventType, AuthResponse } from '@/types/api';
+import { UserType, TimelineEventType, AuthResponse, NotificationType } from '@/types/api';
 
 // Use /api prefix to trigger Next.js rewrites
 const API_BASE_URL = '/api';
@@ -480,6 +480,49 @@ class AuthApiClient {
         method: 'GET',
       },
       skipAuth: true, // Public endpoint, auth is optional but will be sent if available
+    });
+  }
+
+  // Notification endpoints
+  async getNotifications(): Promise<NotificationType[]> {
+    return this.request<NotificationType[]>({
+      endpoint: '/notifications/',
+    });
+  }
+
+  async markNotificationAsRead(notificationId: string): Promise<NotificationType> {
+    return this.request<NotificationType>({
+      endpoint: `/notifications/${notificationId}/read/`,
+      options: {
+        method: 'PATCH',
+      },
+    });
+  }
+
+  async markAllNotificationsAsRead(): Promise<{ marked_read: number }> {
+    return this.request<{ marked_read: number }>({
+      endpoint: '/notifications/read-all/',
+      options: {
+        method: 'PATCH',
+      },
+    });
+  }
+
+  async deleteNotification(notificationId: string): Promise<void> {
+    await this.request<void>({
+      endpoint: `/notifications/${notificationId}/`,
+      options: {
+        method: 'DELETE',
+      },
+    });
+  }
+
+  async deleteAllNotifications(): Promise<{ deleted: number }> {
+    return this.request<{ deleted: number }>({
+      endpoint: '/notifications/delete-all/',
+      options: {
+        method: 'DELETE',
+      },
     });
   }
 }

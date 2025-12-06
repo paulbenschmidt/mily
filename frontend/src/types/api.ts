@@ -68,3 +68,18 @@ export interface AuthResponse {
   message: string;
   user?: UserType;
 }
+
+export const NOTIFICATION_TYPES = ['share_invitation', 'share_accepted'] as const;
+export type NotificationTypeValue = typeof NOTIFICATION_TYPES[number];
+
+export interface NotificationType {
+  id: string;
+  notification_type: NotificationTypeValue;
+  title: string;
+  message: string;
+  is_read: boolean;
+  read_at: string | null;
+  related_user: UserType | null;
+  action_url: string;
+  created_at: string;
+}
