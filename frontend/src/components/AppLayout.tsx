@@ -5,6 +5,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Link, Button } from '@/components/ui';
 import { Logo } from '@/components/Logo';
 import Spinner from '@/components/ui/Spinner';
+import { NotificationDropdown } from '@/components/NotificationDropdown';
+import { authApiClient } from '@/utils/auth-api';
+import { NotificationType } from '@/types/api';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -14,16 +17,36 @@ export function AppLayout({ children }: AppLayoutProps) {
   // Layout for app and timeline pages; yields different results based on whether or not the user is authenticated
   const { user: currentUser, loading, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationType[]>([]);
+  const [notificationsLoading, setNotificationsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const notificationRef = useRef<HTMLDivElement>(null);
+
+  const hasUnread = notifications.some(n => !n.is_read);
 
   // Track when component has mounted on client
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
+  // Fetch notifications on mount
+  useEffect(() => {
+    if (currentUser) {
+      authApiClient.getNotifications()
+        .then(data => setNotifications(data))
+        .catch(() => console.error('Failed to fetch notifications'))
+        .finally(() => setNotificationsLoading(false));
+    }
+  }, [currentUser]);
+
   const handleLogout = async () => {
     await logout();
+  };
+
+  const handleNotificationsClose = () => {
+    setIsNotificationsOpen(false);
   };
 
   // Close menu when clicking outside
@@ -57,17 +80,56 @@ export function AppLayout({ children }: AppLayoutProps) {
             <Logo size="md" />
           </Link>
           {currentUser ? (
-            <div ref={menuRef}>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="p-2"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </Button>
+            <div className="flex items-center gap-2">
+              {/* Notifications */}
+              <div ref={notificationRef} className="relative">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setIsNotificationsOpen(!isNotificationsOpen);
+                    setIsMenuOpen(false);
+                  }}
+                  className="p-2 relative"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                    />
+                  </svg>
+                  {hasUnread && (
+                    <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
+                  )}
+                </Button>
+
+                {isNotificationsOpen && (
+                  <NotificationDropdown
+                    notifications={notifications}
+                    setNotifications={setNotifications}
+                    loading={notificationsLoading}
+                    onClose={handleNotificationsClose}
+                  />
+                )}
+              </div>
+
+              {/* Menu */}
+              <div ref={menuRef}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setIsMenuOpen(!isMenuOpen);
+                    setIsNotificationsOpen(false);
+                  }}
+                  className="p-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </Button>
 
               {isMenuOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-secondary-200 py-1 z-[100]">
@@ -123,6 +185,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                   </button>
                 </div>
               )}
+              </div>
             </div>
           ) : (
             <Link href="/signup">

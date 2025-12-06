@@ -16,12 +16,15 @@ from .aws_s3 import make_event_photo_key, create_presigned_put_url, delete_photo
 from .models import (
     Event,
     EventPhoto,
+    Notification,
+    NotificationType,
     Share,
 )
 from .serializers import (
     EventSerializer,
     EventPhotoSerializer,
     EventPublicSerializer,
+    NotificationSerializer,
     UserPublicSerializer,
     UserPrivateSerializer,
     ShareSerializer,
@@ -455,6 +458,16 @@ class ShareViewSet(viewsets.ModelViewSet):
         share.accepted_at = timezone.now()
         share.save()
 
+        # Notify the sharer that their invitation was accepted
+        accepter_name = f"{request.user.first_name} {request.user.last_name}".strip() or request.user.email
+        Notification.objects.create(
+            recipient=share.user,
+            notification_type=NotificationType.SHARE_ACCEPTED,
+            title="Share invitation accepted",
+            message=f"{accepter_name} accepted your timeline share invitation.",
+            action_url=f"/app/sharing?tab=shared-by-you"
+        )
+
         logger.info(f"Share invitation accepted: {request.user.email} accepted invitation from {share.user.email}")
 
         serializer = self.get_serializer(share)
@@ -494,6 +507,17 @@ class ShareViewSet(viewsets.ModelViewSet):
 
         # Send invitation email
         self._send_invitation_email(share)
+
+        # Create notification for recipient if they have an account
+        if shared_with_user:
+            sender_name = f"{self.request.user.first_name} {self.request.user.last_name}".strip() or self.request.user.email
+            Notification.objects.create(
+                recipient=shared_with_user,
+                notification_type=NotificationType.SHARE_INVITATION,
+                title="Timeline shared with you",
+                message=f"{sender_name} shared their timeline with you.",
+                action_url=f"/app/sharing?tab=shared-with-you"
+            )
 
         logger.info(
             f"Timeline share created: {self.request.user.email} shared with {shared_with_email} "
@@ -723,3 +747,58 @@ def get_other_timeline(request, handle):
 
     # Priority 4: No access - return 404
     raise NotFound("Timeline not found")
+
+
+class NotificationViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing user notifications.
+    Users can only view and manage their own notifications.
+    """
+    serializer_class = NotificationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = None  # Notifications are typically limited in number
+
+    def get_queryset(self):
+        """Users can only see their own notifications."""
+        return Notification.objects.filter(
+            recipient=self.request.user
+        ).order_by('-created_at')
+
+    def list(self, request, *args, **kwargs):
+        """List notifications with optional limit."""
+        queryset = self.get_queryset()
+        limit = int(request.query_params.get('limit', 15))
+        queryset = queryset[:limit]
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['patch'], url_path='read')
+    def mark_read(self, request, pk=None):
+        """Mark a single notification as read."""
+        notification = self.get_object()
+        notification.is_read = True
+        notification.read_at = timezone.now()
+        notification.save(update_fields=['is_read', 'read_at', 'updated_at'])
+        serializer = self.get_serializer(notification)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['patch'], url_path='read-all')
+    def mark_all_read(self, request):
+        """Mark all notifications as read."""
+        updated = Notification.objects.filter(
+            recipient=request.user,
+            is_read=False
+        ).update(is_read=True, read_at=timezone.now(), updated_at=timezone.now())
+        return Response({'marked_read': updated})
+
+    def destroy(self, request, *args, **kwargs):
+        """Delete a notification."""
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=False, methods=['delete'], url_path='delete-all')
+    def delete_all(self, request):
+        """Delete all notifications for the current user."""
+        deleted, _ = Notification.objects.filter(recipient=request.user).delete()
+        return Response({'deleted': deleted})

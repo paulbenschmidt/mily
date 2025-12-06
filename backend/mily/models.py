@@ -3,6 +3,7 @@ import uuid
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils import timezone
 
 
 class User(AbstractUser):
@@ -185,3 +186,50 @@ class Share(models.Model):
     def is_registered(self):
         """Check if the recipient has registered an account"""
         return self.shared_with_user is not None
+
+
+class NotificationType(models.TextChoices):
+    SHARE_INVITATION = "share_invitation", "Share Invitation"
+    SHARE_ACCEPTED = "share_accepted", "Share Accepted"
+
+
+class Notification(models.Model):
+    """
+    User notifications for timeline-related activities.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    recipient = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='notifications',
+        help_text="User who receives this notification"
+    )
+    notification_type = models.CharField(
+        max_length=50,
+        choices=NotificationType.choices,
+        help_text="Type of notification"
+    )
+    title = models.CharField(max_length=200, help_text="Notification title")
+    message = models.TextField(help_text="Notification message body")
+    action_url = models.CharField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text="URL to navigate to when notification is clicked"
+    )
+    is_read = models.BooleanField(default=False, help_text="Whether the notification has been read")
+    read_at = models.DateTimeField(null=True, blank=True, help_text="When the notification was read")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'notifications'
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['recipient', '-created_at']),
+            models.Index(fields=['recipient', 'is_read']),
+        ]
+
+    def __str__(self):
+        return f"{self.notification_type} for {self.recipient.email}: {self.title}"

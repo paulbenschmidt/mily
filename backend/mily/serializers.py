@@ -8,6 +8,7 @@ from .models import (
     Event,
     EventPhoto,
     EventPrivacyLevel,
+    Notification,
     Share,
 )
 
@@ -171,3 +172,28 @@ class ShareSerializer(serializers.ModelSerializer):
             if value.lower() == request.user.email.lower():
                 raise serializers.ValidationError("You cannot share your timeline with yourself.")
         return value.lower()
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    """Serializer for user notifications."""
+
+    class Meta:
+        model = Notification
+        fields = [
+            "id",
+            "notification_type",
+            "title",
+            "message",
+            "is_read",
+            "read_at",
+            "action_url",
+            "created_at",
+        ]
+        read_only_fields = [
+            "id",
+            "notification_type",
+            "title",
+            "message",
+            "action_url",
+            "created_at",
+        ]

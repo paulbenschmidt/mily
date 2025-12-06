@@ -2,15 +2,21 @@
 
 import { UserType, ShareType } from '@/types/api';
 import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button, Input, PageHeading, SmallText } from '@/components/ui';
 import { ShareTimelineModal, RemoveShareModal } from '@/components/Shares';
 import { authApiClient } from '@/utils/auth-api';
 
 
-type TabType = 'shared-by-you' | 'shared-with-you';
+type TabType = 'shared-with-you' | 'shared-by-you';
 
 export default function SharingPage() {
-  const [activeTab, setActiveTab] = useState<TabType>('shared-by-you');
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState<TabType>(
+    tabParam === 'shared-by-you' ? 'shared-by-you' : 'shared-with-you'
+  );
   const [sharedByYou, setSharedByYou] = useState<ShareType[]>([]);
   const [sharedWithMe, setSharedWithMe] = useState<ShareType[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -23,6 +29,19 @@ export default function SharingPage() {
   const [processingShareId, setProcessingShareId] = useState<string | null>(null);
   const [isPublic, setIsPublic] = useState(false);
   const [isUpdatingPublic, setIsUpdatingPublic] = useState(false);
+
+  // Sync tab state with URL param changes
+  useEffect(() => {
+    const newTab = tabParam === 'shared-by-you' ? 'shared-by-you' : 'shared-with-you';
+    if (newTab !== activeTab) {
+      setActiveTab(newTab);
+    }
+  }, [tabParam]);
+
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab);
+    router.push(`/app/sharing?tab=${tab}`, { scroll: false });
+  };
 
   // Fetch shares and public status on mount
   useEffect(() => {
@@ -257,20 +276,7 @@ export default function SharingPage() {
           {/* Tabs */}
           <div className="flex gap-2 mt-6 mb-4 border-b border-secondary-200">
             <button
-              onClick={() => setActiveTab('shared-by-you')}
-              className={`px-4 py-2 font-medium text-sm transition-colors relative ${
-                activeTab === 'shared-by-you'
-                  ? 'text-primary-600'
-                  : 'text-secondary-600 hover:text-secondary-900'
-              }`}
-            >
-              Shared by You
-              {activeTab === 'shared-by-you' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600" />
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab('shared-with-you')}
+              onClick={() => handleTabChange('shared-with-you')}
               className={`px-4 py-2 font-medium text-sm transition-colors relative ${
                 activeTab === 'shared-with-you'
                   ? 'text-primary-600'
@@ -279,6 +285,19 @@ export default function SharingPage() {
             >
               Shared with You
               {activeTab === 'shared-with-you' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600" />
+              )}
+            </button>
+            <button
+              onClick={() => handleTabChange('shared-by-you')}
+              className={`px-4 py-2 font-medium text-sm transition-colors relative ${
+                activeTab === 'shared-by-you'
+                  ? 'text-primary-600'
+                  : 'text-secondary-600 hover:text-secondary-900'
+              }`}
+            >
+              Shared by You
+              {activeTab === 'shared-by-you' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600" />
               )}
             </button>
