@@ -2,13 +2,18 @@
 - BUG: Fix HEIC photo upload (it failed on Rusty's laptop upload)
 - ENHANCE: Update Google description text to be less clunky (search for it on Google with "timeline mily" and you'll see it)
 - BUG: Get rid of accidental text highlighting when using the scrubber to navigate the timeline
-- CLEANUP: Remove popup when login fails (the red error is good enough)
-    - Get rid of "Failed to fetch user profile" popup
+- CLEANUP: Remove all "alert" popups and add better error handling (maybe toast notifications?)
 - BUG: Make reordering photos more reliable
 - BUG: Disable scrolling on PhotoModal
 - ENHANCE: Move AddEvent button to lower right corner
 
+- ENHANCE: Allow users to share individual events?
+    - Add Share button underneath event to send to a person
+
 ## Sprint Backlog
+- ENHANCE: Allow ability for users to define their default event privacy (some folks might want it to default to friend)
+- Add info button to let users know they can update their handle
+- ESSENTIAL: Add a "Share back" popup when a user accepts a share
 - ESSENTIAL: Go through NeonDB production checklist email
     - Implement Data Encryption at Rest to protect database in case of breach
     - Database backup
@@ -91,7 +96,6 @@
     - Rusty mentioned that it could be nice for parents who want to maintain separate timelines for children
     - Reviews suggest that users who are authors also would like this feature when creating timelines for fictional characters
 - LEARN: Learn how users are sharing their timelines with others
-- ENHANCE: Allow users to share individual events?
 - ENHANCE: Poll users on the color once you have ~100 users
     - Feedback from Rusty was that the color was confusing (he mentioned that the movie *Inside Out* had sad memories in blue and happy memories in gold)
 - OTHER: Poll users on whether to use `joinmily.com` or `mily.bio` as the primary domain

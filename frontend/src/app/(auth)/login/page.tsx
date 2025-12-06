@@ -33,7 +33,6 @@ export default function LoginPage() {
       // Redirect to app after successful login
       router.push('/app');
     } catch (err) {
-      alert('Login failed');
 
       // Check if error is due to unverified email
       const error = err as Error & { errorCode?: string; email?: string };

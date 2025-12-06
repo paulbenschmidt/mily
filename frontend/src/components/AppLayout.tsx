@@ -8,10 +8,10 @@ import Spinner from '@/components/ui/Spinner';
 
 interface AppLayoutProps {
   children: React.ReactNode;
-  requireAuth?: boolean;
 }
 
-export function AppLayout({ children, requireAuth = false }: AppLayoutProps) {
+export function AppLayout({ children }: AppLayoutProps) {
+  // Layout for app and timeline pages; yields different results based on whether or not the user is authenticated
   const { user: currentUser, loading, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -38,12 +38,6 @@ export function AppLayout({ children, requireAuth = false }: AppLayoutProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Redirect to login if auth is required but user is not authenticated
-  useEffect(() => {
-    if (requireAuth && !loading && !currentUser) {
-      window.location.href = '/login';
-    }
-  }, [requireAuth, loading, currentUser]);
 
   // Show loading state only after client-side mount to avoid hydration mismatch
   if (!isMounted || loading) {
