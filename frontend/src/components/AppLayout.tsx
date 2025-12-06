@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Link, Button } from '@/components/ui';
 import { Logo } from '@/components/Logo';
 import Spinner from '@/components/ui/Spinner';
 import { NotificationDropdown } from '@/components/NotificationDropdown';
 import { authApiClient } from '@/utils/auth-api';
+import { NotificationType } from '@/types/api';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -17,31 +18,28 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { user: currentUser, loading, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [hasUnread, setHasUnread] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationType[]>([]);
+  const [notificationsLoading, setNotificationsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
+
+  const hasUnread = notifications.some(n => !n.is_read);
 
   // Track when component has mounted on client
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  const checkUnreadNotifications = useCallback(async () => {
-    try {
-      const notifications = await authApiClient.getNotifications();
-      setHasUnread(notifications.some(n => !n.is_read));
-    } catch (error) {
-      console.error('Failed to check notifications:', error);
-    }
-  }, []);
-
-  // Check for unread notifications on mount
+  // Fetch notifications on mount
   useEffect(() => {
     if (currentUser) {
-      checkUnreadNotifications();
+      authApiClient.getNotifications()
+        .then(data => setNotifications(data))
+        .catch(() => console.error('Failed to fetch notifications'))
+        .finally(() => setNotificationsLoading(false));
     }
-  }, [currentUser, checkUnreadNotifications]);
+  }, [currentUser]);
 
   const handleLogout = async () => {
     await logout();
@@ -109,8 +107,10 @@ export function AppLayout({ children }: AppLayoutProps) {
 
                 {isNotificationsOpen && (
                   <NotificationDropdown
+                    notifications={notifications}
+                    setNotifications={setNotifications}
+                    loading={notificationsLoading}
                     onClose={handleNotificationsClose}
-                    onUnreadChange={checkUnreadNotifications}
                   />
                 )}
               </div>

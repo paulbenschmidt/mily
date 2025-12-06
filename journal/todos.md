@@ -40,6 +40,9 @@
 
 
 ## Backlog
+- ENHANCE: Add pagination for notifications
+    - to avoid returning all notifications at once
+    - to allow for infinite scroll (using cursor-based pagination)
 - ENHANCE: Add Counter to social proof for timelines created once you have 100+ users
 - ESSENTIAL: Create testimonials on landing page
 - ENHANCE: Create story for "landing page" character and update the landing page and demo timeline to match

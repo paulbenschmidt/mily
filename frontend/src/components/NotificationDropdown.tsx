@@ -1,24 +1,25 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, Dispatch, SetStateAction } from 'react';
 import { useRouter } from 'next/navigation';
 import { NotificationType } from '@/types/api';
 import { authApiClient } from '@/utils/auth-api';
 
 interface NotificationDropdownProps {
+  notifications: NotificationType[];
+  setNotifications: Dispatch<SetStateAction<NotificationType[]>>;
+  loading: boolean;
   onClose?: () => void;
-  onUnreadChange?: () => void;
 }
 
-export function NotificationDropdown({ onClose, onUnreadChange }: NotificationDropdownProps) {
+export function NotificationDropdown({
+  notifications,
+  setNotifications,
+  loading,
+  onClose
+}: NotificationDropdownProps) {
   const router = useRouter();
-  const [notifications, setNotifications] = useState<NotificationType[]>([]);
-  const [loading, setLoading] = useState(true);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    fetchNotifications();
-  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -31,29 +32,15 @@ export function NotificationDropdown({ onClose, onUnreadChange }: NotificationDr
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [onClose]);
 
-  const fetchNotifications = async () => {
-    try {
-      const data = await authApiClient.getNotifications();
-      setNotifications(data);
-    } catch (error) {
-      console.error('Failed to fetch notifications:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleNotificationClick = async (notification: NotificationType) => {
     if (!notification.is_read) {
       try {
         await authApiClient.markNotificationAsRead(notification.id);
         setNotifications(prev =>
-          prev.map(n =>
-            n.id === notification.id ? { ...n, is_read: true } : n
-          )
+          prev.map(n => n.id === notification.id ? { ...n, is_read: true } : n)
         );
-        onUnreadChange?.();
       } catch (error) {
-        console.error('Failed to mark notification as read:', error);
+        console.error('Failed to mark notification as read');
       }
     }
 
@@ -67,9 +54,8 @@ export function NotificationDropdown({ onClose, onUnreadChange }: NotificationDr
     try {
       await authApiClient.markAllNotificationsAsRead();
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
-      onUnreadChange?.();
     } catch (error) {
-      console.error('Failed to mark all as read:', error);
+      console.error('Failed to mark all as read');
     }
   };
 

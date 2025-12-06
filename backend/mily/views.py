@@ -465,7 +465,7 @@ class ShareViewSet(viewsets.ModelViewSet):
             notification_type=NotificationType.SHARE_ACCEPTED,
             title="Share invitation accepted",
             message=f"{accepter_name} accepted your timeline share invitation.",
-            action_url=f"/app/sharing"
+            action_url=f"/app/sharing?tab=shared-by-you"
         )
 
         logger.info(f"Share invitation accepted: {request.user.email} accepted invitation from {share.user.email}")

@@ -191,7 +191,6 @@ class Share(models.Model):
 class NotificationType(models.TextChoices):
     SHARE_INVITATION = "share_invitation", "Share Invitation"
     SHARE_ACCEPTED = "share_accepted", "Share Accepted"
-    # Future notification types can be added here
 
 
 class Notification(models.Model):
