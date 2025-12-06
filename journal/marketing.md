@@ -20,7 +20,20 @@ By focusing on the user experience and doing things that didn't scale, they buil
 
 ---
 
+- Build 30-day marketing plan
+- Reaching out to the public newspaper and getting featured on that
+- Reaching out the the local entrepreneur center and getting featured on that
+- Improve SEO/Google placement
+- Reach out to Dad's side of the family
+- Create Instagram/Facebook accounts and start doing reach-outs
+- Reach out to Austin Savage with Savage Marketing Co on LinkedIn?
+    - https://savagecontent.co/services/
 - Build system for tracking conversion on posts
+    - Post in comments on YouTube
+    - Reach out to mental health influencers
+    - Reach out to therapists
+    - Reach out to life coaches
+- Improve landing page with short video about people and memories?
 - Set up newsletter to update users on new features
 - OUTREACH: Add check box for newsletter?
 - OUTREACH: Post in Huffman Neighborhood group
@@ -29,8 +42,6 @@ By focusing on the user experience and doing things that didn't scale, they buil
 - Reach out to reflection influencers
 - Post to Reddit and ask: What would make you want to share past experiences with another person?
 - Post to Starter Story
-- Send MVP to everyone on Asana list (resend to Heather once I have a public timeline)
-- Create spreadsheet to track outreach
 - Find a way to introduce it to therapists
 - Reach out to influencers and YouTubers
 - Marketing: Annual Mily events where people come together and tell stories or meet interesting people, where speakers have their own Mily timelines

@@ -5,5 +5,7 @@ export default function TimelineLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <AppLayout requireAuth={false}>{children}</AppLayout>;
+  // Timeline is semi-protected: shows public events for unauthenticated users,
+  // friend events for authenticated users with a share
+  return <AppLayout>{children}</AppLayout>;
 }
