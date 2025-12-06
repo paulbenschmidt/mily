@@ -21,11 +21,18 @@ By focusing on the user experience and doing things that didn't scale, they buil
 ---
 
 - Build 30-day marketing plan
+- Posting regularly on LinkedIn for visibility
 - Reaching out to the public newspaper and getting featured on that
 - Reaching out the the local entrepreneur center and getting featured on that
-- Improve SEO/Google placement
+- Improve SEO/Google placement (currently my page isn't even showing on a google search for timeline app)
+    - Use Semrush?
+    - Prioritize backlinks?
+    - Reach out to different journaling websites for potential collaboration
 - Reach out to Dad's side of the family
-- Create Instagram/Facebook accounts and start doing reach-outs
+- Create Instagram/Facebook accounts
+    - Posting on my own accounts
+    - Commenting on people's achievements within the app to congratulate them
+    - Interviewing different friend-users and featuring them on posts
 - Reach out to Austin Savage with Savage Marketing Co on LinkedIn?
     - https://savagecontent.co/services/
 - Build system for tracking conversion on posts

@@ -2,8 +2,7 @@
 - BUG: Fix HEIC photo upload (it failed on Rusty's laptop upload)
 - ENHANCE: Update Google description text to be less clunky (search for it on Google with "timeline mily" and you'll see it)
 - BUG: Get rid of accidental text highlighting when using the scrubber to navigate the timeline
-- CLEANUP: Remove popup when login fails (the red error is good enough)
-    - Get rid of "Failed to fetch user profile" popup
+- CLEANUP: Remove all "alert" popups and add better error handling (maybe toast notifications?)
 - BUG: Make reordering photos more reliable
 - BUG: Disable scrolling on PhotoModal
 - ENHANCE: Move AddEvent button to lower right corner
