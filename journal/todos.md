@@ -9,6 +9,7 @@
 
 - ENHANCE: Allow users to share individual events?
     - Add Share button underneath event to send to a person
+- ENHANCE: Standardize button styling (make the notification icon button look like the share/filter buttons)
 
 ## Sprint Backlog
 - ENHANCE: Allow ability for users to define their default event privacy (some folks might want it to default to friend)
@@ -17,7 +18,6 @@
 - ESSENTIAL: Go through NeonDB production checklist email
     - Implement Data Encryption at Rest to protect database in case of breach
     - Database backup
-- ESSENTIAL: Create notifications icon
 - FEATURE: Create "View" dropdown. Options include:
     - Story (photo) view (horizontal) vs timeline view (vertical) - feedback from Rusty
     - Preview as Friend (without private events, and privacy icons, and personal notes)-- should this be a separate page?
