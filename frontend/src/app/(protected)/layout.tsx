@@ -7,6 +7,7 @@ export default async function ProtectedLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Redirect unauthenticated users to login if they're not logged in
   if (!(await refreshTokenCheck())) {
     redirect('/login');
   }

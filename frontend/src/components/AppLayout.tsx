@@ -11,7 +11,7 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
-  // TODO: Add docstring that says this component checks the validity of the JWT token and redirects to login if it's invalid
+  // Layout for app and timeline pages; yields different results based on whether or not the user is authenticated
   const { user: currentUser, loading, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);

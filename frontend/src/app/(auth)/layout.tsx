@@ -6,7 +6,7 @@ export default async function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Redirect authenticated users away from auth pages if they're already logged in
+  // Redirect authenticated users to app if they're already logged in
   if (await refreshTokenCheck()) {
     redirect('/app');
   }
