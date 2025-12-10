@@ -4,12 +4,14 @@
 - BUG: Get rid of accidental text highlighting when using the scrubber to navigate the timeline
 - CLEANUP: Remove all "alert" popups and add better error handling (maybe toast notifications?)
 - BUG: Make reordering photos more reliable
-- BUG: Disable scrolling on PhotoModal
+- BUG: Disable scrolling on PhotoModal (I think it's only possible when 1 photo is selected)
 - ENHANCE: Move AddEvent button to lower right corner
 
 - ENHANCE: Allow users to share individual events?
     - Add Share button underneath event to send to a person
 - ENHANCE: Standardize button styling (make the notification icon button look like the share/filter buttons)
+
+- ENHANCE: Add note that says sharing is one-way
 
 ## Sprint Backlog
 - ENHANCE: Allow ability for users to define their default event privacy (some folks might want it to default to friend)

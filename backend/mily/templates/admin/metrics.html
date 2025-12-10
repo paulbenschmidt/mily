@@ -1,0 +1,156 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Mily Metrics{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">Home</a> &rsaquo; Metrics
+</div>
+{% endblock %}
+
+{% block content %}
+<style>
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+  .metric-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  .metric-card h3 {
+    margin: 0 0 15px 0;
+    color: #417690;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .metric-value {
+    font-size: 36px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+  }
+  .metric-label {
+    color: #666;
+    font-size: 13px;
+  }
+  .metric-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+  }
+  .metric-row:last-child {
+    border-bottom: none;
+  }
+  .metric-row-label {
+    color: #666;
+  }
+  .metric-row-value {
+    font-weight: bold;
+    color: #333;
+  }
+  .section-title {
+    font-size: 18px;
+    color: #eee;
+    margin: 30px 0 15px 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #417690;
+  }
+</style>
+
+<p style="color: #666; margin-bottom: 30px;">Last 30 days snapshot • Generated {{ now }}</p>
+
+<h2 class="section-title">User Growth & Engagement</h2>
+<div class="metrics-grid">
+  <div class="metric-card">
+    <h3>New Signups</h3>
+    <div class="metric-value">{{ metrics.new_signups }}</div>
+    <div class="metric-label">in the last 30 days</div>
+  </div>
+
+  <div class="metric-card">
+    <h3>Activation Rate</h3>
+    <div class="metric-value">{{ metrics.activation_rate }}%</div>
+    <div class="metric-label">{{ metrics.activated_count }} of {{ metrics.new_signups }} new users created ≥1 event within 7 days</div>
+  </div>
+
+  <div class="metric-card">
+    <h3>Active Users</h3>
+    <div class="metric-value">{{ metrics.active_users }}</div>
+    <div class="metric-label">users who created an event, added a photo, or shared in last 30 days</div>
+  </div>
+</div>
+
+<h2 class="section-title">Content Creation</h2>
+<div class="metrics-grid">
+  <div class="metric-card">
+    <h3>Events Created</h3>
+    <div class="metric-value">{{ metrics.events_last_30_days }}</div>
+    <div class="metric-label">in the last 30 days</div>
+  </div>
+
+  <div class="metric-card">
+    <h3>Event Distribution</h3>
+    <div class="metric-row">
+      <span class="metric-row-label">Users with ≥1 event</span>
+      <span class="metric-row-value">{{ metrics.users_with_1_plus }} ({{ metrics.pct_1_plus }}%)</span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-row-label">Users with ≥5 events</span>
+      <span class="metric-row-value">{{ metrics.users_with_5_plus }} ({{ metrics.pct_5_plus }}%)</span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-row-label">Users with ≥10 events</span>
+      <span class="metric-row-value">{{ metrics.users_with_10_plus }} ({{ metrics.pct_10_plus }}%)</span>
+    </div>
+    <div class="metric-label" style="margin-top: 10px;">out of {{ metrics.total_users }} total users</div>
+  </div>
+
+  <div class="metric-card">
+    <h3>Photos Uploaded</h3>
+    <div class="metric-value">{{ metrics.photos_last_30_days }}</div>
+    <div class="metric-label">in the last 30 days</div>
+  </div>
+
+  <div class="metric-card">
+    <h3>Photo Distribution</h3>
+    <div class="metric-row">
+      <span class="metric-row-label">Users with ≥1 photo</span>
+      <span class="metric-row-value">{{ metrics.users_with_1_plus_photos }} ({{ metrics.pct_1_plus_photos }}%)</span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-row-label">Users with ≥5 photos</span>
+      <span class="metric-row-value">{{ metrics.users_with_5_plus_photos }} ({{ metrics.pct_5_plus_photos }}%)</span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-row-label">Users with ≥10 photos</span>
+      <span class="metric-row-value">{{ metrics.users_with_10_plus_photos }} ({{ metrics.pct_10_plus_photos }}%)</span>
+    </div>
+    <div class="metric-label" style="margin-top: 10px;">out of {{ metrics.total_users }} total users</div>
+  </div>
+</div>
+
+<h2 class="section-title">Sharing</h2>
+<div class="metrics-grid">
+  <div class="metric-card">
+    <h3>Shares Created</h3>
+    <div class="metric-value">{{ metrics.shares_last_30_days }}</div>
+    <div class="metric-label">in the last 30 days</div>
+  </div>
+
+  <div class="metric-card">
+    <h3>Users Who've Shared</h3>
+    <div class="metric-value">{{ metrics.pct_shared }}%</div>
+    <div class="metric-label">{{ metrics.users_who_shared }} of {{ metrics.total_users }} users have shared at least once (lifetime)</div>
+  </div>
+</div>
+
+{% endblock %}
