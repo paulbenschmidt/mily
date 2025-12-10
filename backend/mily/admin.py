@@ -163,6 +163,21 @@ def get_metrics_context():
     pct_5_plus = (users_with_5_plus / total_users * 100) if total_users > 0 else 0
     pct_10_plus = (users_with_10_plus / total_users * 100) if total_users > 0 else 0
 
+    # Photos uploaded in last 30 days
+    photos_last_30_days = EventPhoto.objects.filter(created_at__gte=thirty_days_ago).count()
+
+    # Photo distribution: % of users with ≥1, ≥5, ≥10 photos
+    users_with_photo_counts = regular_users.annotate(
+        photo_count=Count('events__event_photos')
+    )
+    users_with_1_plus_photos = users_with_photo_counts.filter(photo_count__gte=1).count()
+    users_with_5_plus_photos = users_with_photo_counts.filter(photo_count__gte=5).count()
+    users_with_10_plus_photos = users_with_photo_counts.filter(photo_count__gte=10).count()
+
+    pct_1_plus_photos = (users_with_1_plus_photos / total_users * 100) if total_users > 0 else 0
+    pct_5_plus_photos = (users_with_5_plus_photos / total_users * 100) if total_users > 0 else 0
+    pct_10_plus_photos = (users_with_10_plus_photos / total_users * 100) if total_users > 0 else 0
+
     # Shares in last 30 days
     shares_last_30_days = Share.objects.filter(created_at__gte=thirty_days_ago).count()
 
@@ -183,6 +198,13 @@ def get_metrics_context():
         'pct_1_plus': round(pct_1_plus, 1),
         'pct_5_plus': round(pct_5_plus, 1),
         'pct_10_plus': round(pct_10_plus, 1),
+        'photos_last_30_days': photos_last_30_days,
+        'users_with_1_plus_photos': users_with_1_plus_photos,
+        'users_with_5_plus_photos': users_with_5_plus_photos,
+        'users_with_10_plus_photos': users_with_10_plus_photos,
+        'pct_1_plus_photos': round(pct_1_plus_photos, 1),
+        'pct_5_plus_photos': round(pct_5_plus_photos, 1),
+        'pct_10_plus_photos': round(pct_10_plus_photos, 1),
         'shares_last_30_days': shares_last_30_days,
         'users_who_shared': users_who_shared,
         'pct_shared': round(pct_shared, 1),

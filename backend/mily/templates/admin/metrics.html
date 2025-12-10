@@ -113,6 +113,29 @@
     </div>
     <div class="metric-label" style="margin-top: 10px;">out of {{ metrics.total_users }} total users</div>
   </div>
+
+  <div class="metric-card">
+    <h3>Photos Uploaded</h3>
+    <div class="metric-value">{{ metrics.photos_last_30_days }}</div>
+    <div class="metric-label">in the last 30 days</div>
+  </div>
+
+  <div class="metric-card">
+    <h3>Photo Distribution</h3>
+    <div class="metric-row">
+      <span class="metric-row-label">Users with ≥1 photo</span>
+      <span class="metric-row-value">{{ metrics.users_with_1_plus_photos }} ({{ metrics.pct_1_plus_photos }}%)</span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-row-label">Users with ≥5 photos</span>
+      <span class="metric-row-value">{{ metrics.users_with_5_plus_photos }} ({{ metrics.pct_5_plus_photos }}%)</span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-row-label">Users with ≥10 photos</span>
+      <span class="metric-row-value">{{ metrics.users_with_10_plus_photos }} ({{ metrics.pct_10_plus_photos }}%)</span>
+    </div>
+    <div class="metric-label" style="margin-top: 10px;">out of {{ metrics.total_users }} total users</div>
+  </div>
 </div>
 
 <h2 class="section-title">Sharing</h2>
