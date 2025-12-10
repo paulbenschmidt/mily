@@ -1,6 +1,25 @@
 #
 Mily runs on "fame"—people want their stories to be heard.
 
+## Conversation with Rusty 12/7/2025
+
+1. Build personas for who you're targeting
+    - Instead of spraying on socials or forums, it is better to understand the behaviors of the people you're trying to target so that you can intercept them there.
+    - Where do they spend time? What do they do? Past traumas?
+2. Find self-help communities and promote Mily there
+3. Stock photography is cheap, so I'll likely be able to put together my own landing page video for cheap
+4. Landing page should highlight the feeling they'll get, instead of the features
+5. Add social proof/testimonials on the landing page
+6. Find your mission statement—everything else in your business can then be measured against this goal.
+
+Other topics:
+1. Reddit ambassadors might be a way to promote? Or I can find smaller communities?
+2. One angle of Mily might be: "Tell your story with someone" or "Reconnection stories"
+3. You're selling a feeling.
+4. Older folks care about their legacy—I can create a separate landing page for them.
+
+## Other
+
 ---
 
 https://news.ycombinator.com/item?id=42247749

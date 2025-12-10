@@ -18,7 +18,10 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+from mily.admin import metrics_view
+
 urlpatterns = [
+    path('admin/metrics/', admin.site.admin_view(metrics_view), name='admin_metrics'),
     path('admin/', admin.site.urls),
     path('api/', include('mily.urls')),
 ]

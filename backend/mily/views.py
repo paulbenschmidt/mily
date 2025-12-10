@@ -515,7 +515,7 @@ class ShareViewSet(viewsets.ModelViewSet):
                 recipient=shared_with_user,
                 notification_type=NotificationType.SHARE_INVITATION,
                 title="Timeline shared with you",
-                message=f"{sender_name} shared their timeline with you.",
+                message=f"{sender_name} shared their timeline with you. Accept the invitation?",
                 action_url=f"/app/sharing?tab=shared-with-you"
             )
 

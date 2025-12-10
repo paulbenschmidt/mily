@@ -1,5 +1,10 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.db.models import Count
+from django.template.response import TemplateResponse
+from django.urls import path
+from django.utils import timezone
+from datetime import timedelta
 
 from .models import User, Event, EventPhoto, Share
 
@@ -104,3 +109,96 @@ class ShareAdmin(admin.ModelAdmin):
         return obj.is_registered
     is_registered.boolean = True
     is_registered.short_description = 'Registered'
+
+
+def get_metrics_context():
+    """Calculate all metrics for the dashboard."""
+    now = timezone.now()
+    thirty_days_ago = now - timedelta(days=30)
+
+    # Exclude staff/admin users from metrics
+    regular_users = User.objects.filter(is_staff=False)
+
+    # New signups in last 30 days
+    new_users = regular_users.filter(created_at__gte=thirty_days_ago)
+    new_signups = new_users.count()
+
+    # Activation rate: new users (last 30 days) with ≥1 event within 7 days of signup
+    activated_count = 0
+    for user in new_users:
+        activation_window = user.created_at + timedelta(days=7)
+        if Event.objects.filter(user=user, created_at__lte=activation_window).exists():
+            activated_count += 1
+    activation_rate = (activated_count / new_signups * 100) if new_signups > 0 else 0
+
+    # Active users in last 30 days (created event OR added photo OR shared timeline)
+    users_with_events = set(Event.objects.filter(
+        created_at__gte=thirty_days_ago
+    ).values_list('user_id', flat=True))
+
+    users_with_photos = set(EventPhoto.objects.filter(
+        created_at__gte=thirty_days_ago
+    ).values_list('event__user_id', flat=True))
+
+    users_with_shares = set(Share.objects.filter(
+        created_at__gte=thirty_days_ago
+    ).values_list('user_id', flat=True))
+
+    active_user_ids = users_with_events | users_with_photos | users_with_shares
+    active_users = regular_users.filter(id__in=active_user_ids).count()
+
+    # Total events created (last 30 days)
+    events_last_30_days = Event.objects.filter(created_at__gte=thirty_days_ago).count()
+
+    # Event distribution: % of users with ≥1, ≥5, ≥10 events
+    total_users = regular_users.count()
+    users_with_event_counts = regular_users.annotate(
+        event_count=Count('events')
+    )
+    users_with_1_plus = users_with_event_counts.filter(event_count__gte=1).count()
+    users_with_5_plus = users_with_event_counts.filter(event_count__gte=5).count()
+    users_with_10_plus = users_with_event_counts.filter(event_count__gte=10).count()
+
+    pct_1_plus = (users_with_1_plus / total_users * 100) if total_users > 0 else 0
+    pct_5_plus = (users_with_5_plus / total_users * 100) if total_users > 0 else 0
+    pct_10_plus = (users_with_10_plus / total_users * 100) if total_users > 0 else 0
+
+    # Shares in last 30 days
+    shares_last_30_days = Share.objects.filter(created_at__gte=thirty_days_ago).count()
+
+    # % of users who've shared at least once (lifetime)
+    users_who_shared = regular_users.filter(timeline_shares__isnull=False).distinct().count()
+    pct_shared = (users_who_shared / total_users * 100) if total_users > 0 else 0
+
+    return {
+        'new_signups': new_signups,
+        'activation_rate': round(activation_rate, 1),
+        'activated_count': activated_count,
+        'active_users': active_users,
+        'events_last_30_days': events_last_30_days,
+        'total_users': total_users,
+        'users_with_1_plus': users_with_1_plus,
+        'users_with_5_plus': users_with_5_plus,
+        'users_with_10_plus': users_with_10_plus,
+        'pct_1_plus': round(pct_1_plus, 1),
+        'pct_5_plus': round(pct_5_plus, 1),
+        'pct_10_plus': round(pct_10_plus, 1),
+        'shares_last_30_days': shares_last_30_days,
+        'users_who_shared': users_who_shared,
+        'pct_shared': round(pct_shared, 1),
+    }
+
+
+def metrics_view(request):
+    """Admin view for metrics dashboard."""
+    context = {
+        **admin.site.each_context(request),
+        'title': 'Mily Metrics',
+        'metrics': get_metrics_context(),
+    }
+    return TemplateResponse(request, 'admin/metrics.html', context)
+
+
+admin.site.site_header = 'Mily Administration'
+admin.site.site_title = 'Mily Admin'
+admin.site.index_title = 'Dashboard'
