@@ -116,7 +116,7 @@ def get_metrics_context():
     now = timezone.now()
     thirty_days_ago = now - timedelta(days=30)
 
-    # Exclude staff/admin users and test accounts from metrics
+    # Exclude staff/admin users and my personal account from metrics
     regular_users = User.objects.filter(is_staff=False).exclude(email='paulbenschmidt@gmail.com')
 
     # New signups in last 30 days
