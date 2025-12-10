@@ -116,8 +116,8 @@ def get_metrics_context():
     now = timezone.now()
     thirty_days_ago = now - timedelta(days=30)
 
-    # Exclude staff/admin users from metrics
-    regular_users = User.objects.filter(is_staff=False)
+    # Exclude staff/admin users and my personal account from metrics
+    regular_users = User.objects.filter(is_staff=False).exclude(email='paulbenschmidt@gmail.com')
 
     # New signups in last 30 days
     new_users = regular_users.filter(created_at__gte=thirty_days_ago)
@@ -134,21 +134,21 @@ def get_metrics_context():
     # Active users in last 30 days (created event OR added photo OR shared timeline)
     users_with_events = set(Event.objects.filter(
         created_at__gte=thirty_days_ago
-    ).values_list('user_id', flat=True))
+    ).exclude(user__email='paulbenschmidt@gmail.com').values_list('user_id', flat=True))
 
     users_with_photos = set(EventPhoto.objects.filter(
         created_at__gte=thirty_days_ago
-    ).values_list('event__user_id', flat=True))
+    ).exclude(event__user__email='paulbenschmidt@gmail.com').values_list('event__user_id', flat=True))
 
     users_with_shares = set(Share.objects.filter(
         created_at__gte=thirty_days_ago
-    ).values_list('user_id', flat=True))
+    ).exclude(user__email='paulbenschmidt@gmail.com').values_list('user_id', flat=True))
 
     active_user_ids = users_with_events | users_with_photos | users_with_shares
     active_users = regular_users.filter(id__in=active_user_ids).count()
 
     # Total events created (last 30 days)
-    events_last_30_days = Event.objects.filter(created_at__gte=thirty_days_ago).count()
+    events_last_30_days = Event.objects.filter(created_at__gte=thirty_days_ago).exclude(user__email='paulbenschmidt@gmail.com').count()
 
     # Event distribution: % of users with ≥1, ≥5, ≥10 events
     total_users = regular_users.count()
@@ -164,7 +164,7 @@ def get_metrics_context():
     pct_10_plus = (users_with_10_plus / total_users * 100) if total_users > 0 else 0
 
     # Photos uploaded in last 30 days
-    photos_last_30_days = EventPhoto.objects.filter(created_at__gte=thirty_days_ago).count()
+    photos_last_30_days = EventPhoto.objects.filter(created_at__gte=thirty_days_ago).exclude(event__user__email='paulbenschmidt@gmail.com').count()
 
     # Photo distribution: % of users with ≥1, ≥5, ≥10 photos
     users_with_photo_counts = regular_users.annotate(
@@ -179,7 +179,7 @@ def get_metrics_context():
     pct_10_plus_photos = (users_with_10_plus_photos / total_users * 100) if total_users > 0 else 0
 
     # Shares in last 30 days
-    shares_last_30_days = Share.objects.filter(created_at__gte=thirty_days_ago).count()
+    shares_last_30_days = Share.objects.filter(created_at__gte=thirty_days_ago).exclude(user__email='paulbenschmidt@gmail.com').count()
 
     # % of users who've shared at least once (lifetime)
     users_who_shared = regular_users.filter(timeline_shares__isnull=False).distinct().count()
