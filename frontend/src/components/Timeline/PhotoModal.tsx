@@ -39,7 +39,7 @@ export function PhotoModal({ photos, currentIndex, onClose, onNavigate }: PhotoM
 
   const modalContent = (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm"
       onClick={(e) => {
         e.stopPropagation();
         onClose();

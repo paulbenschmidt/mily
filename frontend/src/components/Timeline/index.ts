@@ -1,4 +1,11 @@
 export { TimelineView } from './TimelineView';
+export { UnifiedTimelineView } from './UnifiedTimelineView';
+export { TimelineListView } from './TimelineListView';
+export { TimelineHeader } from './TimelineHeader';
+export { StoryView } from './StoryView';
+export { ViewModeToggle } from './ViewModeToggle';
+export { PhotoCarousel } from './PhotoCarousel';
+export { EventActionButtons } from './EventActionButtons';
 export { AddEventModal } from './AddEventModal';
 export { FilterDropdown } from './FilterDropdown';
 export type { FilterOptions } from './FilterDropdown';

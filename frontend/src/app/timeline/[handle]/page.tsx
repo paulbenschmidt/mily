@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { authApiClient } from '@/utils/auth-api';
 import { TimelineEventType } from '@/types/api';
-import { TimelineView } from '@/components/Timeline';
+import { UnifiedTimelineView } from '@/components/Timeline';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTimelineFilters } from '@/hooks/useTimelineFilters';
 
@@ -57,7 +57,7 @@ export default function ViewTimeline() {
   };
 
   return (
-    <TimelineView
+    <UnifiedTimelineView
       mode="viewer"
       filteredEvents={filteredEvents}
       totalEventCount={events.length}

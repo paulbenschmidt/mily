@@ -65,14 +65,14 @@ export function AppLayout({ children }: AppLayoutProps) {
   // Show loading state only after client-side mount to avoid hydration mismatch
   if (!isMounted || loading) {
     return (
-      <div className="min-h-screen bg-secondary-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <Spinner size="lg" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-secondary-50">
+    <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="sticky top-0 z-50 bg-white border-b border-secondary-200/50 px-6 py-4" style={{ height: '69px' }}>
         <div className="max-w-4xl mx-auto flex items-center justify-between relative">

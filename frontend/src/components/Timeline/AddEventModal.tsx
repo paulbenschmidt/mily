@@ -49,6 +49,7 @@ interface AddEventModalProps {
   onEventAdded: (event: TimelineEventType) => void;
   eventToEdit?: TimelineEventType;
   onEventUpdated?: (event: TimelineEventType) => void;
+  onDeleteEvent?: (event: TimelineEventType) => void;
   isPublic?: boolean;
 }
 
@@ -58,6 +59,7 @@ export function AddEventModal({
   onEventAdded,
   eventToEdit,
   onEventUpdated,
+  onDeleteEvent,
   isPublic = false
 }: AddEventModalProps) {
   const isEditMode = !!eventToEdit;
@@ -450,20 +452,40 @@ export function AddEventModal({
             )}
           </div>
 
-          <div className="flex justify-end gap-3 mt-6">
-            <Button
-              variant="secondary"
-              onClick={onModalClose}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              loading={isSubmitting}
-            >
-              {isSubmitting ? (isEditMode ? 'Saving...' : 'Adding...') : (isEditMode ? 'Save' : 'Add')}
-            </Button>
+          <div className="flex justify-between mt-6">
+            {/* Delete button - only shown in edit mode */}
+            {isEditMode && onDeleteEvent && eventToEdit && (
+              <Button
+                variant="secondary"
+                onClick={() => onDeleteEvent(eventToEdit)}
+                disabled={isSubmitting}
+                className="flex items-center gap-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 border-red-200"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Delete
+              </Button>
+            )}
+
+            {/* Spacer when no delete button */}
+            {(!isEditMode || !onDeleteEvent) && <div />}
+
+            <div className="flex gap-3">
+              <Button
+                variant="secondary"
+                onClick={onModalClose}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                loading={isSubmitting}
+              >
+                {isSubmitting ? (isEditMode ? 'Saving...' : 'Adding...') : (isEditMode ? 'Save' : 'Add')}
+              </Button>
+            </div>
           </div>
         </form>
       </div>

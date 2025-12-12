@@ -1,0 +1,293 @@
+'use client';
+
+import { useState, useCallback } from 'react';
+import Link from 'next/link';
+import { TimelineEventType } from '@/types/api';
+import { FilterOptions } from './FilterDropdown';
+import { TimelineHeader } from './TimelineHeader';
+import { TimelineListView } from './TimelineListView';
+import { StoryView } from './StoryView';
+import { GuidedOnboarding } from './GuidedOnboarding';
+import { BulkEventModal } from './BulkEventModal';
+import { useTimelineViewState, ViewMode } from '@/hooks/useTimelineViewState';
+import { SmallText, BodyText, Button, Spinner } from '@/components/ui';
+import { useAuth } from '@/contexts/AuthContext';
+
+interface UnifiedTimelineViewProps {
+  mode: 'owner' | 'viewer';
+  filteredEvents: TimelineEventType[];
+  totalEventCount: number;
+  loading: boolean;
+  error: string | null;
+  onEditEvent?: (event: TimelineEventType) => void;
+  onDeleteEvent?: (event: TimelineEventType) => void;
+  onAddEvent?: () => void;
+  onEventsAdded?: (events: TimelineEventType[]) => void;
+  onFilter?: (filters: FilterOptions) => void;
+  onClearFilters?: () => void;
+  hasActiveFilters: boolean;
+  currentFilters: FilterOptions;
+  title?: string;
+  ownerInfo?: {
+    name: string;
+    profilePicture?: string;
+  };
+  isMobile: boolean;
+  isPublic?: boolean;
+  onTogglePublic?: (isPublic: boolean) => void;
+  isUpdatingPublic?: boolean;
+  userHandle?: string;
+}
+
+/**
+ * Unified timeline view that supports both Timeline (list) and Story (paged) modes.
+ * Uses a shared header with view toggle and mini-timeline scrubber.
+ */
+export function UnifiedTimelineView({
+  mode,
+  filteredEvents,
+  totalEventCount,
+  loading,
+  error,
+  onDeleteEvent,
+  onAddEvent,
+  onEventsAdded,
+  onEditEvent,
+  onFilter,
+  onClearFilters,
+  hasActiveFilters,
+  currentFilters,
+  title,
+  ownerInfo,
+  isMobile,
+  isPublic,
+  onTogglePublic,
+  isUpdatingPublic,
+  userHandle,
+}: UnifiedTimelineViewProps) {
+  const { user } = useAuth();
+  const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
+  const [selectedMilestones, setSelectedMilestones] = useState<string[]>([]);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+
+  // Use the shared view state hook
+  const {
+    viewMode,
+    currentEventId,
+    currentEventIndex,
+    setViewMode,
+    setCurrentEventId,
+    navigateToEvent,
+    navigateOlder,
+    navigateNewer,
+    canNavigateOlder,
+    canNavigateNewer,
+  } = useTimelineViewState({ events: filteredEvents });
+
+  const displayTitle = title || (mode === 'owner' ? 'My Timeline' : `${ownerInfo?.name || 'User'}'s Timeline`);
+
+  // Handler for guided onboarding
+  const handleGuidedContinue = (milestones: string[]) => {
+    setSelectedMilestones(milestones);
+    setIsBulkModalOpen(true);
+  };
+
+  const handleStartFromScratch = () => {
+    if (onAddEvent) {
+      onAddEvent();
+    }
+  };
+
+  const handleBulkEventsAdded = (events: TimelineEventType[]) => {
+    if (onEventsAdded) {
+      onEventsAdded(events);
+    }
+    setIsBulkModalOpen(false);
+    setSelectedMilestones([]);
+    setShowSuccessMessage(true);
+    setTimeout(() => setShowSuccessMessage(false), 5000);
+  };
+
+  // Handle view mode change with appropriate scroll behavior
+  const handleViewModeChange = useCallback((newMode: ViewMode) => {
+    if (newMode === viewMode) return;
+
+    if (newMode === 'story') {
+      // StoryView handles scroll-to-top on mount
+      setViewMode(newMode);
+    } else {
+      // Timeline mode handles its own scroll via initialScrollToEventId prop
+      setViewMode(newMode);
+    }
+  }, [viewMode, setViewMode]);
+
+  // Handle event click from header scrubber
+  const handleEventClick = useCallback((eventId: string) => {
+    if (viewMode === 'timeline') {
+      // Scroll to event in timeline mode
+      const element = document.querySelector(`[data-event-id="${eventId}"]`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+    setCurrentEventId(eventId);
+  }, [viewMode, setCurrentEventId]);
+
+  // Handle current event change from IntersectionObserver in timeline mode
+  const handleCurrentEventChange = useCallback((eventId: string) => {
+    if (viewMode === 'timeline') {
+      setCurrentEventId(eventId);
+    }
+  }, [viewMode, setCurrentEventId]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[calc(100vh-120px)]">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-[calc(100vh-120px)] gap-10">
+        <BodyText className="text-danger-600">{error}</BodyText>
+        {!user && (
+          <Link href="/signup">
+            <Button variant="primary">
+              Create Your Timeline
+            </Button>
+          </Link>
+        )}
+      </div>
+    );
+  }
+
+  // Empty state
+  if (totalEventCount === 0) {
+    if (mode === 'owner') {
+      return (
+        <div className="min-h-screen bg-white">
+          <main className="max-w-4xl mx-auto px-4 py-6 md:px-6 md:py-8">
+            <GuidedOnboarding
+              onContinue={handleGuidedContinue}
+              onStartFromScratch={handleStartFromScratch}
+            />
+          </main>
+          <BulkEventModal
+            isOpen={isBulkModalOpen}
+            onClose={() => setIsBulkModalOpen(false)}
+            onEventsAdded={handleBulkEventsAdded}
+            selectedMilestones={selectedMilestones}
+          />
+        </div>
+      );
+    }
+
+    return (
+      <div className="min-h-screen">
+        <div className="text-center mt-12 md:mt-20">
+          <BodyText>This timeline is empty.</BodyText>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      {/* Shared Header */}
+      <TimelineHeader
+        title={displayTitle}
+        viewMode={viewMode}
+        onViewModeChange={handleViewModeChange}
+        filteredEvents={filteredEvents}
+        currentEventId={currentEventId}
+        onEventClick={handleEventClick}
+        mode={mode}
+        isMobile={isMobile}
+        hasActiveFilters={hasActiveFilters}
+        currentFilters={currentFilters}
+        onFilter={onFilter}
+        onAddEvent={onAddEvent}
+        isPublic={isPublic}
+        onTogglePublic={onTogglePublic}
+        isUpdatingPublic={isUpdatingPublic}
+        userHandle={userHandle}
+      />
+
+      {/* View Content */}
+      {viewMode === 'timeline' ? (
+        <main className="max-w-4xl mx-auto px-4 py-6 md:px-6 md:py-8">
+          <TimelineListView
+            events={filteredEvents}
+            onEditEvent={onEditEvent}
+            onDeleteEvent={onDeleteEvent}
+            onCurrentEventChange={handleCurrentEventChange}
+            onClearFilters={onClearFilters}
+            hasActiveFilters={hasActiveFilters}
+            mode={mode}
+            initialScrollToEventId={currentEventId}
+          />
+
+          {/* Bottom spacing */}
+          <div className="h-8 md:h-16" />
+        </main>
+      ) : (
+        <StoryView
+          events={filteredEvents}
+          currentEventIndex={currentEventIndex}
+          onNavigateOlder={navigateOlder}
+          onNavigateNewer={navigateNewer}
+          canNavigateOlder={canNavigateOlder}
+          canNavigateNewer={canNavigateNewer}
+          onEditEvent={onEditEvent}
+          onDeleteEvent={onDeleteEvent}
+          mode={mode}
+          isMobile={isMobile}
+        />
+      )}
+
+      {/* Filter status indicator */}
+      {hasActiveFilters && onClearFilters && (
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white px-4 py-2 rounded-full shadow-lg border border-secondary-200 flex items-center space-x-2 z-40">
+          <SmallText>
+            Showing {filteredEvents.length} of {totalEventCount} events
+          </SmallText>
+          <Button onClick={onClearFilters} variant="text" size="sm">
+            Clear
+          </Button>
+        </div>
+      )}
+
+      {/* Success message after bulk add */}
+      {showSuccessMessage && (
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-primary-600 text-white px-6 py-3 rounded-lg shadow-lg z-40">
+          <SmallText className="text-white">
+            Great start! Click any event to add more details.
+          </SmallText>
+        </div>
+      )}
+
+      {/* Floating Add Event button - mobile only */}
+      {mode === 'owner' && onAddEvent && isMobile && (
+        <button
+          onClick={onAddEvent}
+          className="fixed bottom-6 right-6 w-14 h-14 bg-primary-600 hover:bg-primary-700 text-white rounded-full shadow-lg flex items-center justify-center transition-colors z-50"
+          aria-label="Add Event"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+        </button>
+      )}
+
+      {/* Bulk Event Modal */}
+      <BulkEventModal
+        isOpen={isBulkModalOpen}
+        onClose={() => setIsBulkModalOpen(false)}
+        onEventsAdded={handleBulkEventsAdded}
+        selectedMilestones={selectedMilestones}
+      />
+    </div>
+  );
+}
