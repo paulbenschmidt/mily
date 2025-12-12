@@ -269,16 +269,16 @@ export function TimelineView({
                 )}
               </>
             )}
-            {/* Add Event button - only in owner mode and when there are events */}
-            {totalEventCount > 0 && mode === 'owner' && onAddEvent && (
+            {/* Add Event button - desktop only, in header */}
+            {totalEventCount > 0 && mode === 'owner' && onAddEvent && !isMobile && (
               <Button
                 size="sm"
                 onClick={onAddEvent}
               >
-                <svg className={`w-4 h-4 ${!isMobile ? 'mr-2' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
-                {!isMobile && 'Add Event'}
+                Add Event
               </Button>
             )}
           </div>
@@ -358,6 +358,19 @@ export function TimelineView({
       {/* Bottom spacing for better scroll experience */}
       <div className="h-8 md:h-16" />
     </main>
+
+      {/* Floating Add Event button - mobile only */}
+      {totalEventCount > 0 && mode === 'owner' && onAddEvent && isMobile && (
+        <button
+          onClick={onAddEvent}
+          className="fixed bottom-6 right-6 w-14 h-14 bg-primary-600 hover:bg-primary-700 text-white rounded-full shadow-lg flex items-center justify-center transition-colors z-50"
+          aria-label="Add Event"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+        </button>
+      )}
 
     {/* Bulk Event Modal */}
     <BulkEventModal
