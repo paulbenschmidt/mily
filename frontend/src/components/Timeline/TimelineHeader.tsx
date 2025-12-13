@@ -14,7 +14,7 @@ interface TimelineHeaderProps {
   onViewModeChange: (mode: ViewMode) => void;
   filteredEvents: TimelineEventType[];
   currentEventId: string | null;
-  onEventClick: (eventId: string) => void;
+  onScrubberChange: (eventId: string) => void;
   mode: 'owner' | 'viewer';
   isMobile: boolean;
   hasActiveFilters: boolean;
@@ -37,7 +37,7 @@ export function TimelineHeader({
   onViewModeChange,
   filteredEvents,
   currentEventId,
-  onEventClick,
+  onScrubberChange,
   mode,
   isMobile,
   hasActiveFilters,
@@ -53,6 +53,7 @@ export function TimelineHeader({
   const [isShareDropdownOpen, setIsShareDropdownOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [hasMoved, setHasMoved] = useState(false);
+  const [dragProgress, setDragProgress] = useState<number | null>(null);
   const mouseDownPos = useRef<{ x: number; y: number } | null>(null);
   const scrubberRef = useRef<HTMLDivElement>(null);
 
@@ -86,18 +87,27 @@ export function TimelineHeader({
     return getEventPosition(currentEvent);
   };
 
-  const scrollProgress = getCurrentScrollProgress();
+  const baseScrollProgress = getCurrentScrollProgress();
+  // Use local drag position during drag for instant feedback, otherwise use event-based position
+  const scrollProgress = dragProgress ?? baseScrollProgress;
+
+  // Get progress value from clientX position (for instant visual feedback)
+  const getProgressFromClientX = (clientX: number): number | null => {
+    if (!scrubberRef.current) return null;
+    const rect = scrubberRef.current.getBoundingClientRect();
+    const clickX = clientX - rect.left;
+    const clickPercentage = (clickX / rect.width) * 100;
+    // Invert: clicking left (0% of width) should target 100% progress (oldest)
+    return 100 - clickPercentage;
+  };
 
   // Find event from click position
   // Left side of scrubber = oldest events (100%), Right side = newest events (0%)
   const findEventFromPosition = (clientX: number): TimelineEventType | null => {
     if (!scrubberRef.current || filteredEvents.length === 0) return null;
 
-    const rect = scrubberRef.current.getBoundingClientRect();
-    const clickX = clientX - rect.left;
-    const clickPercentage = (clickX / rect.width) * 100;
-    // Invert: clicking left (0% of width) should target 100% progress (oldest)
-    const targetProgress = 100 - clickPercentage;
+    const targetProgress = getProgressFromClientX(clientX);
+    if (targetProgress === null) return null;
 
     // Find closest event to target progress
     let closestEvent = filteredEvents[0];
@@ -136,9 +146,14 @@ export function TimelineHeader({
 
     if (deltaX > DRAG_THRESHOLD || deltaY > DRAG_THRESHOLD) {
       setHasMoved(true);
+      // Update drag position immediately for instant visual feedback
+      const progress = getProgressFromClientX(clientX);
+      if (progress !== null) {
+        setDragProgress(progress);
+      }
       const event = findEventFromPosition(clientX);
       if (event) {
-        onEventClick(event.id);
+        onScrubberChange(event.id);
       }
     }
   };
@@ -151,12 +166,13 @@ export function TimelineHeader({
         : (e as MouseEvent).clientX;
       const event = findEventFromPosition(clientX);
       if (event) {
-        onEventClick(event.id);
+        onScrubberChange(event.id);
       }
     }
 
     setIsDragging(false);
     setHasMoved(false);
+    setDragProgress(null);
     mouseDownPos.current = null;
   };
 
@@ -281,7 +297,7 @@ export function TimelineHeader({
             {/* Scrubber track */}
             <div
               ref={scrubberRef}
-              className="relative flex-1 cursor-pointer"
+              className="relative flex-1 cursor-pointer select-none"
               onMouseDown={handlePointerDown}
               onTouchStart={handlePointerDown}
               style={{ padding: '12px 0', margin: '-12px 0', touchAction: 'none' }}
@@ -328,10 +344,10 @@ export function TimelineHeader({
 
                 {/* Moving scroll indicator dot (gray circle) */}
                 <div
-                  className={`absolute top-1/2 rounded-full transition-all ease-out shadow-sm ring-2 ring-white ${
+                  className={`absolute top-1/2 rounded-full shadow-sm ring-2 ring-white ${
                     isDragging
-                      ? 'w-8 h-8 bg-secondary-500 duration-100'
-                      : 'w-5 h-5 bg-secondary-500 duration-300'
+                      ? 'w-8 h-8 bg-secondary-500'
+                      : 'w-5 h-5 bg-secondary-500 transition-all duration-300 ease-out'
                   }`}
                   style={{ left: `${100 - scrollProgress}%`, transform: 'translate(-50%, -50%)', zIndex: 10 }}
                 />

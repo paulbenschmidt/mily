@@ -1,16 +1,17 @@
-- The dot is very jumpy on the scrubber timeline
-- switching between views causes glitchy lags
-- cache the events in the app so that each page visit doesn't re-grab all events
-- Make story default?
-- It bugged out when having a filter and attempting to switch from Story to Timeline
-- Make sure that demo uses unified timeline, too
-- Move the "My Timeline" to the top banner for more space?
-- When switching from Story to Timeline, it might not grab the correct middle event
-- Clean up the styling on the Story view card
-- Should I standardize the date format across the two views?
-- Fix dragging on the mobile for photos on Story view
+- [x] The dot is very jumpy on the scrubber timeline
+- [ ] switching between views causes glitchy lags
+- [ ] Make story default?
+- [ ] It bugged out when having a filter and attempting to switch from Story to Timeline
+- [ ] Make sure that demo uses unified timeline, too
+- [ ] Clean up the styling on the Story view card
+- [ ] Should I standardize the date format across the two views?
+- [ ] Fix dragging on the mobile for photos on Story view
+- [x] Modify the story mode to derive the current event from the timeline scrubber position
+- [x] When switching from Story to Timeline, it might not grab the correct middle event
 
 ## In Progress
+- Move the "My Timeline" to the top banner for more space?
+- cache the events in the app so that each page visit doesn't re-grab all events
 - BUG: Fix HEIC photo upload (it failed on Rusty's laptop upload)
 - ENHANCE: Update Google description text to be less clunky (search for it on Google with "timeline mily" and you'll see it)
 - BUG: Get rid of accidental text highlighting when using the scrubber to navigate the timeline

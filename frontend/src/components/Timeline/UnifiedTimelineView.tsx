@@ -77,7 +77,6 @@ export function UnifiedTimelineView({
     currentEventIndex,
     setViewMode,
     setCurrentEventId,
-    navigateToEvent,
     navigateOlder,
     navigateNewer,
     canNavigateOlder,
@@ -121,8 +120,8 @@ export function UnifiedTimelineView({
     }
   }, [viewMode, setViewMode]);
 
-  // Handle event click from header scrubber
-  const handleEventClick = useCallback((eventId: string) => {
+  // Handle scrubber change from header - surfaces the event ID the scrubber is pointing to
+  const handleScrubberChange = useCallback((eventId: string) => {
     if (viewMode === 'timeline') {
       // Scroll to event in timeline mode
       const element = document.querySelector(`[data-event-id="${eventId}"]`);
@@ -202,7 +201,7 @@ export function UnifiedTimelineView({
         onViewModeChange={handleViewModeChange}
         filteredEvents={filteredEvents}
         currentEventId={currentEventId}
-        onEventClick={handleEventClick}
+        onScrubberChange={handleScrubberChange}
         mode={mode}
         isMobile={isMobile}
         hasActiveFilters={hasActiveFilters}

@@ -18,7 +18,6 @@ interface UseTimelineViewStateReturn {
   setViewMode: (mode: ViewMode) => void;
   setCurrentEventId: (id: string | null) => void;
   setCurrentEventIndex: (index: number) => void;
-  navigateToEvent: (id: string, behavior?: ScrollBehavior) => void;
   navigateOlder: () => void;
   navigateNewer: () => void;
   canNavigateOlder: boolean;
@@ -104,36 +103,23 @@ export function useTimelineViewState({
     }
   }, [events, setCurrentEventId]);
 
-  // Navigate to a specific event (scrolls in Timeline mode, pages in Story mode)
-  const navigateToEvent = useCallback((id: string, behavior: ScrollBehavior = 'smooth') => {
-    setCurrentEventId(id);
-
-    if (viewMode === 'timeline') {
-      // Scroll to the event element
-      const element = document.querySelector(`[data-event-id="${id}"]`);
-      if (element) {
-        element.scrollIntoView({ behavior, block: 'center' });
-      }
-    }
-  }, [viewMode, setCurrentEventId]);
-
   // Navigate to older event (higher index, further back in time)
-  // Left arrow / back in time
+  // Used by StoryView arrow buttons
   const navigateOlder = useCallback(() => {
     if (canNavigateOlder) {
       const olderEvent = events[validIndex + 1];
-      navigateToEvent(olderEvent.id);
+      setCurrentEventId(olderEvent.id);
     }
-  }, [canNavigateOlder, events, validIndex, navigateToEvent]);
+  }, [canNavigateOlder, events, validIndex, setCurrentEventId]);
 
   // Navigate to newer event (lower index, forward in time)
-  // Right arrow / forward in time
+  // Used by StoryView arrow buttons
   const navigateNewer = useCallback(() => {
     if (canNavigateNewer) {
       const newerEvent = events[validIndex - 1];
-      navigateToEvent(newerEvent.id);
+      setCurrentEventId(newerEvent.id);
     }
-  }, [canNavigateNewer, events, validIndex, navigateToEvent]);
+  }, [canNavigateNewer, events, validIndex, setCurrentEventId]);
 
   // Sync state from URL changes (e.g., browser back/forward)
   useEffect(() => {
@@ -169,7 +155,6 @@ export function useTimelineViewState({
     setViewMode,
     setCurrentEventId,
     setCurrentEventIndex,
-    navigateToEvent,
     navigateOlder,
     navigateNewer,
     canNavigateOlder,
