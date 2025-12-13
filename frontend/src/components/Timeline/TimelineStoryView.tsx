@@ -136,7 +136,7 @@ export function TimelineStoryView({
 
           {/* Photo carousel */}
           {currentEvent.event_photos && currentEvent.event_photos.length > 0 && (
-            <div className="mb-6 group">
+            <div className="mt-6 mb-6 group">
               <PhotoCarousel
                 photos={currentEvent.event_photos}
                 onPhotoClick={handlePhotoClick}
@@ -148,7 +148,7 @@ export function TimelineStoryView({
 
           {/* Description */}
           {currentEvent.description && (
-            <div className="mb-6">
+            <div className="mt-6 mb-6">
               <BodyText className="leading-relaxed whitespace-pre-wrap text-secondary-700">
                 {currentEvent.description}
               </BodyText>

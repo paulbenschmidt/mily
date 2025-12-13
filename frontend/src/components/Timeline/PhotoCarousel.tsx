@@ -117,6 +117,15 @@ export function PhotoCarousel({
   const handlePointerUp = useCallback((e: React.PointerEvent) => {
     if (!isDraggingRef.current) return;
 
+    // Do not trigger click on cancel
+    if (e.type === 'pointercancel') {
+      isDraggingRef.current = false;
+      hasMovedRef.current = false;
+      setIsDragging(false);
+      setDragOffset(0);
+      return;
+    }
+
     const deltaX = e.clientX - startXRef.current;
 
     // Release pointer capture
@@ -172,7 +181,7 @@ export function PhotoCarousel({
 
   return (
     <div
-      className="relative overflow-hidden rounded-lg bg-black/85"
+      className="relative overflow-hidden rounded-lg bg-black/80"
       role="region"
       aria-roledescription="carousel"
       aria-label="Event photos"
@@ -180,7 +189,7 @@ export function PhotoCarousel({
       {/* Photo track */}
       <div
         ref={containerRef}
-        className={`flex ${isDragging ? '' : 'transition-transform duration-300 ease-out'}`}
+        className={`flex touch-pan-y ${isDragging ? '' : 'transition-transform duration-300 ease-out'}`}
         style={{ transform: `translateX(${translateX})` }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}

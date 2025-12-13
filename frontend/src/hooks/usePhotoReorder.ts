@@ -102,32 +102,9 @@ export function usePhotoReorder({
     setIsDraggable(false);
   };
 
-  // Long press detection (for mobile and desktop)
-  const handleLongPressStart = (index: number, _e?: React.MouseEvent | React.TouchEvent) => {
-    const timer = setTimeout(() => {
-      setIsDraggable(true);
-      setDraggedIndex(index);
-    }, 300); // 300ms long press
-    setLongPressTimer(timer);
-  };
-
-  const handleLongPressEnd = () => {
-    if (longPressTimer) {
-      clearTimeout(longPressTimer);
-      setLongPressTimer(null);
-    }
-
-    // Only reset for mouse gestures (not during active touch)
-    // Using ref instead of state to avoid stale closure issues
-    if (!isTouchActiveRef.current && isDraggable && draggedIndex !== null && dragOverIndex === null) {
-      setIsDraggable(false);
-      setDraggedIndex(null);
-    }
-  };
-
   // Mobile touch handlers
   const handleTouchStart = (index: number, e: React.TouchEvent) => {
-    if (!eventId || isDraggable) return;
+    if (!eventId) return;
 
     // Prevent default browser behavior (context menu, image preview, etc.)
     // This works in conjunction with touch-action: none and -webkit-touch-callout: none
@@ -136,25 +113,14 @@ export function usePhotoReorder({
     isTouchActiveRef.current = true;
     const touch = e.touches[0];
     setTouchStartPos({ x: touch.clientX, y: touch.clientY });
-    handleLongPressStart(index);
+
+    // Start drag immediately
+    setIsDraggable(true);
+    setDraggedIndex(index);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDraggable || draggedIndex === null) {
-      // Cancel long press if user moves finger before drag starts
-      if (longPressTimer && touchStartPos) {
-        const touch = e.touches[0];
-        const deltaX = Math.abs(touch.clientX - touchStartPos.x);
-        const deltaY = Math.abs(touch.clientY - touchStartPos.y);
-
-        // If moved more than 10px, cancel long press
-        if (deltaX > 10 || deltaY > 10) {
-          handleLongPressEnd();
-          setTouchStartPos(null);
-        }
-      }
-      return;
-    }
+    if (!isDraggable || draggedIndex === null) return;
 
     // Prevent scrolling while dragging
     e.preventDefault();
@@ -172,12 +138,6 @@ export function usePhotoReorder({
 
   const handleTouchEnd = () => {
     isTouchActiveRef.current = false;
-
-    // Clear timer directly (don't call handleLongPressEnd to avoid race conditions)
-    if (longPressTimer) {
-      clearTimeout(longPressTimer);
-      setLongPressTimer(null);
-    }
     setTouchStartPos(null);
 
     if (draggedIndex !== null && dragOverIndex !== null && draggedIndex !== dragOverIndex) {
@@ -191,11 +151,6 @@ export function usePhotoReorder({
 
   const handleTouchCancel = () => {
     isTouchActiveRef.current = false;
-
-    if (longPressTimer) {
-      clearTimeout(longPressTimer);
-      setLongPressTimer(null);
-    }
     setTouchStartPos(null);
     setDraggedIndex(null);
     setDragOverIndex(null);
@@ -218,9 +173,5 @@ export function usePhotoReorder({
     handleTouchMove,
     handleTouchEnd,
     handleTouchCancel,
-
-    // Utility (desktop only)
-    handleLongPressStart,
-    handleLongPressEnd,
   };
 }

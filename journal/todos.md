@@ -1,7 +1,6 @@
 - [x] The dot is very jumpy on the scrubber timeline
 - [x] switching between views causes glitchy lags
     - [x] Make sure scrubber doesn't jump when switching views
-- [x] Fix scrolling/dragging on the mobile across the app
 - [x] It bugged out when having a filter and attempting to switch from Story to Timeline
 - [x] Make sure that demo uses unified timeline, too
 - [x] Clean up the styling on the Story view card
@@ -10,6 +9,7 @@
 - [x] Should I standardize the date format across the two views?
 - [x] Modify the story mode to derive the current event from the timeline scrubber position
 - [x] When switching from Story to Timeline, it might not grab the correct middle event
+- [x] Fix scrolling/dragging on the mobile across the app
 - [nah] Make story default?
 
 ## In Progress
