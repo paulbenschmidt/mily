@@ -8,7 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTimelineFilters } from '@/hooks/useTimelineFilters';
 
 export default function Timeline() {
-  const { isMobile } = useAuth();
+  const { isMobile, user } = useAuth();
   const [events, setEvents] = useState<TimelineEventType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -182,6 +182,10 @@ export default function Timeline() {
         hasActiveFilters={hasActiveFilters}
         currentFilters={filters}
         isMobile={isMobile}
+        ownerInfo={user ? {
+          name: `${user.first_name}`.trim(),
+          profilePicture: user.profile_picture,
+        } : undefined}
         isPublic={isPublic}
         onTogglePublic={handleTogglePublic}
         isUpdatingPublic={isUpdatingPublic}

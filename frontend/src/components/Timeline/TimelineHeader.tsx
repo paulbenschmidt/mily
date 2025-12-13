@@ -9,7 +9,10 @@ import { ShareDropdown } from './ShareDropdown';
 import { SmallText, Button } from '@/components/ui';
 
 interface TimelineHeaderProps {
-  title: string;
+  ownerInfo?: {
+    name: string;
+    profilePicture?: string;
+  };
   viewMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
   filteredEvents: TimelineEventType[];
@@ -34,7 +37,7 @@ interface TimelineHeaderProps {
  * Contains title, view toggle, mini-timeline scrubber, and action buttons.
  */
 export function TimelineHeader({
-  title,
+  ownerInfo,
   viewMode,
   onViewModeChange,
   filteredEvents,
@@ -212,17 +215,33 @@ export function TimelineHeader({
     <div className="sticky bg-white border-b border-secondary-200/50 px-4 md:px-6 py-3 md:py-4" style={{ top: '68px', zIndex: 40 }}>
       <div className="max-w-4xl mx-auto">
         {/* Top row: Title, Toggle, Actions */}
-        <div className="flex items-center justify-between gap-2 md:gap-4">
-          {/* Left: Title and Toggle */}
-          <div className="flex items-center gap-2 md:gap-4 min-w-0">
-            <SmallText className="font-semibold truncate">{title}</SmallText>
-            {hasEvents && (
+        <div className="relative flex items-center justify-between gap-2 md:gap-4">
+          {/* Left: Avatar and Name */}
+          <div className="flex items-center gap-3">
+            {ownerInfo?.profilePicture ? (
+              <img
+                src={ownerInfo.profilePicture}
+                alt={ownerInfo.name}
+                className="w-8 h-8 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center">
+                <span className="text-sm font-medium text-brand">
+                  {ownerInfo?.name?.[0]?.toUpperCase() || ''}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Center: Toggle (absolute center of header) */}
+          {hasEvents && (
+            <div className="absolute left-1/2 -translate-x-1/2">
               <ViewModeToggle
                 viewMode={viewMode}
                 onViewModeChange={onViewModeChange}
               />
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Right: Action buttons */}
           <div className="flex items-center gap-2 flex-shrink-0">

@@ -131,13 +131,13 @@ export function PhotoCarousel({
     // Release pointer capture
     (e.target as HTMLElement).releasePointerCapture(e.pointerId);
 
-    // If we didn't move much, treat as a tap/click
+    // If we didn't move much, treat as a tap/click to open modal
     if (!hasMovedRef.current) {
       if (onPhotoClick) {
-        onPhotoClick(startIndexRef.current);
+        onPhotoClick(currentIndex);
       }
     } else if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
-      // Swipe detected
+      // Swipe detected - navigate to next/previous photo
       if (deltaX > 0 && currentIndex > 0) {
         setCurrentIndex(currentIndex - 1);
       } else if (deltaX < 0 && currentIndex < photos.length - 1) {

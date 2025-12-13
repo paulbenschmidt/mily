@@ -13,6 +13,12 @@
 - [nah] Make story default?
 
 ## In Progress
+-----
+- ENHANCE: Create simple Notifications page so that users can view/deny/add-to-timeline event shares
+- ENHANCE: Allow users to share individual events?
+    - Add Share button underneath event to send to a person
+-----
+- ENHANCE: Allow users to change their profile picture/avatar
 - Move the "My Timeline" to the top banner for more space?
 - cache the events in the app so that each page visit doesn't re-grab all events
 - BUG: Fix HEIC photo upload (it failed on Rusty's laptop upload)
@@ -22,9 +28,6 @@
 - BUG: Make reordering photos more reliable
 - BUG: Disable scrolling on PhotoModal (I think it's only possible when 1 photo is selected)
 - ENHANCE: Move AddEvent button to lower right corner
-
-- ENHANCE: Allow users to share individual events?
-    - Add Share button underneath event to send to a person
 - ENHANCE: Standardize button styling (make the notification icon button look like the share/filter buttons)
 
 - ENHANCE: Add note that says sharing is one-way

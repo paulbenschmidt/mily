@@ -84,8 +84,6 @@ export function TimelineUnifiedView({
     canNavigateNewer,
   } = useTimelineViewState({ events: filteredEvents });
 
-  const displayTitle = title || (mode === 'owner' ? 'My Timeline' : `${ownerInfo?.name || 'User'}'s Timeline`);
-
   // Handler for guided onboarding
   const handleGuidedContinue = (milestones: string[]) => {
     setSelectedMilestones(milestones);
@@ -197,7 +195,7 @@ export function TimelineUnifiedView({
     <div>
       {/* Shared Header */}
       <TimelineHeader
-        title={displayTitle}
+        ownerInfo={ownerInfo}
         viewMode={viewMode}
         onViewModeChange={handleViewModeChange}
         filteredEvents={filteredEvents}
