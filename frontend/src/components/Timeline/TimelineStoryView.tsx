@@ -7,7 +7,7 @@ import { PhotoCarousel } from './PhotoCarousel';
 import { PhotoModal } from './PhotoModal';
 import { SmallText, BodyText, Caption } from '@/components/ui';
 import { EventActionButtons } from './EventActionButtons';
-import { PrivacyIcon } from './utils';
+import { PrivacyIcon, EmptyFilteredState } from './utils';
 
 interface TimelineStoryViewProps {
   events: TimelineEventType[];
@@ -20,6 +20,7 @@ interface TimelineStoryViewProps {
   mode: 'owner' | 'viewer';
   hasActiveFilters?: boolean;
   onOpenFilters?: () => void;
+  onClearFilters?: () => void;
 }
 
 /**
@@ -37,6 +38,7 @@ export function TimelineStoryView({
   mode,
   hasActiveFilters,
   onOpenFilters,
+  onClearFilters,
 }: TimelineStoryViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [photoModalOpen, setPhotoModalOpen] = useState(false);
@@ -72,11 +74,7 @@ export function TimelineStoryView({
   };
 
   if (!currentEvent) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <BodyText className="text-secondary-500">No events to display</BodyText>
-      </div>
-    );
+    return <EmptyFilteredState hasActiveFilters={hasActiveFilters ?? false} onClearFilters={onClearFilters} />;
   }
 
   return (
@@ -104,10 +102,10 @@ export function TimelineStoryView({
       </button>
 
       {/* Event content - center */}
-      <div className="flex-1 px-14 md:px-20 py-6 h-[calc(100vh-180px)]">
-        <div className="max-w-2xl mx-auto h-full flex flex-col">
+      <div className="flex-1 px-14 md:px-20 py-6">
+        <div className="max-w-2xl mx-auto">
           {/* Main content */}
-          <div className="flex-1">
+          <div>
           {/* Date and privacy */}
           <div className="flex items-center justify-between mb-2">
             <Caption className="font-serif font-semibold text-secondary-500">
@@ -157,7 +155,7 @@ export function TimelineStoryView({
 
           {/* Notes (owner only) */}
           {mode === 'owner' && currentEvent.notes && (
-            <div className="mb-6 p-4 bg-secondary-50 rounded-lg border border-secondary-200">
+            <div className="mb-6 p-4 bg-secondary-50 rounded-lg">
               <Caption className="text-secondary-500 mb-1">Private notes</Caption>
               <SmallText className="italic text-secondary-600">{currentEvent.notes}</SmallText>
             </div>
@@ -175,7 +173,7 @@ export function TimelineStoryView({
           </div>
 
           {/* Event counter - pushed to bottom via flex */}
-          <div className="text-center pt-4 border-t border-secondary-100 mt-auto">
+          <div className="text-center pt-4 border-t border-secondary-200 mt-6 pt-6 mb-6">
             <SmallText className="text-secondary-400">
               {currentEventIndex + 1} of {events.length}
               {hasActiveFilters && (

@@ -31,7 +31,7 @@ export function EventActionButtons({
   };
 
   return (
-    <div className={`flex justify-center pt-4 mt-4 border-t border-secondary-200 ${className}`}>
+    <div className={`flex justify-center pt-4 mt-4 ${className}`}>
       <Button
         variant="secondary"
         onClick={handleEdit}

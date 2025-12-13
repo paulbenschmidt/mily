@@ -10,10 +10,10 @@
 - [x] Modify the story mode to derive the current event from the timeline scrubber position
 - [x] When switching from Story to Timeline, it might not grab the correct middle event
 - [x] Fix scrolling/dragging on the mobile across the app
-- [ ] When there are no events to display due to filter on the story view, it shows blank page
+- [x] When there are no events to display due to filter on the story view, it shows blank page
     - It should have "No events match your filters Clear Filters" like the timeline view
     - The Share/Filter/Toggle buttons should still be visible
-- [ ] Show major/minor/memory on the story view
+- [x] Show major/minor/memory on the story view
 
 - [nah] Make story default?
 

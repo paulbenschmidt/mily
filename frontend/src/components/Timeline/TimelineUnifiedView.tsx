@@ -195,6 +195,7 @@ export function TimelineUnifiedView({
         viewMode={viewMode}
         onViewModeChange={handleViewModeChange}
         filteredEvents={filteredEvents}
+        totalEventCount={totalEventCount}
         currentEventId={currentEventId}
         onScrubberChange={handleScrubberChange}
         mode={mode}
@@ -239,6 +240,7 @@ export function TimelineUnifiedView({
           mode={mode}
           hasActiveFilters={hasActiveFilters}
           onOpenFilters={() => setIsFilterOpen(true)}
+          onClearFilters={onClearFilters}
         />
       )}
 

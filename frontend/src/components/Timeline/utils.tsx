@@ -1,4 +1,5 @@
 import React from 'react';
+import { BodyText, Button } from '@/components/ui';
 
 const PRIVACY_CONFIG: Record<string, { path: string; label: string }> = {
   public: {
@@ -24,6 +25,24 @@ export function PrivacyIcon({ privacyLevel }: { privacyLevel: string }) {
       <svg className="w-4 h-4 text-secondary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.path} />
       </svg>
+    </div>
+  );
+}
+
+interface EmptyFilteredStateProps {
+  hasActiveFilters: boolean;
+  onClearFilters?: () => void;
+}
+
+export function EmptyFilteredState({ hasActiveFilters, onClearFilters }: EmptyFilteredStateProps) {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center py-10">
+      <BodyText>No events match your filters</BodyText>
+      {hasActiveFilters && onClearFilters && (
+        <Button onClick={onClearFilters} variant="secondary" className="mt-4">
+          Clear Filters
+        </Button>
+      )}
     </div>
   );
 }

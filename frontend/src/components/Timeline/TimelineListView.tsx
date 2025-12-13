@@ -3,7 +3,7 @@
 import { useRef, useEffect, useCallback, useState } from 'react';
 import { TimelineEventType } from '@/types/api';
 import { TimelineListEvent } from './TimelineListEvent';
-import { BodyText, Button } from '@/components/ui';
+import { EmptyFilteredState } from './utils';
 
 interface TimelineListViewProps {
   events: TimelineEventType[];
@@ -128,16 +128,7 @@ export function TimelineListView({
   }, []);
 
   if (events.length === 0) {
-    return (
-      <div className="text-center py-10">
-        <BodyText>No events match your filters</BodyText>
-        {hasActiveFilters && onClearFilters && (
-          <Button onClick={onClearFilters} variant="secondary" className="mt-4">
-            Clear Filters
-          </Button>
-        )}
-      </div>
-    );
+    return <EmptyFilteredState hasActiveFilters={hasActiveFilters} onClearFilters={onClearFilters} />;
   }
 
   return (
