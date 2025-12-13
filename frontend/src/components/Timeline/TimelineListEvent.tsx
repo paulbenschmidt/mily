@@ -12,13 +12,12 @@ interface TimelineListEventProps {
   event: TimelineEventType;
   isLast?: boolean;
   onEditEvent?: (event: TimelineEventType) => void;
-  onDeleteEvent?: (event: TimelineEventType) => void;
   previousEvent?: TimelineEventType;
   nextEvent?: TimelineEventType;
   mode?: 'owner' | 'viewer';
 }
 
-export function TimelineListEvent({ event, onEditEvent, onDeleteEvent, previousEvent, nextEvent, mode = 'owner' }: TimelineListEventProps) {
+export function TimelineListEvent({ event, onEditEvent, previousEvent, nextEvent, mode = 'owner' }: TimelineListEventProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [photoModalOpen, setPhotoModalOpen] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
@@ -91,8 +90,8 @@ export function TimelineListEvent({ event, onEditEvent, onDeleteEvent, previousE
   };
 
   const handleCardClick = () => {
-    // Allow expansion if there's content to show OR if edit/delete is available
-    if (hasExpandableContent || onEditEvent || onDeleteEvent) {
+    // Allow expansion if there's content to show OR if edit is available
+    if (hasExpandableContent || onEditEvent) {
       setIsExpanded(!isExpanded);
     }
   };

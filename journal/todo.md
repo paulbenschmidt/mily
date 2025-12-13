@@ -13,6 +13,7 @@
 - [ ] When there are no events to display due to filter on the story view, it shows blank page
     - It should have "No events match your filters Clear Filters" like the timeline view
     - The Share/Filter/Toggle buttons should still be visible
+- [ ] Show major/minor/memory on the story view
 
 - [nah] Make story default?
 

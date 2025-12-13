@@ -109,7 +109,7 @@ export function PhotoModal({ photos, currentIndex, onClose, onNavigate }: PhotoM
     setIsDragging(false);
     setDragOffset(0);
     isDraggingRef.current = false;
-    hasMovedRef.current = false;
+    // Don't reset hasMovedRef here - onClick needs to check it first
   };
 
   const modalContent = (
@@ -130,6 +130,7 @@ export function PhotoModal({ photos, currentIndex, onClose, onNavigate }: PhotoM
         if (!hasMovedRef.current) {
           onClose();
         }
+        hasMovedRef.current = false;
       }}
     >
       {/* Close button */}
@@ -143,41 +144,41 @@ export function PhotoModal({ photos, currentIndex, onClose, onNavigate }: PhotoM
         </svg>
       </button>
 
-      {/* Previous button - left half of screen */}
-      {currentIndex > 0 && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onNavigate(currentIndex - 1);
-          }}
-          className="absolute left-0 top-0 bottom-0 w-1/2 flex items-center justify-start pl-4 z-10 group"
-          aria-label="Previous photo"
-        >
-          <div className="p-2 rounded-full group-hover:bg-white/10 transition-colors">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </div>
-        </button>
-      )}
+      {/* Previous button */}
+      <button
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+          onNavigate(currentIndex - 1);
+        }}
+        disabled={currentIndex === 0}
+        className={`absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/50 text-white z-10
+          hover:bg-black/70 transition-colors
+          disabled:opacity-30 disabled:cursor-not-allowed`}
+        aria-label="Previous photo"
+      >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
 
-      {/* Next button - right half of screen */}
-      {currentIndex < photos.length - 1 && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onNavigate(currentIndex + 1);
-          }}
-          className="absolute right-0 top-0 bottom-0 w-1/2 flex items-center justify-end pr-4 z-10 group"
-          aria-label="Next photo"
-        >
-          <div className="p-2 rounded-full group-hover:bg-white/10 transition-colors">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </div>
-        </button>
-      )}
+      {/* Next button */}
+      <button
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+          onNavigate(currentIndex + 1);
+        }}
+        disabled={currentIndex === photos.length - 1}
+        className={`absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/50 text-white z-10
+          hover:bg-black/70 transition-colors
+          disabled:opacity-30 disabled:cursor-not-allowed`}
+        aria-label="Next photo"
+      >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
 
       {/* Photo container */}
       <div className="relative w-full h-full overflow-hidden pointer-events-none">
@@ -198,10 +199,7 @@ export function PhotoModal({ photos, currentIndex, onClose, onNavigate }: PhotoM
                 key={photo.id}
                 className="flex-shrink-0 w-full h-full flex items-center justify-center px-4 md:px-16 py-16"
               >
-                <div
-                  className="relative w-full h-full pointer-events-auto"
-                  onClick={(e) => e.stopPropagation()}
-                >
+                <div className="relative w-full h-full">
                   {shouldRender && (
                     <NextImage
                       src={photo.url}

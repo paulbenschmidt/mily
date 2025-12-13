@@ -5,17 +5,16 @@ import { ViewMode } from '@/hooks/useTimelineViewState';
 interface ViewModeToggleProps {
   viewMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
-  className?: string;
 }
 
 /**
  * Segmented control toggle for switching between Timeline and Story view modes.
  * Uses a pill indicator that animates between options.
  */
-export function ViewModeToggle({ viewMode, onViewModeChange, className = '' }: ViewModeToggleProps) {
+export function ViewModeToggle({ viewMode, onViewModeChange }: ViewModeToggleProps) {
   return (
     <div
-      className={`inline-flex items-center bg-secondary-100 rounded-lg p-0.5 ${className}`}
+      className={`inline-flex items-center bg-secondary-100 rounded-lg p-0.5`}
       role="tablist"
       aria-label="View mode"
     >

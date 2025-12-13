@@ -176,7 +176,6 @@ export default function Timeline() {
         onAddEvent={handleAddEvent}
         onEventsAdded={handleEventsAdded}
         onEditEvent={handleEditEvent}
-        onDeleteEvent={handleDeleteEvent}
         onFilter={handleFilter}
         onClearFilters={handleClearFilters}
         hasActiveFilters={hasActiveFilters}

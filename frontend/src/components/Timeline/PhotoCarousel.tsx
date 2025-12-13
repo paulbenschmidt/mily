@@ -131,12 +131,8 @@ export function PhotoCarousel({
     // Release pointer capture
     (e.target as HTMLElement).releasePointerCapture(e.pointerId);
 
-    // If we didn't move much, treat as a tap/click to open modal
-    if (!hasMovedRef.current) {
-      if (onPhotoClick) {
-        onPhotoClick(currentIndex);
-      }
-    } else if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
+    // Only handle swipe navigation (tap is handled by dedicated button)
+    if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
       // Swipe detected - navigate to next/previous photo
       if (deltaX > 0 && currentIndex > 0) {
         setCurrentIndex(currentIndex - 1);
@@ -150,25 +146,6 @@ export function PhotoCarousel({
     setIsDragging(false);
     setDragOffset(0);
   }, [currentIndex, photos.length, onPhotoClick]);
-
-  // Handle keyboard navigation within carousel
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    // Only handle if carousel is focused
-    if (e.key === 'ArrowLeft') {
-      e.preventDefault();
-      e.stopPropagation(); // Prevent event navigation
-      goToPrev();
-    } else if (e.key === 'ArrowRight') {
-      e.preventDefault();
-      e.stopPropagation(); // Prevent event navigation
-      goToNext();
-    } else if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      if (onPhotoClick) {
-        onPhotoClick(currentIndex);
-      }
-    }
-  }, [goToPrev, goToNext, onPhotoClick, currentIndex]);
 
   if (!photos || photos.length === 0) {
     return null;
@@ -195,7 +172,6 @@ export function PhotoCarousel({
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
-        onKeyDown={handleKeyDown}
         tabIndex={0}
         role="group"
         aria-label={`Photo ${currentIndex + 1} of ${photos.length}`}
@@ -218,6 +194,20 @@ export function PhotoCarousel({
           </div>
         ))}
       </div>
+
+      {/* Full screen button - always visible */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onPhotoClick?.(currentIndex);
+        }}
+        className="absolute top-2 right-2 p-2 rounded-full bg-black/50 text-white z-10 hover:bg-black/70 transition-colors"
+        aria-label="View full screen"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+        </svg>
+      </button>
 
       {/* Navigation chevrons - visible on hover (desktop) */}
       {showNavigation && (

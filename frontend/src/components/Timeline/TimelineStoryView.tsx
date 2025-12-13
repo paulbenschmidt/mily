@@ -16,9 +16,7 @@ interface TimelineStoryViewProps {
   canNavigateOlder: boolean;
   canNavigateNewer: boolean;
   onEditEvent?: (event: TimelineEventType) => void;
-  onDeleteEvent?: (event: TimelineEventType) => void;
   mode: 'owner' | 'viewer';
-  isMobile: boolean;
   hasActiveFilters?: boolean;
   onOpenFilters?: () => void;
 }
@@ -35,9 +33,7 @@ export function TimelineStoryView({
   canNavigateOlder,
   canNavigateNewer,
   onEditEvent,
-  onDeleteEvent,
   mode,
-  isMobile,
   hasActiveFilters,
   onOpenFilters,
 }: TimelineStoryViewProps) {

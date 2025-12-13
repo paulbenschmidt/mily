@@ -8,7 +8,6 @@ import { BodyText, Button } from '@/components/ui';
 interface TimelineListViewProps {
   events: TimelineEventType[];
   onEditEvent?: (event: TimelineEventType) => void;
-  onDeleteEvent?: (event: TimelineEventType) => void;
   onCurrentEventChange: (eventId: string) => void;
   onClearFilters?: () => void;
   hasActiveFilters: boolean;
@@ -23,7 +22,6 @@ interface TimelineListViewProps {
 export function TimelineListView({
   events,
   onEditEvent,
-  onDeleteEvent,
   onCurrentEventChange,
   onClearFilters,
   hasActiveFilters,
@@ -159,7 +157,6 @@ export function TimelineListView({
           <TimelineListEvent
             event={event}
             onEditEvent={mode === 'owner' ? onEditEvent : undefined}
-            onDeleteEvent={mode === 'owner' ? onDeleteEvent : undefined}
             previousEvent={events[index - 1]}
             nextEvent={events[index + 1]}
             mode={mode}
