@@ -15,19 +15,19 @@ interface EventFormData {
   day: string;
 }
 
-interface BulkEventModalProps {
+interface OnboardingBulkEventModalProps {
   isOpen: boolean;
   onClose: () => void;
   onEventsAdded: (events: TimelineEventType[]) => void;
   selectedMilestones: string[];
 }
 
-export function BulkEventModal({
+export function OnboardingBulkEventModal({
   isOpen,
   onClose,
   onEventsAdded,
   selectedMilestones,
-}: BulkEventModalProps) {
+}: OnboardingBulkEventModalProps) {
   useDisableBodyScroll(isOpen);
 
   // Initialize form data with selected milestones

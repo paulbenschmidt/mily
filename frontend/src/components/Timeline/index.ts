@@ -1,4 +1,10 @@
-export { TimelineView } from './TimelineView';
+export { TimelineUnifiedView } from './TimelineUnifiedView';
+export { TimelineHeader } from './TimelineHeader';
+export { TimelineListView } from './TimelineListView';
+export { TimelineStoryView } from './TimelineStoryView';
+export { ViewModeToggle } from './ViewModeToggle';
+export { PhotoCarousel } from './PhotoCarousel';
+export { EventActionButtons } from './EventActionButtons';
 export { AddEventModal } from './AddEventModal';
 export { FilterDropdown } from './FilterDropdown';
 export type { FilterOptions } from './FilterDropdown';
@@ -8,5 +14,5 @@ export { ToggleButtonGroup } from './ToggleButtonGroup';
 export { MultiToggleButtonGroup } from './MultiToggleButtonGroup';
 export { DeleteConfirmationModal } from './DeleteConfirmationModal';
 export { GuidedOnboarding } from './GuidedOnboarding';
-export { BulkEventModal } from './BulkEventModal';
+export { OnboardingBulkEventModal } from './OnboardingBulkEventModal';
 export { DateInput } from './DateInput';

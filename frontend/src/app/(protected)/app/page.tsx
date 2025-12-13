@@ -3,12 +3,12 @@
 import { useState, useEffect } from 'react';
 import { authApiClient } from '@/utils/auth-api';
 import { TimelineEventType } from '@/types/api';
-import { AddEventModal, DeleteConfirmationModal, TimelineView } from '@/components/Timeline';
+import { AddEventModal, DeleteConfirmationModal, TimelineUnifiedView } from '@/components/Timeline';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTimelineFilters } from '@/hooks/useTimelineFilters';
 
 export default function Timeline() {
-  const { isMobile } = useAuth();
+  const { isMobile, user } = useAuth();
   const [events, setEvents] = useState<TimelineEventType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -94,8 +94,17 @@ export default function Timeline() {
   };
 
   const handleDeleteEvent = (event: TimelineEventType) => {
+    setIsAddEventModalOpen(false);
     setEventToDelete(event);
     setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteModalClose = () => {
+    setIsDeleteModalOpen(false);
+    if (eventToDelete) {
+      setEventToEdit(eventToDelete);
+      setIsAddEventModalOpen(true);
+    }
   };
 
   const handleEventAdded = (newEvent: TimelineEventType) => {
@@ -158,7 +167,7 @@ export default function Timeline() {
 
   return (
     <>
-      <TimelineView
+      <TimelineUnifiedView
         mode="owner"
         filteredEvents={filteredEvents}
         totalEventCount={events.length}
@@ -167,12 +176,15 @@ export default function Timeline() {
         onAddEvent={handleAddEvent}
         onEventsAdded={handleEventsAdded}
         onEditEvent={handleEditEvent}
-        onDeleteEvent={handleDeleteEvent}
         onFilter={handleFilter}
         onClearFilters={handleClearFilters}
         hasActiveFilters={hasActiveFilters}
         currentFilters={filters}
         isMobile={isMobile}
+        ownerInfo={user ? {
+          name: `${user.first_name}`.trim(),
+          profilePicture: user.profile_picture,
+        } : undefined}
         isPublic={isPublic}
         onTogglePublic={handleTogglePublic}
         isUpdatingPublic={isUpdatingPublic}
@@ -186,13 +198,14 @@ export default function Timeline() {
         onEventAdded={handleEventAdded}
         eventToEdit={eventToEdit}
         onEventUpdated={handleEventUpdated}
+        onDeleteEvent={handleDeleteEvent}
         isPublic={isPublic}
       />
 
       {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
+        onClose={handleDeleteModalClose}
         onConfirm={handleDeleteConfirm}
         eventTitle={eventToDelete?.title || ''}
         isDeleting={isDeleting}

@@ -3,51 +3,26 @@
 import { useState } from 'react';
 import NextImage from 'next/image';
 import { TimelineEventType } from '@/types/api';
-import { SmallText, Caption, Button, Card, BodyText } from '@/components/ui';
+import { formatEventDate } from '@/utils/date-validation';
+import { SmallText, Caption, Card, BodyText } from '@/components/ui';
 import { PhotoModal } from './PhotoModal';
+import { EventActionButtons } from './EventActionButtons';
+import { PrivacyIcon } from './utils';
 
-interface TimelineEventProps {
+interface TimelineListEventProps {
   event: TimelineEventType;
   isLast?: boolean;
   onEditEvent?: (event: TimelineEventType) => void;
-  onDeleteEvent?: (event: TimelineEventType) => void;
   previousEvent?: TimelineEventType;
   nextEvent?: TimelineEventType;
   mode?: 'owner' | 'viewer';
 }
 
-export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent, nextEvent, mode = 'owner' }: TimelineEventProps) {
+export function TimelineListEvent({ event, onEditEvent, previousEvent, nextEvent, mode = 'owner' }: TimelineListEventProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [photoModalOpen, setPhotoModalOpen] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
 
-  const getPrivacyIcon = (privacyLevel: string) => {
-    const config: Record<string, { path: string; label: string }> = {
-      public: {
-        path: "M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9",
-        label: "Public"
-      },
-      friends: {
-        path: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
-        label: "Friends"
-      },
-      private: {
-        path: "M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z",
-        label: "Private"
-      }
-    };
-
-    const item = config[privacyLevel];
-    if (!item) return null;
-
-    return (
-      <div className="w-5 h-5 rounded-full bg-secondary-100 flex items-center justify-center" aria-label={item.label} role="img">
-        <svg className="w-3 h-3 text-secondary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.path} />
-        </svg>
-      </div>
-    );
-  };
 
   const getBackgroundCircleSize = (category: string) => {
     switch (category) {
@@ -88,42 +63,9 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
     }
   };
 
-  const formatEventDate = (dateString: string, isDayApproximate: boolean, isMonthApproximate: boolean) => {
-    const [year, month, day] = dateString.split('-').map(Number);
-    const date = new Date(year, month - 1, day);
-
-    const monthStr = isMonthApproximate ? null : date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
-    const dayStr = isDayApproximate ? null : date.getDate().toString();
-    const yearStr = year.toString();
-
-    if (monthStr && dayStr) {
-      return `${yearStr} ${monthStr} ${dayStr}`;
-    }
-
-    if (monthStr) {
-      return `${yearStr} ${monthStr}`;
-    }
-
-    return yearStr;
-  };
-
-  const handleEdit = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (onEditEvent) {
-      onEditEvent(event);
-    }
-  };
-
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (onDeleteEvent) {
-      onDeleteEvent(event);
-    }
-  };
-
   const handleCardClick = () => {
-    // Allow expansion if there's content to show OR if edit/delete is available
-    if (hasExpandableContent || onEditEvent || onDeleteEvent) {
+    // Allow expansion if there's content to show OR if edit is available
+    if (hasExpandableContent || onEditEvent) {
       setIsExpanded(!isExpanded);
     }
   };
@@ -208,10 +150,11 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
                     {formatEventDate(
                       event.event_date,
                       event.is_day_approximate,
-                      event.is_month_approximate
+                      event.is_month_approximate,
+                      true
                     )}
                   </Caption>
-                  {mode === 'owner' && getPrivacyIcon(event.privacy_level)}
+                  {mode === 'owner' && <PrivacyIcon privacyLevel={event.privacy_level} />}
                 </div>
 
                 <div className="flex items-center justify-between gap-2">
@@ -282,36 +225,12 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
                   )}
 
                   {/* Action buttons - shown when expanded */}
-                  {(onEditEvent || onDeleteEvent) && (
-                    <div className="flex gap-6 justify-center pt-4 mt-4 pb-4 border-t border-secondary-200">
-                      {onEditEvent && (
-                        <Button
-                          variant="secondary"
-                          onClick={handleEdit}
-                          className="flex items-center gap-1.5 px-3 py-1.5 text-sm"
-                          title="Edit Event"
-                        >
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                          </svg>
-                          Edit
-                        </Button>
-                      )}
-                      {onDeleteEvent && (
-                        <Button
-                          variant="secondary"
-                          onClick={handleDelete}
-                          className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 border-red-200"
-                          title="Delete Event"
-                        >
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                          Delete
-                        </Button>
-                      )}
-                    </div>
-                  )}
+                  <EventActionButtons
+                    event={event}
+                    onEditEvent={onEditEvent}
+                    size="sm"
+                    className="pb-4"
+                  />
                 </div>
               </div>
             </div>

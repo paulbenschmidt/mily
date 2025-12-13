@@ -47,3 +47,35 @@ export function processDateInputs(year: string, month: string, day: string) {
     isDayApproximate,
   };
 }
+
+/**
+ * Format an event date string for display
+ * @param dateString - Date in YYYY-MM-DD format
+ * @param isDayApproximate - Whether the day is approximate (will be hidden)
+ * @param isMonthApproximate - Whether the month is approximate (will be hidden)
+ * @param abbreviated - Whether to use abbreviated month names (e.g., "May" vs "May")
+ * @returns Formatted date string
+ */
+export function formatEventDate(
+  dateString: string,
+  isDayApproximate: boolean,
+  isMonthApproximate: boolean,
+  abbreviated: boolean = false
+): string {
+  const [year, month, day] = dateString.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
+
+  const monthStr = isMonthApproximate
+    ? null
+    : date.toLocaleDateString('en-US', { month: abbreviated ? 'short' : 'long' });
+  const dayStr = isDayApproximate ? null : date.getDate().toString();
+  const yearStr = year.toString();
+
+  if (monthStr && dayStr) {
+    return `${monthStr} ${dayStr}, ${yearStr}`;
+  }
+  if (monthStr) {
+    return `${monthStr} ${yearStr}`;
+  }
+  return yearStr;
+}
