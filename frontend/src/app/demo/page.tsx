@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { TimelineView } from '@/components/Timeline/TimelineView';
+import { TimelineUnifiedView } from '@/components/Timeline';
 import { TimelineEventType } from '@/types/api';
 import demoData from '@/data/demo-timeline.json';
 import Link from 'next/link';
@@ -59,7 +59,7 @@ export default function DemoPage() {
       </header>
 
       {/* Timeline View */}
-      <TimelineView
+      <TimelineUnifiedView
         mode="viewer"
         filteredEvents={filteredEvents}
         totalEventCount={events.length}

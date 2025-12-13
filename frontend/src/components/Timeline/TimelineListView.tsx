@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useCallback } from 'react';
 import { TimelineEventType } from '@/types/api';
-import { TimelineEvent } from './TimelineEvent';
+import { TimelineListEvent } from './TimelineListEvent';
 import { BodyText, Button } from '@/components/ui';
 
 interface TimelineListViewProps {
@@ -158,7 +158,7 @@ export function TimelineListView({
           data-event-id={event.id}
           ref={(el) => registerEventRef(event.id, el)}
         >
-          <TimelineEvent
+          <TimelineListEvent
             event={event}
             onEditEvent={mode === 'owner' ? onEditEvent : undefined}
             onDeleteEvent={mode === 'owner' ? onDeleteEvent : undefined}

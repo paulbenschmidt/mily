@@ -1,8 +1,7 @@
-export { TimelineView } from './TimelineView';
-export { UnifiedTimelineView } from './UnifiedTimelineView';
-export { TimelineListView } from './TimelineListView';
+export { TimelineUnifiedView } from './TimelineUnifiedView';
 export { TimelineHeader } from './TimelineHeader';
-export { StoryView } from './StoryView';
+export { TimelineListView } from './TimelineListView';
+export { TimelineStoryView } from './TimelineStoryView';
 export { ViewModeToggle } from './ViewModeToggle';
 export { PhotoCarousel } from './PhotoCarousel';
 export { EventActionButtons } from './EventActionButtons';

@@ -6,14 +6,14 @@ import { TimelineEventType } from '@/types/api';
 import { FilterOptions } from './FilterDropdown';
 import { TimelineHeader } from './TimelineHeader';
 import { TimelineListView } from './TimelineListView';
-import { StoryView } from './StoryView';
+import { TimelineStoryView } from './TimelineStoryView';
 import { GuidedOnboarding } from './GuidedOnboarding';
 import { BulkEventModal } from './BulkEventModal';
 import { useTimelineViewState, ViewMode } from '@/hooks/useTimelineViewState';
 import { SmallText, BodyText, Button, Spinner } from '@/components/ui';
 import { useAuth } from '@/contexts/AuthContext';
 
-interface UnifiedTimelineViewProps {
+interface TimelineUnifiedViewProps {
   mode: 'owner' | 'viewer';
   filteredEvents: TimelineEventType[];
   totalEventCount: number;
@@ -43,7 +43,7 @@ interface UnifiedTimelineViewProps {
  * Unified timeline view that supports both Timeline (list) and Story (paged) modes.
  * Uses a shared header with view toggle and mini-timeline scrubber.
  */
-export function UnifiedTimelineView({
+export function TimelineUnifiedView({
   mode,
   filteredEvents,
   totalEventCount,
@@ -64,10 +64,11 @@ export function UnifiedTimelineView({
   onTogglePublic,
   isUpdatingPublic,
   userHandle,
-}: UnifiedTimelineViewProps) {
+}: TimelineUnifiedViewProps) {
   const { user } = useAuth();
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
   const [selectedMilestones, setSelectedMilestones] = useState<string[]>([]);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   // Use the shared view state hook
@@ -212,6 +213,8 @@ export function UnifiedTimelineView({
         onTogglePublic={onTogglePublic}
         isUpdatingPublic={isUpdatingPublic}
         userHandle={userHandle}
+        isFilterOpen={isFilterOpen}
+        onFilterOpenChange={setIsFilterOpen}
       />
 
       {/* View Content */}
@@ -232,7 +235,7 @@ export function UnifiedTimelineView({
           <div className="h-8 md:h-16" />
         </main>
       ) : (
-        <StoryView
+        <TimelineStoryView
           events={filteredEvents}
           currentEventIndex={currentEventIndex}
           onNavigateOlder={navigateOlder}
@@ -243,11 +246,13 @@ export function UnifiedTimelineView({
           onDeleteEvent={onDeleteEvent}
           mode={mode}
           isMobile={isMobile}
+          hasActiveFilters={hasActiveFilters}
+          onOpenFilters={() => setIsFilterOpen(true)}
         />
       )}
 
       {/* Filter status indicator */}
-      {hasActiveFilters && onClearFilters && (
+      {hasActiveFilters && viewMode === 'timeline' && onClearFilters && (
         <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white px-4 py-2 rounded-full shadow-lg border border-secondary-200 flex items-center space-x-2 z-40">
           <SmallText>
             Showing {filteredEvents.length} of {totalEventCount} events

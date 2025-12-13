@@ -1,14 +1,16 @@
 - [x] The dot is very jumpy on the scrubber timeline
 - [x] switching between views causes glitchy lags
     - [x] Make sure scrubber doesn't jump when switching views
-- [ ] Fix dragging on the mobile for photos on Story view
-- [ ] Make story default?
-- [ ] It bugged out when having a filter and attempting to switch from Story to Timeline
-- [ ] Make sure that demo uses unified timeline, too
-- [ ] Clean up the styling on the Story view card
-- [ ] Should I standardize the date format across the two views?
+- [x] Fix scrolling/dragging on the mobile across the app
+- [x] It bugged out when having a filter and attempting to switch from Story to Timeline
+- [x] Make sure that demo uses unified timeline, too
+- [x] Clean up the styling on the Story view card
+    - [x] Make the card take up full height
+    - [x] Put the side arrow always on the middle of the sides
+- [x] Should I standardize the date format across the two views?
 - [x] Modify the story mode to derive the current event from the timeline scrubber position
 - [x] When switching from Story to Timeline, it might not grab the correct middle event
+- [nah] Make story default?
 
 ## In Progress
 - Move the "My Timeline" to the top banner for more space?
@@ -28,6 +30,10 @@
 - ENHANCE: Add note that says sharing is one-way
 
 ## Sprint Backlog
+- ENHANCE: Photo-based event suggestions to reduce onboarding friction
+    - From Alex Wasner: "It’d be interesting to have Mily ingest photos and posts from other social platforms or photo libraries and make suggestions for the user to label or write about certain events it uncovers. Could be a way to get more people on the platform and create some stickiness."
+    - Having it suggest events based on photos would be a great way to reduce the initial onboarding friction. I ran a few prompts through ChatGPT on a few potential paths for clustering/classifying photos... not sure how good it will be, but it'll probably be pretty fun to try and code it up.
+    - I might try with Google and Apple photos first, since FB/Instagram have stricter API access
 - ENHANCE: Allow ability for users to define their default event privacy (some folks might want it to default to friend)
 - Add info button to let users know they can update their handle
 - ESSENTIAL: Add a "Share back" popup when a user accepts a share

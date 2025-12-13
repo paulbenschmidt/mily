@@ -25,6 +25,8 @@ interface TimelineHeaderProps {
   onTogglePublic?: (isPublic: boolean) => void;
   isUpdatingPublic?: boolean;
   userHandle?: string;
+  isFilterOpen?: boolean;
+  onFilterOpenChange?: (isOpen: boolean) => void;
 }
 
 /**
@@ -48,8 +50,17 @@ export function TimelineHeader({
   onTogglePublic,
   isUpdatingPublic,
   userHandle,
+  isFilterOpen: controlledFilterOpen,
+  onFilterOpenChange,
 }: TimelineHeaderProps) {
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [internalFilterOpen, setInternalFilterOpen] = useState(false);
+
+  // Support both controlled and uncontrolled filter state
+  const isFilterOpen = controlledFilterOpen ?? internalFilterOpen;
+  const setIsFilterOpen = (open: boolean) => {
+    setInternalFilterOpen(open);
+    onFilterOpenChange?.(open);
+  };
   const [isShareDropdownOpen, setIsShareDropdownOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [hasMoved, setHasMoved] = useState(false);

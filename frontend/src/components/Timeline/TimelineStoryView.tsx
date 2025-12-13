@@ -2,12 +2,13 @@
 
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { TimelineEventType } from '@/types/api';
+import { formatEventDate } from '@/utils/date-validation';
 import { PhotoCarousel } from './PhotoCarousel';
 import { PhotoModal } from './PhotoModal';
 import { SmallText, BodyText, Caption } from '@/components/ui';
 import { EventActionButtons } from './EventActionButtons';
 
-interface StoryViewProps {
+interface TimelineStoryViewProps {
   events: TimelineEventType[];
   currentEventIndex: number;
   onNavigateOlder: () => void;
@@ -18,13 +19,15 @@ interface StoryViewProps {
   onDeleteEvent?: (event: TimelineEventType) => void;
   mode: 'owner' | 'viewer';
   isMobile: boolean;
+  hasActiveFilters?: boolean;
+  onOpenFilters?: () => void;
 }
 
 /**
  * Story view displays one event at a time with paged navigation.
  * Shows a single event with navigation controls.
  */
-export function StoryView({
+export function TimelineStoryView({
   events,
   currentEventIndex,
   onNavigateOlder,
@@ -35,7 +38,9 @@ export function StoryView({
   onDeleteEvent,
   mode,
   isMobile,
-}: StoryViewProps) {
+  hasActiveFilters,
+  onOpenFilters,
+}: TimelineStoryViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [photoModalOpen, setPhotoModalOpen] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
@@ -58,23 +63,6 @@ export function StoryView({
     setPhotoModalOpen(true);
   }, []);
 
-  // Format date helper
-  const formatEventDate = (dateString: string, isDayApproximate: boolean, isMonthApproximate: boolean) => {
-    const [year, month, day] = dateString.split('-').map(Number);
-    const date = new Date(year, month - 1, day);
-
-    const monthStr = isMonthApproximate ? null : date.toLocaleDateString('en-US', { month: 'long' });
-    const dayStr = isDayApproximate ? null : date.getDate().toString();
-    const yearStr = year.toString();
-
-    if (monthStr && dayStr) {
-      return `${monthStr} ${dayStr}, ${yearStr}`;
-    }
-    if (monthStr) {
-      return `${monthStr} ${yearStr}`;
-    }
-    return yearStr;
-  };
 
   // Privacy icon helper
   const getPrivacyLabel = (privacyLevel: string) => {
@@ -102,25 +90,27 @@ export function StoryView({
       role="tabpanel"
       aria-label="Story view"
     >
-      {/* Previous event button - left side */}
+      {/* Previous event button - fixed left side */}
       <button
         onClick={onNavigateOlder}
         disabled={!canNavigateOlder}
-        className={`absolute left-0 top-0 bottom-0 w-12 md:w-16 flex items-center justify-start pl-2 md:pl-4 z-10
-          transition-opacity focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500
+        className={`fixed left-0 md:left-4 lg:left-8 top-0 bottom-0 w-12 md:w-16 flex items-center justify-center z-30
+          transition-opacity focus:outline-none
           ${canNavigateOlder ? 'opacity-60 hover:opacity-100' : 'opacity-0 cursor-default'}`}
         aria-label="Go to older event"
       >
-        <div className="p-2 rounded-full bg-secondary-100 hover:bg-secondary-200 transition-colors">
-          <svg className="w-5 h-5 md:w-6 md:h-6 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="p-2 md:p-3 rounded-full bg-secondary-100 hover:bg-secondary-200 transition-colors">
+          <svg className="w-5 h-5 md:w-8 md:h-8 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </div>
       </button>
 
       {/* Event content - center */}
-      <div className="flex-1 px-14 md:px-20 py-6">
-        <div className="max-w-2xl mx-auto">
+      <div className="flex-1 px-14 md:px-20 py-6 h-[calc(100vh-180px)]">
+        <div className="max-w-2xl mx-auto h-full flex flex-col">
+          {/* Main content */}
+          <div className="flex-1">
           {/* Date */}
           <Caption className="font-serif font-semibold text-secondary-500 mb-2">
             {formatEventDate(
@@ -182,27 +172,39 @@ export function StoryView({
               className="mt-6"
             />
           )}
+          </div>
 
-          {/* Event counter */}
-          <div className="text-center mt-8 pt-4 border-t border-secondary-100">
+          {/* Event counter - pushed to bottom via flex */}
+          <div className="text-center pt-4 border-t border-secondary-100 mt-auto">
             <SmallText className="text-secondary-400">
               {currentEventIndex + 1} of {events.length}
+              {hasActiveFilters && (
+                <>
+                  {' • '}
+                  <button
+                    onClick={onOpenFilters}
+                    className="text-primary-500 hover:text-primary-600 underline"
+                  >
+                    Filtered
+                  </button>
+                </>
+              )}
             </SmallText>
           </div>
         </div>
       </div>
 
-      {/* Next event button - right side */}
+      {/* Next event button - fixed right side */}
       <button
         onClick={onNavigateNewer}
         disabled={!canNavigateNewer}
-        className={`absolute right-0 top-0 bottom-0 w-12 md:w-16 flex items-center justify-end pr-2 md:pr-4 z-10
-          transition-opacity focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500
+        className={`fixed right-0 md:right-4 lg:right-8 top-0 bottom-0 w-12 md:w-16 flex items-center justify-center z-30
+          transition-opacity focus:outline-none
           ${canNavigateNewer ? 'opacity-60 hover:opacity-100' : 'opacity-0 cursor-default'}`}
         aria-label="Go to newer event"
       >
-        <div className="p-2 rounded-full bg-secondary-100 hover:bg-secondary-200 transition-colors">
-          <svg className="w-5 h-5 md:w-6 md:h-6 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="p-2 md:p-3 rounded-full bg-secondary-100 hover:bg-secondary-200 transition-colors">
+          <svg className="w-5 h-5 md:w-8 md:h-8 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </div>

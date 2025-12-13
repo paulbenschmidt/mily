@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { authApiClient } from '@/utils/auth-api';
 import { TimelineEventType } from '@/types/api';
-import { AddEventModal, DeleteConfirmationModal, UnifiedTimelineView } from '@/components/Timeline';
+import { AddEventModal, DeleteConfirmationModal, TimelineUnifiedView } from '@/components/Timeline';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTimelineFilters } from '@/hooks/useTimelineFilters';
 
@@ -167,7 +167,7 @@ export default function Timeline() {
 
   return (
     <>
-      <UnifiedTimelineView
+      <TimelineUnifiedView
         mode="owner"
         filteredEvents={filteredEvents}
         totalEventCount={events.length}

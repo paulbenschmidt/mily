@@ -3,11 +3,12 @@
 import { useState } from 'react';
 import NextImage from 'next/image';
 import { TimelineEventType } from '@/types/api';
+import { formatEventDate } from '@/utils/date-validation';
 import { SmallText, Caption, Card, BodyText } from '@/components/ui';
 import { PhotoModal } from './PhotoModal';
 import { EventActionButtons } from './EventActionButtons';
 
-interface TimelineEventProps {
+interface TimelineListEventProps {
   event: TimelineEventType;
   isLast?: boolean;
   onEditEvent?: (event: TimelineEventType) => void;
@@ -17,7 +18,7 @@ interface TimelineEventProps {
   mode?: 'owner' | 'viewer';
 }
 
-export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent, nextEvent, mode = 'owner' }: TimelineEventProps) {
+export function TimelineListEvent({ event, onEditEvent, onDeleteEvent, previousEvent, nextEvent, mode = 'owner' }: TimelineListEventProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [photoModalOpen, setPhotoModalOpen] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
@@ -86,39 +87,6 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
         return '[box-shadow:0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)]'; // Lighter shadow
       default:
         return '[box-shadow:0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)]';
-    }
-  };
-
-  const formatEventDate = (dateString: string, isDayApproximate: boolean, isMonthApproximate: boolean) => {
-    const [year, month, day] = dateString.split('-').map(Number);
-    const date = new Date(year, month - 1, day);
-
-    const monthStr = isMonthApproximate ? null : date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
-    const dayStr = isDayApproximate ? null : date.getDate().toString();
-    const yearStr = year.toString();
-
-    if (monthStr && dayStr) {
-      return `${yearStr} ${monthStr} ${dayStr}`;
-    }
-
-    if (monthStr) {
-      return `${yearStr} ${monthStr}`;
-    }
-
-    return yearStr;
-  };
-
-  const handleEdit = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (onEditEvent) {
-      onEditEvent(event);
-    }
-  };
-
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (onDeleteEvent) {
-      onDeleteEvent(event);
     }
   };
 
@@ -209,7 +177,8 @@ export function TimelineEvent({ event, onEditEvent, onDeleteEvent, previousEvent
                     {formatEventDate(
                       event.event_date,
                       event.is_day_approximate,
-                      event.is_month_approximate
+                      event.is_month_approximate,
+                      true
                     )}
                   </Caption>
                   {mode === 'owner' && getPrivacyIcon(event.privacy_level)}

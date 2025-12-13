@@ -12,7 +12,7 @@ interface EventActionButtonsProps {
 
 /**
  * Shared Edit button for timeline events.
- * Used by both TimelineEvent and StoryView.
+ * Used by both TimelineListEvent and StoryView.
  */
 export function EventActionButtons({
   event,
