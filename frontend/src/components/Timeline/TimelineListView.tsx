@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect, useCallback, useState } from 'react';
 import { TimelineEventType } from '@/types/api';
 import { TimelineListEvent } from './TimelineListEvent';
 import { BodyText, Button } from '@/components/ui';
@@ -13,7 +13,7 @@ interface TimelineListViewProps {
   onClearFilters?: () => void;
   hasActiveFilters: boolean;
   mode: 'owner' | 'viewer';
-  initialScrollToEventId?: string | null;
+  initialEventIdToScrollTo?: string | null;
 }
 
 /**
@@ -28,19 +28,18 @@ export function TimelineListView({
   onClearFilters,
   hasActiveFilters,
   mode,
-  initialScrollToEventId,
+  initialEventIdToScrollTo,
 }: TimelineListViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const eventRefs = useRef<Map<string, HTMLDivElement>>(new Map());
-  const isInitialScrollPending = useRef(!!initialScrollToEventId);
+  const [isReady, setIsReady] = useState(!initialEventIdToScrollTo);
 
   // Pixels from top/bottom of page to trigger first/last event selection
   const SCROLL_BOUNDARY_THRESHOLD = 20;
 
   // Track which event is currently visible in the center of the viewport
   const handleIntersection = useCallback(() => {
-    // Skip if we're waiting for initial scroll to complete
-    if (isInitialScrollPending.current) return;
+    if (!isReady) return;
 
     // Override at page boundaries
     const scrollTop = window.scrollY;
@@ -81,22 +80,21 @@ export function TimelineListView({
       const middleIndex = Math.floor(sortedVisible.length / 2);
       onCurrentEventChange(sortedVisible[middleIndex]);
     }
-  }, [onCurrentEventChange, events]);
+  }, [isReady, onCurrentEventChange, events]);
 
   // Scroll to initial event on mount (when switching from Story mode)
   useEffect(() => {
-    if (initialScrollToEventId) {
+    if (initialEventIdToScrollTo) {
       const timer = setTimeout(() => {
-        const element = document.querySelector(`[data-event-id="${initialScrollToEventId}"]`);
+        const element = document.querySelector(`[data-event-id="${initialEventIdToScrollTo}"]`);
         if (element) {
           element.scrollIntoView({ behavior: 'instant', block: 'center' });
         }
-        // Allow intersection updates after scroll attempt
-        isInitialScrollPending.current = false;
+        setIsReady(true);
       }, 0);
       return () => clearTimeout(timer);
     } else {
-      isInitialScrollPending.current = false;
+      setIsReady(true);
     }
   }, []); // Only run on mount
 
@@ -147,7 +145,7 @@ export function TimelineListView({
   return (
     <div
       ref={containerRef}
-      className="space-y-0"
+      className={`space-y-0 transition-opacity duration-150 ${isReady ? 'opacity-100' : 'opacity-0'}`}
       id="timeline-view"
       role="tabpanel"
       aria-label="Timeline view"

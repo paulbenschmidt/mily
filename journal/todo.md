@@ -10,10 +10,14 @@
 - [x] Modify the story mode to derive the current event from the timeline scrubber position
 - [x] When switching from Story to Timeline, it might not grab the correct middle event
 - [x] Fix scrolling/dragging on the mobile across the app
+- [ ] When there are no events to display due to filter on the story view, it shows blank page
+    - It should have "No events match your filters Clear Filters" like the timeline view
+    - The Share/Filter/Toggle buttons should still be visible
+
 - [nah] Make story default?
-- [ ] On the demo, if the draggable scrubber can't sit on the event, it defaults to the first event. Fix this.
 
 ## In Progress
+- BUG: On mobile, when dropping down sharing/filter, it covers the button; make it so that the dropdown is below the button
 -----
 - ENHANCE: Create simple Notifications page so that users can view/deny/add-to-timeline event shares
 - ENHANCE: Allow users to share individual events/tagging people in events/sharing events

@@ -1,6 +1,6 @@
 [
   {
-    "id": "demo-1",
+    "id": "1",
     "user": "demo-user",
     "title": "Became a parent",
     "description": "Emma arrived at 3:42am. Nothing could have prepared me for the love I felt for her.",
@@ -16,28 +16,12 @@
     "updated_at": "2016-03-22T03:42:00Z"
   },
   {
-    "id": "demo-2",
-    "user": "demo-user",
-    "title": "Grandma passed away",
-    "description": "Mamaw Eleanor passed away peacefully in her sleep. She was 92 years old. She taught me how to make biscuits from scratch, and I think of her every time I make them. I wonder what life was like for her growing up.",
-    "notes": "",
-    "event_date": "2021-09-08",
-    "is_day_approximate": false,
-    "is_month_approximate": false,
-    "category": "major",
-    "privacy_level": "private",
-    "photos": [],
-    "tags": ["family", "parenting", "milestone"],
-    "created_at": "2021-09-08T08:00:00Z",
-    "updated_at": "2021-09-08T08:00:00Z"
-  },
-  {
-    "id": "demo-3",
+    "id": "2",
     "user": "demo-user",
     "title": "Ran first marathon",
     "description": "Completed the New York Marathon in 4:12. Never thought I'd be a runner, but here we are. Training for this taught me more about persistence than anything else in my life. The last 6 miles were pure mental strength.",
     "notes": "",
-    "event_date": "2019-10-13",
+    "event_date": "2021-10-13",
     "is_day_approximate": false,
     "is_month_approximate": false,
     "category": "memory",
@@ -48,12 +32,12 @@
     "updated_at": "2019-10-13T14:00:00Z"
   },
   {
-    "id": "",
-    "user": "",
+    "id": "3",
+    "user": "demo-user",
     "title": "Moved to New York",
     "description": "From the small town to the big city, we were ready for a new adventure. The drive from Dayton, OH, to New York City was a blur of excitement and nerves.",
     "notes": "",
-    "event_date": "2016-03-22",
+    "event_date": "2017-03-22",
     "is_day_approximate": false,
     "is_month_approximate": false,
     "category": "minor",
@@ -64,7 +48,7 @@
     "updated_at": "2025-06-15T10:00:00Z"
   },
   {
-    "id": "demo-6",
+    "id": "4",
     "user": "demo-user",
     "title": "Bought first house",
     "description": "Signed the papers on a little craftsman in the suburbs. It needs work, but it's ours. The American dream feels different than I imagined, but standing in our own living room for the first time was magical.",
@@ -80,7 +64,7 @@
     "updated_at": "2010-11-30T14:00:00Z"
   },
   {
-    "id": "demo-5",
+    "id": "5",
     "user": "demo-user",
     "title": "Got married",
     "description": "Married my best friend in a small ceremony surrounded by the people we love most. The rain cleared just in time for the outdoor ceremony. It felt like everything aligned perfectly.",
@@ -96,7 +80,7 @@
     "updated_at": "2012-07-14T16:00:00Z"
   },
   {
-    "id": "demo-7",
+    "id": "6",
     "user": "demo-user",
     "title": "Graduated from college",
     "description": "Finished my degree in Business Administration. Four years of late nights and early mornings finally paid off.",
@@ -112,7 +96,7 @@
     "updated_at": "2006-05-20T14:00:00Z"
   },
   {
-    "id": "demo-8",
+    "id": "7",
     "user": "demo-user",
     "title": "Summer in Europe",
     "description": "Backpacked through 8 countries with my high school best friend. Best summer of my life. We got lost in Prague, missed our train in Paris, and ate the best pasta in a tiny Roman alley. Pure freedom.",
@@ -128,7 +112,7 @@
     "updated_at": "2004-07-15T12:00:00Z"
   },
   {
-    "id": "demo-9",
+    "id": "8",
     "user": "demo-user",
     "title": "High school graduation",
     "description": "Graduated with honors. Voted 'Most Likely to Succeed' by my classmates. I had no idea what I wanted to do with my life, but I was ready to figure it out.",
@@ -144,7 +128,23 @@
     "updated_at": "2002-06-08T15:00:00Z"
   },
   {
-    "id": "demo-10",
+    "id": "9",
+    "user": "demo-user",
+    "title": "Grandma passed away",
+    "description": "Mamaw Eleanor passed away peacefully in her sleep. She was 92 years old. She taught me how to make biscuits from scratch, and I think of her every time I make them. I wonder what life was like for her growing up.",
+    "notes": "",
+    "event_date": "1998-09-08",
+    "is_day_approximate": false,
+    "is_month_approximate": false,
+    "category": "major",
+    "privacy_level": "private",
+    "photos": [],
+    "tags": ["family", "parenting", "milestone"],
+    "created_at": "2021-09-08T08:00:00Z",
+    "updated_at": "2021-09-08T08:00:00Z"
+  },
+  {
+    "id": "10",
     "user": "demo-user",
     "title": "Born",
     "description": "The beginning of my journey.",

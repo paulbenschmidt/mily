@@ -56,7 +56,7 @@ export function TimelineHeader({
   isFilterOpen: controlledFilterOpen,
   onFilterOpenChange,
 }: TimelineHeaderProps) {
-  const [internalFilterOpen, setInternalFilterOpen] = useState(false);
+  const [internalFilterOpen, setInternalFilterOpen] = useState(false); // Allow the component to control its own state
 
   // Support both controlled and uncontrolled filter state
   const isFilterOpen = controlledFilterOpen ?? internalFilterOpen;
@@ -216,7 +216,7 @@ export function TimelineHeader({
       <div className="max-w-4xl mx-auto">
         {/* Top row: Title, Toggle, Actions */}
         <div className="relative flex items-center justify-between gap-2 md:gap-4">
-          {/* Left: Avatar and Name */}
+          {/* Left: Avatar */}
           <div className="flex items-center gap-3">
             {ownerInfo?.profilePicture ? (
               <img

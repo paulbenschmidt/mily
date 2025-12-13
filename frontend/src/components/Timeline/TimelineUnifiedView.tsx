@@ -112,7 +112,7 @@ export function TimelineUnifiedView({
       // StoryView handles scroll-to-top on mount
       setViewMode(newMode);
     } else {
-      // Timeline mode handles its own scroll via initialScrollToEventId prop
+      // Timeline mode handles its own scroll via initialEventIdToScrollTo prop
       setViewMode(newMode);
     }
   }, [viewMode, setViewMode]);
@@ -224,7 +224,7 @@ export function TimelineUnifiedView({
             onClearFilters={onClearFilters}
             hasActiveFilters={hasActiveFilters}
             mode={mode}
-            initialScrollToEventId={currentEventId}
+            initialEventIdToScrollTo={currentEventId}
           />
 
           {/* Bottom spacing */}
