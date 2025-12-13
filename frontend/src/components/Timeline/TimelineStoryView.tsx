@@ -7,6 +7,7 @@ import { PhotoCarousel } from './PhotoCarousel';
 import { PhotoModal } from './PhotoModal';
 import { SmallText, BodyText, Caption } from '@/components/ui';
 import { EventActionButtons } from './EventActionButtons';
+import { PrivacyIcon } from './utils';
 
 interface TimelineStoryViewProps {
   events: TimelineEventType[];
@@ -107,28 +108,31 @@ export function TimelineStoryView({
         <div className="max-w-2xl mx-auto h-full flex flex-col">
           {/* Main content */}
           <div className="flex-1">
-          {/* Date */}
-          <Caption className="font-serif font-semibold text-secondary-500 mb-2">
-            {formatEventDate(
-              currentEvent.event_date,
-              currentEvent.is_day_approximate,
-              currentEvent.is_month_approximate
+          {/* Date and privacy */}
+          <div className="flex items-center justify-between mb-2">
+            <Caption className="font-serif font-semibold text-secondary-500">
+              {formatEventDate(
+                currentEvent.event_date,
+                currentEvent.is_day_approximate,
+                currentEvent.is_month_approximate
+              )}
+            </Caption>
+            {mode === 'owner' && (
+              <PrivacyIcon privacyLevel={currentEvent.privacy_level} />
             )}
-          </Caption>
+          </div>
 
           {/* Title */}
           <h2 className="text-2xl md:text-3xl font-semibold text-secondary-900 mb-4">
             {currentEvent.title}
           </h2>
 
-          {/* Privacy indicator (owner only) */}
-          {mode === 'owner' && (
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-xs text-secondary-500 bg-secondary-100 px-2 py-1 rounded-full">
-                {getPrivacyLabel(currentEvent.privacy_level)}
-              </span>
-            </div>
-          )}
+          {/* Event category */}
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-sm text-secondary-600 bg-secondary-100 px-3 py-1 rounded-full capitalize">
+              {currentEvent.category}
+            </span>
+          </div>
 
           {/* Photo carousel */}
           {currentEvent.event_photos && currentEvent.event_photos.length > 0 && (
