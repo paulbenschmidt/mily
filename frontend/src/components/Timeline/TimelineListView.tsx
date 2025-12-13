@@ -32,12 +32,16 @@ export function TimelineListView({
 }: TimelineListViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const eventRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const isInitialScrollPending = useRef(!!initialScrollToEventId);
 
   // Pixels from top/bottom of page to trigger first/last event selection
   const SCROLL_BOUNDARY_THRESHOLD = 20;
 
   // Track which event is currently visible in the center of the viewport
   const handleIntersection = useCallback(() => {
+    // Skip if we're waiting for initial scroll to complete
+    if (isInitialScrollPending.current) return;
+
     // Override at page boundaries
     const scrollTop = window.scrollY;
     const scrollHeight = document.documentElement.scrollHeight;
@@ -87,8 +91,12 @@ export function TimelineListView({
         if (element) {
           element.scrollIntoView({ behavior: 'instant', block: 'center' });
         }
+        // Allow intersection updates after scroll attempt
+        isInitialScrollPending.current = false;
       }, 0);
       return () => clearTimeout(timer);
+    } else {
+      isInitialScrollPending.current = false;
     }
   }, []); // Only run on mount
 

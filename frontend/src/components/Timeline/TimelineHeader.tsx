@@ -96,7 +96,7 @@ export function TimelineHeader({
     if (!scrubberRef.current) return null;
     const rect = scrubberRef.current.getBoundingClientRect();
     const clickX = clientX - rect.left;
-    const clickPercentage = (clickX / rect.width) * 100;
+    const clickPercentage = Math.max(0, Math.min(100, (clickX / rect.width) * 100));
     // Invert: clicking left (0% of width) should target 100% progress (oldest)
     return 100 - clickPercentage;
   };

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { useSearchParams, usePathname } from 'next/navigation';
 import { TimelineEventType } from '@/types/api';
 
 export type ViewMode = 'timeline' | 'story';
@@ -32,23 +32,27 @@ export function useTimelineViewState({
   events,
   initialEventId,
 }: UseTimelineViewStateOptions): UseTimelineViewStateReturn {
-  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Parse initial values from URL
-  const urlViewMode = searchParams.get('view') as ViewMode | null;
-  const urlEventId = searchParams.get('event');
+  // Parse initial values from URL (only on first render)
+  // Use refs to capture values once to prevent re-reading URL on re-renders
+  const initializedRef = useRef(false);
+  const initialUrlViewMode = useRef<ViewMode | null>(null);
+  const initialUrlEventId = useRef<string | null>(null);
+
+  if (!initializedRef.current) {
+    initialUrlViewMode.current = searchParams.get('view') as ViewMode | null;
+    initialUrlEventId.current = searchParams.get('event');
+    initializedRef.current = true;
+  }
 
   const [viewMode, setViewModeState] = useState<ViewMode>(
-    urlViewMode === 'story' ? 'story' : 'timeline'
+    initialUrlViewMode.current === 'story' ? 'story' : 'timeline'
   );
   const [currentEventId, setCurrentEventIdState] = useState<string | null>(
-    urlEventId || initialEventId || (events.length > 0 ? events[0].id : null)
+    initialUrlEventId.current || initialEventId || (events.length > 0 ? events[0].id : null)
   );
-
-  // Track if we should update URL (avoid loops)
-  const isUpdatingUrl = useRef(false);
 
   // Calculate current event index
   const currentEventIndex = events.findIndex(e => e.id === currentEventId);
@@ -62,9 +66,8 @@ export function useTimelineViewState({
 
   // Update URL when state changes
   const updateUrl = useCallback((mode: ViewMode, eventId: string | null) => {
-    if (isUpdatingUrl.current) return;
-
-    const params = new URLSearchParams(searchParams.toString());
+    // Use window.location.search to avoid searchParams dependency triggering re-renders
+    const params = new URLSearchParams(window.location.search);
 
     if (mode === 'story') {
       params.set('view', 'story');
@@ -79,8 +82,9 @@ export function useTimelineViewState({
     }
 
     const newUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
-    router.replace(newUrl, { scroll: false });
-  }, [pathname, router, searchParams]);
+    // Use native history API to avoid Next.js router re-render flash
+    window.history.replaceState(null, '', newUrl);
+  }, [pathname]);
 
   // Set view mode and update URL
   const setViewMode = useCallback((mode: ViewMode) => {
@@ -122,24 +126,27 @@ export function useTimelineViewState({
   }, [canNavigateNewer, events, validIndex, setCurrentEventId]);
 
   // Sync state from URL changes (e.g., browser back/forward)
+  // Use popstate event instead of searchParams to only react to actual browser navigation
   useEffect(() => {
-    const newViewMode = searchParams.get('view') as ViewMode | null;
-    const newEventId = searchParams.get('event');
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const newViewMode = params.get('view') as ViewMode | null;
+      const newEventId = params.get('event');
 
-    isUpdatingUrl.current = true;
+      if (newViewMode === 'story' && viewMode !== 'story') {
+        setViewModeState('story');
+      } else if (newViewMode !== 'story' && viewMode === 'story') {
+        setViewModeState('timeline');
+      }
 
-    if (newViewMode === 'story' && viewMode !== 'story') {
-      setViewModeState('story');
-    } else if (newViewMode !== 'story' && viewMode === 'story') {
-      setViewModeState('timeline');
-    }
+      if (newEventId && newEventId !== currentEventId && events.find(e => e.id === newEventId)) {
+        setCurrentEventIdState(newEventId);
+      }
+    };
 
-    if (newEventId && newEventId !== currentEventId) {
-      setCurrentEventIdState(newEventId);
-    }
-
-    isUpdatingUrl.current = false;
-  }, [searchParams, viewMode, currentEventId]);
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [viewMode, currentEventId, events]);
 
   // Update currentEventId when events change (e.g., after filtering)
   useEffect(() => {
