@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { TimelineUnifiedView } from '@/components/Timeline';
 import { TimelineEventType } from '@/types/api';
 import demoData from '@/data/demo-timeline.json';
@@ -9,7 +9,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import { useTimelineFilters } from '@/hooks/useTimelineFilters';
 import { WelcomeModal } from '@/components/WelcomeModal';
 
-export default function DemoPage() {
+function DemoPageContent() {
   const isMobile = useIsMobile();
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
@@ -101,5 +101,15 @@ export default function DemoPage() {
         </div>
       </div>
     </>
+  );
+}
+
+// In Next.js 13+, `useSearchParams` should be used inside a `Suspense` boundary when the page is static (i.e. does
+// not have dynamic routing based on cookies/params/etc.)
+export default function DemoPage() {
+  return (
+    <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}>
+      <DemoPageContent />
+    </Suspense>
   );
 }
