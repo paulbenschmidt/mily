@@ -69,9 +69,8 @@ function DemoPageContent() {
         onClearFilters={handleClearFilters}
         hasActiveFilters={hasActiveFilters}
         currentFilters={filters}
-        title="Sample Timeline"
         ownerInfo={{
-          name: "Sample Timeline",
+          name: "Sarah Johnson",
           profilePicture: undefined,
         }}
         isMobile={isMobile}

@@ -8,7 +8,7 @@ import { TimelineHeader } from './TimelineHeader';
 import { TimelineListView } from './TimelineListView';
 import { TimelineStoryView } from './TimelineStoryView';
 import { GuidedOnboarding } from './GuidedOnboarding';
-import { BulkEventModal } from './BulkEventModal';
+import { OnboardingBulkEventModal } from './OnboardingBulkEventModal';
 import { useTimelineViewState, ViewMode } from '@/hooks/useTimelineViewState';
 import { SmallText, BodyText, Button, Spinner } from '@/components/ui';
 import { useAuth } from '@/contexts/AuthContext';
@@ -27,7 +27,6 @@ interface TimelineUnifiedViewProps {
   onClearFilters?: () => void;
   hasActiveFilters: boolean;
   currentFilters: FilterOptions;
-  title?: string;
   ownerInfo?: {
     name: string;
     profilePicture?: string;
@@ -57,7 +56,6 @@ export function TimelineUnifiedView({
   onClearFilters,
   hasActiveFilters,
   currentFilters,
-  title,
   ownerInfo,
   isMobile,
   isPublic,
@@ -66,8 +64,8 @@ export function TimelineUnifiedView({
   userHandle,
 }: TimelineUnifiedViewProps) {
   const { user } = useAuth();
-  const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
-  const [selectedMilestones, setSelectedMilestones] = useState<string[]>([]);
+  const [isOnboardingBulkModalOpen, setIsOnboardingBulkModalOpen] = useState(false);
+  const [onboardingSelectedMilestones, setOnboardingSelectedMilestones] = useState<string[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
@@ -86,8 +84,8 @@ export function TimelineUnifiedView({
 
   // Handler for guided onboarding
   const handleGuidedContinue = (milestones: string[]) => {
-    setSelectedMilestones(milestones);
-    setIsBulkModalOpen(true);
+    setOnboardingSelectedMilestones(milestones);
+    setIsOnboardingBulkModalOpen(true);
   };
 
   const handleStartFromScratch = () => {
@@ -96,12 +94,12 @@ export function TimelineUnifiedView({
     }
   };
 
-  const handleBulkEventsAdded = (events: TimelineEventType[]) => {
+  const handleOnboardingBulkEventsAdded = (events: TimelineEventType[]) => {
     if (onEventsAdded) {
       onEventsAdded(events);
     }
-    setIsBulkModalOpen(false);
-    setSelectedMilestones([]);
+    setIsOnboardingBulkModalOpen(false);
+    setOnboardingSelectedMilestones([]);
     setShowSuccessMessage(true);
     setTimeout(() => setShowSuccessMessage(false), 5000);
   };
@@ -172,11 +170,11 @@ export function TimelineUnifiedView({
               onStartFromScratch={handleStartFromScratch}
             />
           </main>
-          <BulkEventModal
-            isOpen={isBulkModalOpen}
-            onClose={() => setIsBulkModalOpen(false)}
-            onEventsAdded={handleBulkEventsAdded}
-            selectedMilestones={selectedMilestones}
+          <OnboardingBulkEventModal
+            isOpen={isOnboardingBulkModalOpen}
+            onClose={() => setIsOnboardingBulkModalOpen(false)}
+            onEventsAdded={handleOnboardingBulkEventsAdded}
+            selectedMilestones={onboardingSelectedMilestones}
           />
         </div>
       );
@@ -261,7 +259,7 @@ export function TimelineUnifiedView({
         </div>
       )}
 
-      {/* Success message after bulk add */}
+      {/* Success message after onboarding bulk add */}
       {showSuccessMessage && (
         <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-primary-600 text-white px-6 py-3 rounded-lg shadow-lg z-40">
           <SmallText className="text-white">
@@ -283,12 +281,12 @@ export function TimelineUnifiedView({
         </button>
       )}
 
-      {/* Bulk Event Modal */}
-      <BulkEventModal
-        isOpen={isBulkModalOpen}
-        onClose={() => setIsBulkModalOpen(false)}
-        onEventsAdded={handleBulkEventsAdded}
-        selectedMilestones={selectedMilestones}
+      {/* Onboarding Bulk Event Modal */}
+      <OnboardingBulkEventModal
+        isOpen={isOnboardingBulkModalOpen}
+        onClose={() => setIsOnboardingBulkModalOpen(false)}
+        onEventsAdded={handleOnboardingBulkEventsAdded}
+        selectedMilestones={onboardingSelectedMilestones}
       />
     </div>
   );

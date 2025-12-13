@@ -11,42 +11,33 @@
 - [x] When switching from Story to Timeline, it might not grab the correct middle event
 - [x] Fix scrolling/dragging on the mobile across the app
 - [nah] Make story default?
+- [ ] On the demo, if the draggable scrubber can't sit on the event, it defaults to the first event. Fix this.
 
 ## In Progress
 -----
 - ENHANCE: Create simple Notifications page so that users can view/deny/add-to-timeline event shares
-- ENHANCE: Allow users to share individual events?
+- ENHANCE: Allow users to share individual events/tagging people in events/sharing events
     - Add Share button underneath event to send to a person
+    - When tagged, send a notification to the user on whether they want to view/deny/add the event to their timeline, too
+    - Reach out to Jonathon Roy/Rusty for feedback on this feature once it's implemented
 -----
 - ENHANCE: Allow users to change their profile picture/avatar
-- Move the "My Timeline" to the top banner for more space?
-- cache the events in the app so that each page visit doesn't re-grab all events
-- BUG: Fix HEIC photo upload (it failed on Rusty's laptop upload)
-- ENHANCE: Update Google description text to be less clunky (search for it on Google with "timeline mily" and you'll see it)
-- BUG: Get rid of accidental text highlighting when using the scrubber to navigate the timeline
-- CLEANUP: Remove all "alert" popups and add better error handling (maybe toast notifications?)
-- BUG: Make reordering photos more reliable
-- BUG: Disable scrolling on PhotoModal (I think it's only possible when 1 photo is selected)
-- ENHANCE: Move AddEvent button to lower right corner
-- ENHANCE: Standardize button styling (make the notification icon button look like the share/filter buttons)
-
-- ENHANCE: Add note that says sharing is one-way
+- ENHANCE: Organize the top banner better
+    - Move the "My Timeline" to the top banner for more space?
+    - Include name and profile picture in the top banner?
 
 ## Sprint Backlog
-- ENHANCE: Photo-based event suggestions to reduce onboarding friction
-    - From Alex Wasner: "It’d be interesting to have Mily ingest photos and posts from other social platforms or photo libraries and make suggestions for the user to label or write about certain events it uncovers. Could be a way to get more people on the platform and create some stickiness."
-    - Having it suggest events based on photos would be a great way to reduce the initial onboarding friction. I ran a few prompts through ChatGPT on a few potential paths for clustering/classifying photos... not sure how good it will be, but it'll probably be pretty fun to try and code it up.
-    - I might try with Google and Apple photos first, since FB/Instagram have stricter API access
-- ENHANCE: Allow ability for users to define their default event privacy (some folks might want it to default to friend)
+- BUG: Fix HEIC photo upload (it failed on Rusty's laptop upload)
+- ENHANCE: Update Google description text to be less clunky (search for it on Google with "timeline mily" and you'll see it)
+- CLEANUP: Remove all "alert" popups and add better error handling (maybe toast notifications?)
+- ENHANCE: Add note that says sharing is one-way
+- ENHANCE: Standardize button styling (make the notification icon button look like the share/filter buttons)
+- ENHANCE: Cache the events in the app so that each page visit doesn't re-grab all events
 - Add info button to let users know they can update their handle
 - ESSENTIAL: Add a "Share back" popup when a user accepts a share
 - ESSENTIAL: Go through NeonDB production checklist email
     - Implement Data Encryption at Rest to protect database in case of breach
     - Database backup
-- FEATURE: Create "View" dropdown. Options include:
-    - Story (photo) view (horizontal) vs timeline view (vertical) - feedback from Rusty
-    - Preview as Friend (without private events, and privacy icons, and personal notes)-- should this be a separate page?
-    - Expand/collapse all cards
 - ENHANCE: Set up AWS spend monitoring
 - ENHANCE: Go through AWS welcome guides
 - ENHANCE: Update landing page timeline example to have larger font size (maybe shorten descriptions, too)
@@ -57,14 +48,17 @@
     - Better error handling for password reset. Does this still work? (It failed when Andy Hickey tried to reset his)
 - TECHDEBT: Go through SemRush emails
 - TECHDEBT: Go through CloudFlare email
-- FEATURE: Tagging people in events
-    - When tagged, send a notification to the user on whether they want to add the event to their timeline, too
-    - Reach out to Jonathon Roy/Rusty for feedback on this feature once it's implemented
 
 ## To Organize
 
 
 ## Backlog
+- FEATURE: Enable expand/collapse all cards on Timeline view?
+- ENHANCE: Allow ability for users to define their default event privacy (some folks might want it to default to friend)
+- ENHANCE: Photo-based event suggestions to reduce onboarding friction
+    - From Alex Wasner: "It’d be interesting to have Mily ingest photos and posts from other social platforms or photo libraries and make suggestions for the user to label or write about certain events it uncovers. Could be a way to get more people on the platform and create some stickiness."
+    - Having it suggest events based on photos would be a great way to reduce the initial onboarding friction. I ran a few prompts through ChatGPT on a few potential paths for clustering/classifying photos... not sure how good it will be, but it'll probably be pretty fun to try and code it up.
+    - I might try with Google and Apple photos first, since FB/Instagram have stricter API access
 - ENHANCE: Add pagination for notifications
     - to avoid returning all notifications at once
     - to allow for infinite scroll (using cursor-based pagination)

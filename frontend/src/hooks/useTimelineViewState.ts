@@ -17,14 +17,13 @@ interface UseTimelineViewStateReturn {
   currentEventIndex: number;
   setViewMode: (mode: ViewMode) => void;
   setCurrentEventId: (id: string | null) => void;
-  setCurrentEventIndex: (index: number) => void;
   navigateOlder: () => void;
   navigateNewer: () => void;
   canNavigateOlder: boolean;
   canNavigateNewer: boolean;
 }
 
-/**
+/*
  * Hook to manage shared timeline view state between Timeline and Story modes.
  * Syncs view mode and current event with URL parameters.
  */
@@ -100,13 +99,6 @@ export function useTimelineViewState({
     }
   }, [viewMode, updateUrl]);
 
-  // Set current event by index
-  const setCurrentEventIndex = useCallback((index: number) => {
-    if (index >= 0 && index < events.length) {
-      setCurrentEventId(events[index].id);
-    }
-  }, [events, setCurrentEventId]);
-
   // Navigate to older event (higher index, further back in time)
   // Used by StoryView arrow buttons
   const navigateOlder = useCallback(() => {
@@ -125,35 +117,33 @@ export function useTimelineViewState({
     }
   }, [canNavigateNewer, events, validIndex, setCurrentEventId]);
 
-  // Sync state from URL changes (e.g., browser back/forward)
-  // Use popstate event instead of searchParams to only react to actual browser navigation
+  // Sync state from URL changes
   useEffect(() => {
-    const handlePopState = () => {
-      const params = new URLSearchParams(window.location.search);
-      const newViewMode = params.get('view') as ViewMode | null;
-      const newEventId = params.get('event');
+    const params = new URLSearchParams(window.location.search);
+    const newViewMode = params.get('view') as ViewMode | null;
+    const newEventId = params.get('event');
 
-      if (newViewMode === 'story' && viewMode !== 'story') {
-        setViewModeState('story');
-      } else if (newViewMode !== 'story' && viewMode === 'story') {
-        setViewModeState('timeline');
-      }
+    if (newViewMode === 'story' && viewMode !== 'story') {
+      setViewModeState('story');
+    } else if (newViewMode !== 'story' && viewMode === 'story') {
+      setViewModeState('timeline');
+    }
 
-      if (newEventId && newEventId !== currentEventId && events.find(e => e.id === newEventId)) {
-        setCurrentEventIdState(newEventId);
-      }
-    };
-
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    if (newEventId && newEventId !== currentEventId && events.find(e => e.id === newEventId)) {
+      setCurrentEventIdState(newEventId);
+    }
   }, [viewMode, currentEventId, events]);
 
-  // Update currentEventId when events change (e.g., after filtering)
+  // Update currentEventId and URL when events change (e.g., after filtering)
   useEffect(() => {
     if (events.length > 0 && !events.find(e => e.id === currentEventId)) {
-      setCurrentEventIdState(events[0].id);
+      const newEventId = events[0].id;
+      setCurrentEventIdState(newEventId);
+      if (viewMode === 'story') {
+        updateUrl(viewMode, newEventId);
+      }
     }
-  }, [events, currentEventId]);
+  }, [events, currentEventId, viewMode, updateUrl]);
 
   return {
     viewMode,
@@ -161,7 +151,6 @@ export function useTimelineViewState({
     currentEventIndex: validIndex,
     setViewMode,
     setCurrentEventId,
-    setCurrentEventIndex,
     navigateOlder,
     navigateNewer,
     canNavigateOlder,

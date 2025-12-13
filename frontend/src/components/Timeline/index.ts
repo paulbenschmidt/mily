@@ -14,5 +14,5 @@ export { ToggleButtonGroup } from './ToggleButtonGroup';
 export { MultiToggleButtonGroup } from './MultiToggleButtonGroup';
 export { DeleteConfirmationModal } from './DeleteConfirmationModal';
 export { GuidedOnboarding } from './GuidedOnboarding';
-export { BulkEventModal } from './BulkEventModal';
+export { OnboardingBulkEventModal } from './OnboardingBulkEventModal';
 export { DateInput } from './DateInput';
