@@ -1,23 +1,5 @@
-- [x] The dot is very jumpy on the scrubber timeline
-- [x] switching between views causes glitchy lags
-    - [x] Make sure scrubber doesn't jump when switching views
-- [x] It bugged out when having a filter and attempting to switch from Story to Timeline
-- [x] Make sure that demo uses unified timeline, too
-- [x] Clean up the styling on the Story view card
-    - [x] Make the card take up full height
-    - [x] Put the side arrow always on the middle of the sides
-- [x] Should I standardize the date format across the two views?
-- [x] Modify the story mode to derive the current event from the timeline scrubber position
-- [x] When switching from Story to Timeline, it might not grab the correct middle event
-- [x] Fix scrolling/dragging on the mobile across the app
-- [x] When there are no events to display due to filter on the story view, it shows blank page
-    - It should have "No events match your filters Clear Filters" like the timeline view
-    - The Share/Filter/Toggle buttons should still be visible
-- [x] Show major/minor/memory on the story view
-
-- [nah] Make story default?
-
 ## In Progress
+- BUG: Fix the never-ending loading screen on login (I think this happens when there IS a refresh token, but it's not valid since it's from the prod environment?)
 - BUG: On mobile, when dropping down sharing/filter, it covers the button; make it so that the dropdown is below the button
 -----
 - ENHANCE: Create simple Notifications page so that users can view/deny/add-to-timeline event shares
