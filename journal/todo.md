@@ -1,6 +1,13 @@
 ## In Progress
-- BUG: Fix the never-ending loading screen on login (I think this happens when there IS a refresh token, but it's not valid since it's from the prod environment?)
+- BUG: Change left/right arrows of Stpry view to have margin instead of padding, so that clicking the far left/right also works
+- BUG: Make sure that it scrolls to the top of the page when switching from Timeline to Story, it doesn't work on my phone for some reason
+- BUG: App crashes when dragging across timeline on mobile and desktop
+    - Throttling navigation to prevent the browser from hanging. See https://crbug.com/1038223. Command line switch --disable-ipc-flooding-protection can be used to bypass the protection
+    - https://issues.chromium.org/issues/40113103
+- BUG: For some reason, I can't access my public timeline from my phone? It works on desktop.
 - BUG: On mobile, when dropping down sharing/filter, it covers the button; make it so that the dropdown is below the button
+ Post-Merge: Notifiy Jonathon that photo reordering is fixed
+
 -----
 - ENHANCE: Create simple Notifications page so that users can view/deny/add-to-timeline event shares
 - ENHANCE: Allow users to share individual events/tagging people in events/sharing events
@@ -54,6 +61,7 @@
 - ENHANCE: Create story for "landing page" character and update the landing page and demo timeline to match
 - IDEA: Financial models
     - Freemium (tiered subscription model where users pay for premium features, like more photos)
+        - Family plan that allows multiple users to sign up; I could target the older parents.
     - Pay what you want (donation-based)
     - Sales of physical products (like custom wood timelines)
     - Pick-and-choose financial model (pay for photos, or integrations, or X)

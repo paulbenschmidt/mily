@@ -119,6 +119,12 @@ class AuthApiClient {
   }
 
 
+  private clearAuthCookies(): void {
+    if (typeof document === 'undefined') return;
+    document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    document.cookie = 'refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+  }
+
   private async refreshAccessToken(): Promise<boolean> {
     try {
       const response = await fetch(`${this.baseUrl}/auth/token/refresh/`, {
@@ -140,12 +146,13 @@ class AuthApiClient {
       }
 
       // Refresh failed - redirect to login (unless already there)
+      this.clearAuthCookies();
       if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
         window.location.href = '/login';
       }
       return false;
-    } catch (error) {
-      console.error('Token refresh failed');
+    } catch {
+      this.clearAuthCookies();
       if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
         window.location.href = '/login';
       }
