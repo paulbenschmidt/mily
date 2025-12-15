@@ -102,6 +102,12 @@ class AuthApiClient {
           headers,
           credentials: 'include',
         });
+      } else {
+        // Redirect to login
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
+        throw new Error('Session expired');  // Prevents further execution
       }
     }
 
@@ -139,23 +145,17 @@ class AuthApiClient {
         return true;
       }
 
+      // Clear cookies if refresh fails
+      this.clearAuthCookies();
+
       if (typeof window !== 'undefined' && window.location.pathname.startsWith('/timeline')) {
         // Timeline routes should not trigger auth checks or redirects
         // Without this, unauthenticated users would be redirected to login
         return true;
       }
-
-      // Refresh failed - redirect to login (unless already there)
-      this.clearAuthCookies();
-      if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
-        window.location.href = '/login';
-      }
-      return false;
     } catch {
       this.clearAuthCookies();
-      if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
-        window.location.href = '/login';
-      }
+    } finally {
       return false;
     }
   }

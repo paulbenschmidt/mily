@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { authApiClient } from '@/utils/auth-api';
 import { TimelineEventType } from '@/types/api';
 import { AddEventModal, DeleteConfirmationModal, TimelineUnifiedView } from '@/components/Timeline';
@@ -9,7 +8,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTimelineFilters } from '@/hooks/useTimelineFilters';
 
 export default function Timeline() {
-  const router = useRouter();
   const { isMobile, user } = useAuth();
   const [events, setEvents] = useState<TimelineEventType[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,11 +35,7 @@ export default function Timeline() {
       setIsPublic(user.is_public);
       setUserHandle(user.handle);
     } catch (err) {
-      if (err instanceof Error && err.message.includes('401')) {
-        router.push('/login');
-      } else {
-        setError('Failed to load profile. Please try again.');
-      }
+      setError('Failed to load profile. Please try again.');
     }
   };
 
