@@ -1,6 +1,17 @@
 #
 Mily runs on "fame"—people want their stories to be heard.
 
+## Conversation with Joey 12/15/2025
+- Find podcasts that interview people; have the podcaster recommend the tool to the interviewer
+- Look for someone who has appeared on multiple podcasts and aren't that famous and recommend Mily to them so that the interviewer can ask questions
+- Memoir writers, who are not as famous (FB groups) would be interested in doing this
+    - Reddit "biography" 1.5k (https://www.reddit.com/r/Biography/)
+    - LinkedIn "history enthusiasts group" 82k members (https://www.linkedin.com/groups/158038/)
+        - Reach out to Admins and ask them for their thoughts/if they're willing to feature Mily
+- Historical websites that have some information that spans years (integrating Mily into their website)
+- Reach out to famous people who might be going on podcast rounds, and have them create a Mily
+On that last point, it makes me realize that Mily could explode if the right person recommended it.
+
 ## Conversation with Rusty 12/7/2025
 
 1. Build personas for who you're targeting
@@ -39,6 +50,9 @@ By focusing on the user experience and doing things that didn't scale, they buil
 
 ---
 
+- Post on Facebook profile
+- From Mike Werhley: Market it as a journal
+- OPTION: Integrate Mily with some sort of habit tracker/goal-setting app
 - Build 30-day marketing plan
 - Posting regularly on LinkedIn for visibility
 - Reaching out to the public newspaper and getting featured on that

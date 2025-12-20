@@ -4,9 +4,10 @@
 - BUG: App crashes when dragging across timeline on mobile and desktop
     - Throttling navigation to prevent the browser from hanging. See https://crbug.com/1038223. Command line switch --disable-ipc-flooding-protection can be used to bypass the protection
     - https://issues.chromium.org/issues/40113103
-- BUG: For some reason, I can't access my public timeline from my phone? It works on desktop.
 - BUG: On mobile, when dropping down sharing/filter, it covers the button; make it so that the dropdown is below the button
- Post-Merge: Notifiy Jonathon that photo reordering is fixed
+- Post-Merge: Notify Jonathon that photo reordering is fixed
+
+- REQUEST: Make the memory timeline dot a little less faint (it was hard for Bob to see)
 
 -----
 - ENHANCE: Create simple Notifications page so that users can view/deny/add-to-timeline event shares
@@ -21,6 +22,20 @@
     - Include name and profile picture in the top banner?
 
 ## Sprint Backlog
+- FEATURE: Mily "Wrapped" to give a year-end summary of the year
+    - That would be an easy way for people to humble-brag about their year
+- FEATURE: Allow users to create multiple timelines (Joey would like this)
+    - Brainstorm on how the backend will support this
+    - What should the name of this be?
+    - Have secondary timelines live at `timeline/{handle}/secondary/{secondaryHandle}`
+    - Rusty mentioned that it could be nice for parents who want to maintain separate timelines for children
+    - Reviews suggest that users who are authors also would like this feature when creating timelines for fictional
+    - The individual timelines will need to be public-toggable.
+    - Create secondary field in events table that is null for primary timelines and not-null for secondary timelines, and populate that with the handle of the secondary timeline
+    - Should secondary timelines be able to tag other users? Could secondary timelines share events? Probably not. That seems like it's getting too messy.
+    - Create secondary/primary import/export functionality
+    - Allow import/export of specific timelines
+
 - BUG: Fix HEIC photo upload (it failed on Rusty's laptop upload)
 - ENHANCE: Update Google description text to be less clunky (search for it on Google with "timeline mily" and you'll see it)
 - CLEANUP: Remove all "alert" popups and add better error handling (maybe toast notifications?)
@@ -108,10 +123,7 @@
 - FEATURE: Reflection prompts/cards that ask "What is a time where you felt very excited/sad?" to get people thinking about different events to add them
     - Bob mentioned that this could be helpful for folks who didn't know what to add. I also see this as a helpful conversation tool where people can get a random prompt, and have the other person answer with a specific timeline event. Or it could be a game: guess what event the timeline owner first thought of when seeing this prompt.
 - ENHANCE: Add logo to email verification (once I have enough consistent email deliverability to not get flagged as spam)
-- PRE-APP DEPLOYMENT: Check out https://tryrubberduck.com/ to scan the app prior to submitting to App Store.
-- FEATURE: Allow users to create multiple timelines
-    - Rusty mentioned that it could be nice for parents who want to maintain separate timelines for children
-    - Reviews suggest that users who are authors also would like this feature when creating timelines for fictional characters
+- PRE-APP DEPLOYMENT: Check out https://tryrubberduck.com/ to scan the app prior to submitting to App Store.characters
 - LEARN: Learn how users are sharing their timelines with others
 - ENHANCE: Poll users on the color once you have ~100 users
     - Feedback from Rusty was that the color was confusing (he mentioned that the movie *Inside Out* had sad memories in blue and happy memories in gold)
