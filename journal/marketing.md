@@ -50,6 +50,8 @@ By focusing on the user experience and doing things that didn't scale, they buil
 
 ---
 
+- Because of XYZ, it would be great if you could be a "trusted tester"
+
 - Post on Facebook profile
 - From Mike Werhley: Market it as a journal
 - OPTION: Integrate Mily with some sort of habit tracker/goal-setting app
