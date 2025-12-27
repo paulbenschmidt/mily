@@ -46,7 +46,7 @@ export function TimelineListEvent({ event, onEditEvent, previousEvent, nextEvent
       case "memory":
         return 'w-2 h-2 bg-primary-300 border-primary-300';
       default:
-        return 'w-2 h-2 bg-primary-200 border-primary-200';
+        return 'w-2 h-2 bg-primary-300 border-primary-300';
     }
   };
 
