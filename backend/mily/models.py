@@ -16,7 +16,7 @@ class User(AbstractUser):
     handle = models.CharField(max_length=50, unique=True, help_text="URL-friendly username handle")
     first_name = models.CharField(max_length=150, blank=True)
     last_name = models.CharField(max_length=150, blank=True)
-    profile_picture = models.URLField(blank=True)
+    avatar_updated_at = models.DateTimeField(null=True, blank=True, help_text="Timestamp of last avatar upload, used for cache busting")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     last_active = models.DateTimeField(null=True, blank=True)

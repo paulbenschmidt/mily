@@ -12,7 +12,7 @@ from rest_framework.exceptions import NotFound
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from .aws_s3 import make_event_photo_key, create_presigned_put_url, delete_photo_from_s3
+from .aws_s3 import make_event_photo_key, make_avatar_key, create_presigned_put_url, delete_photo_from_s3
 from .models import (
     Event,
     EventPhoto,
@@ -116,6 +116,55 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
             return response
 
         # GET request
+        serializer = UserPrivateSerializer(request.user)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=["post"], url_path="avatar/upload")
+    def avatar_upload(self, request):
+        """Generate presigned PUT URL for avatar upload."""
+        content_type = request.data.get("content_type", "image/jpeg")
+
+        # Validate content type
+        allowed_types = ["image/jpeg", "image/png", "image/webp"]
+        if content_type not in allowed_types:
+            return Response(
+                {"error": "Invalid content type. Allowed: jpeg, png, webp"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Generate timestamp for this upload
+        timestamp = int(timezone.now().timestamp())
+
+        # Generate S3 key with timestamp
+        key = make_avatar_key(str(request.user.id), timestamp)
+
+        # Generate presigned PUT URL
+        try:
+            upload_url = create_presigned_put_url(key, content_type)
+            return Response({"upload_url": upload_url, "key": key, "timestamp": timestamp})
+        except Exception as e:
+            logger.error(f"Failed to generate avatar upload URL: {e}")
+            return Response(
+                {"error": "Failed to generate upload URL"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+    @action(detail=False, methods=["post"], url_path="avatar/confirm")
+    def avatar_confirm(self, request):
+        """Confirm avatar upload and update user record."""
+        timestamp = request.data.get("timestamp")
+
+        if not timestamp:
+            return Response(
+                {"error": "Timestamp required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Update user's avatar timestamp to match the uploaded file
+        request.user.avatar_updated_at = timezone.datetime.fromtimestamp(int(timestamp), tz=timezone.get_current_timezone())
+        request.user.save(update_fields=["avatar_updated_at"])
+
+        # Return updated user data with new avatar URL
         serializer = UserPrivateSerializer(request.user)
         return Response(serializer.data)
 
@@ -690,15 +739,11 @@ def get_other_timeline(request, handle):
                 privacy_level__in=['public', 'friends']
             )
 
-            serializer = EventPublicSerializer(events, many=True)
+            event_serializer = EventPublicSerializer(events, many=True)
+            user_serializer = UserPublicSerializer(timeline_owner)
             return Response({
-                'events': serializer.data,
-                'user': {
-                    'first_name': timeline_owner.first_name,
-                    'last_name': timeline_owner.last_name,
-                    'handle': timeline_owner.handle,
-                    'profile_picture': timeline_owner.profile_picture or '',
-                }
+                'events': event_serializer.data,
+                'user': user_serializer.data
             })
 
         # Priority 2: Check if viewer has accepted share
@@ -715,15 +760,11 @@ def get_other_timeline(request, handle):
                 privacy_level__in=['public', 'friends']
             )
 
-            serializer = EventPublicSerializer(events, many=True)
+            event_serializer = EventPublicSerializer(events, many=True)
+            user_serializer = UserPublicSerializer(timeline_owner)
             return Response({
-                'events': serializer.data,
-                'user': {
-                    'first_name': timeline_owner.first_name,
-                    'last_name': timeline_owner.last_name,
-                    'handle': timeline_owner.handle,
-                    'profile_picture': timeline_owner.profile_picture or '',
-                }
+                'events': event_serializer.data,
+                'user': user_serializer.data
             })
 
     # Priority 3: Check if timeline is public
@@ -734,15 +775,14 @@ def get_other_timeline(request, handle):
             privacy_level='public'
         )
 
-        serializer = EventPublicSerializer(events, many=True)
+        event_serializer = EventPublicSerializer(events, many=True)
+        user_serializer = UserPublicSerializer(timeline_owner)
+        user_data = user_serializer.data
+        user_data['last_name'] = ''  # Don't expose last name for public timelines
+        user_data['email'] = ''
         return Response({
-            'events': serializer.data,
-            'user': {
-                'first_name': timeline_owner.first_name,
-                'last_name': '', # Don't expose last name for public timelines
-                'handle': timeline_owner.handle,
-                'profile_picture': timeline_owner.profile_picture or '',
-            }
+            'events': event_serializer.data,
+            'user': user_data
         })
 
     # Priority 4: No access - return 404

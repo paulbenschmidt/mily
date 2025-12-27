@@ -9,8 +9,6 @@
 - BUG: On mobile, when dropping down sharing/filter, it covers the button; make it so that the dropdown is below the button
 - Post-Merge: Notify Jonathon that photo reordering is fixed
 
-- REQUEST: Make the memory timeline dot a little less faint (it was hard for Bob to see)
-
 -----
 - ENHANCE: Create simple Notifications page so that users can view/deny/add-to-timeline event shares
 - ENHANCE: Allow users to share individual events/tagging people in events/sharing events
