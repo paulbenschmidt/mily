@@ -40,26 +40,13 @@ export function TimelineListEvent({ event, onEditEvent, previousEvent, nextEvent
   const getCategoryDotStyling = (category: string) => {
     switch (category) {
       case "major":
-        return 'w-6 h-6 bg-primary-500 border-primary-500';
+        return 'w-6 h-6 bg-primary-400 border-primary-400';
       case "minor":
-        return 'w-4 h-4 bg-primary-400 border-primary-400';
+        return 'w-4 h-4 bg-primary-350 border-primary-350';
       case "memory":
         return 'w-2 h-2 bg-primary-300 border-primary-300';
       default:
         return 'w-2 h-2 bg-primary-300 border-primary-300';
-    }
-  };
-
-  const getCategoryShadow = (category: string) => {
-    switch (category) {
-      case "major":
-        return '[box-shadow:0_10px_15px_-3px_rgba(0,0,0,0.25),0_4px_6px_-4px_rgba(0,0,0,0.25)]'; // Darker shadow
-      case "minor":
-        return '[box-shadow:0_10px_15px_-3px_rgba(0,0,0,0.15),0_4px_6px_-4px_rgba(0,0,0,0.15)]'; // Medium shadow
-      case "memory":
-        return '[box-shadow:0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)]'; // Lighter shadow
-      default:
-        return '[box-shadow:0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)]';
     }
   };
 
@@ -130,7 +117,7 @@ export function TimelineListEvent({ event, onEditEvent, previousEvent, nextEvent
             <div className={`absolute bg-white rounded-full ${getBackgroundCircleSize(event.category)}`} />
             {/* Actual dot */}
             <div
-              className={`rounded-full border-2 ${getCategoryDotStyling(event.category)} ${getCategoryShadow(event.category)} flex-shrink-0 relative`}
+              className={`rounded-full border-2 ${getCategoryDotStyling(event.category)} flex-shrink-0 relative`}
             />
           </div>
         </div>
@@ -138,7 +125,7 @@ export function TimelineListEvent({ event, onEditEvent, previousEvent, nextEvent
         {/* Event content */}
         <div className="flex-1 min-w-0">
           <Card
-            className={`p-4 md:p-6 relative ${getCategoryShadow(event.category)} cursor-pointer`}
+            className={`p-4 md:p-6 relative cursor-pointer`}
             onClick={handleCardClick}
           >
 
