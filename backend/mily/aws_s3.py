@@ -51,6 +51,20 @@ def make_event_photo_key(user_id: str, event_id: str, filename: str) -> str:
     return f"users/{user_id}/events/{event_id}/{uuid.uuid4()}.{ext}"
 
 
+def make_avatar_key(user_id: str, timestamp: int) -> str:
+    """
+    Generate S3 key for a user's avatar with timestamp.
+
+    Args:
+        user_id: UUID of the user
+        timestamp: Unix timestamp for the avatar version
+
+    Returns:
+        S3 key in format: users/{user_id}/avatar/{timestamp}.jpg
+    """
+    return f"users/{user_id}/avatar/{timestamp}.jpg"
+
+
 def create_presigned_put_url(key: str, content_type: str, expires_in: int = 3600) -> str:
     """
     Generate a presigned URL for uploading a photo to S3.

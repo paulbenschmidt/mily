@@ -58,7 +58,7 @@ class UserViewSetTestCase(APITestCase):
 
         # Check that only public fields are exposed
         for user_data in response.data["results"]:
-            public_fields = {'id', 'username', 'first_name', 'last_name', 'profile_picture', 'handle'}
+            public_fields = {'id', 'username', 'first_name', 'last_name', 'avatar_updated_at', 'handle'}
             self.assertEqual(set(user_data.keys()), public_fields)
 
             # Ensure private fields are not exposed

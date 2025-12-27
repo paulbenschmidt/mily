@@ -3,7 +3,7 @@ from typing import Any
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from .aws_s3 import create_presigned_get_url
+from .aws_s3 import create_presigned_get_url, make_avatar_key
 from .models import (
     Event,
     EventPhoto,
@@ -15,27 +15,45 @@ from .models import (
 User = get_user_model()
 
 
-class UserPublicSerializer(serializers.ModelSerializer):
-    """Serializer for public user data (for user discovery)."""
+class BaseUserSerializer(serializers.ModelSerializer):
+    """Base serializer with shared avatar URL logic."""
+    avatar_url = serializers.SerializerMethodField()
 
     class Meta:
         model = User
+        fields = []
+
+    def get_avatar_url(self, obj: User) -> str | None:
+        """Generate presigned URL for avatar using timestamp from avatar_updated_at."""
+        if not obj.avatar_updated_at:
+            return None
+        try:
+            timestamp = int(obj.avatar_updated_at.timestamp())
+            key = make_avatar_key(str(obj.id), timestamp)
+            return create_presigned_get_url(key)
+        except Exception:
+            return None
+
+
+class UserPublicSerializer(BaseUserSerializer):
+    """Serializer for public user data (for user discovery)."""
+
+    class Meta(BaseUserSerializer.Meta):
         fields = [
             "id",
             "email",
             "handle",
             "first_name",
             "last_name",
-            "profile_picture",
+            "avatar_url",
         ]
         read_only_fields = ["id", "email"]
 
 
-class UserPrivateSerializer(serializers.ModelSerializer):
+class UserPrivateSerializer(BaseUserSerializer):
     """Private user info for own profile access."""
 
-    class Meta:
-        model = User
+    class Meta(BaseUserSerializer.Meta):
         fields = [
             "id",
             "username",
@@ -43,7 +61,7 @@ class UserPrivateSerializer(serializers.ModelSerializer):
             "email",
             "first_name",
             "last_name",
-            "profile_picture",
+            "avatar_url",
             "is_public",
             "created_at",
             "updated_at",

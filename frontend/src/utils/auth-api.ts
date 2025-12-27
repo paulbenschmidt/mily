@@ -532,6 +532,43 @@ class AuthApiClient {
       },
     });
   }
+
+  async getAvatarUploadUrl(contentType: string = 'image/jpeg'): Promise<{ upload_url: string; key: string; timestamp: number }> {
+    return this.request<{ upload_url: string; key: string; timestamp: number }>({
+      endpoint: '/users/avatar/upload/',
+      options: {
+        method: 'POST',
+        body: JSON.stringify({ content_type: contentType }),
+      },
+    });
+  }
+
+  async uploadAvatar(file: File): Promise<UserType> {
+    // Get presigned upload URL with timestamp
+    const { upload_url, timestamp } = await this.getAvatarUploadUrl(file.type);
+
+    // Upload file directly to S3
+    const uploadResponse = await fetch(upload_url, {
+      method: 'PUT',
+      body: file,
+      headers: {
+        'Content-Type': file.type,
+      },
+    });
+
+    if (!uploadResponse.ok) {
+      throw new Error('Failed to upload avatar to S3');
+    }
+
+    // Confirm upload with backend, passing timestamp
+    return this.request<UserType>({
+      endpoint: '/users/avatar/confirm/',
+      options: {
+        method: 'POST',
+        body: JSON.stringify({ timestamp }),
+      },
+    });
+  }
 }
 
 export const authApiClient = new AuthApiClient();

@@ -71,7 +71,7 @@ function DemoPageContent() {
         currentFilters={filters}
         ownerInfo={{
           name: "Mike",
-          profilePicture: undefined,
+          profilePicture: "https://assets.mily.bio/demo/avatar.png",
         }}
         isMobile={isMobile}
       />
