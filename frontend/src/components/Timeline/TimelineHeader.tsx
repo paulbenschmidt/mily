@@ -73,8 +73,10 @@ export function TimelineHeader({
   const [dragProgress, setDragProgress] = useState<number | null>(null);
   const mouseDownPos = useRef<{ x: number; y: number } | null>(null);
   const scrubberRef = useRef<HTMLDivElement>(null);
+  const lastUpdateTimeRef = useRef<number>(0);
 
   const DRAG_THRESHOLD = 3;
+  const THROTTLE_MS = 100; // Limit event changes to X milliseconds
 
   // Calculate event positions for the scrubber (0% = newest/right, 100% = oldest/left)
   // Events are sorted newest first, so filteredEvents[0] is newest
@@ -152,7 +154,7 @@ export function TimelineHeader({
     mouseDownPos.current = pos;
   };
 
-  // Handle pointer move
+  // Handle pointer move with throttling
   const handlePointerMove = (e: MouseEvent | TouchEvent) => {
     if (!isDragging || !mouseDownPos.current) return;
 
@@ -168,9 +170,15 @@ export function TimelineHeader({
       if (progress !== null) {
         setDragProgress(progress);
       }
-      const event = findEventFromPosition(clientX);
-      if (event) {
-        onScrubberChange(event.id);
+
+      // Throttle event changes to prevent excessive re-renders
+      const now = Date.now();
+      if (now - lastUpdateTimeRef.current >= THROTTLE_MS) {
+        const event = findEventFromPosition(clientX);
+        if (event) {
+          onScrubberChange(event.id);
+          lastUpdateTimeRef.current = now;
+        }
       }
     }
   };
@@ -190,6 +198,7 @@ export function TimelineHeader({
     setIsDragging(false);
     setHasMoved(false);
     setDragProgress(null);
+    lastUpdateTimeRef.current = 0;
     mouseDownPos.current = null;
   };
 
@@ -233,7 +242,7 @@ export function TimelineHeader({
         {/* Top row: Title, Toggle, Actions */}
         <div className="relative flex items-center justify-between gap-2 md:gap-4">
           {/* Left: Avatar */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0 flex-shrink">
             {ownerInfo?.profilePicture ? (
               <div className="relative w-8 h-8 rounded-full overflow-hidden border border-secondary-300 flex-shrink-0">
                 <NextImage
@@ -245,13 +254,13 @@ export function TimelineHeader({
                 />
               </div>
             ) : (
-              <div className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center border border-secondary-300">
+              <div className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center border border-secondary-300 flex-shrink-0">
                 <span className="text-sm font-medium text-brand">
                   {ownerInfo?.name?.[0]?.toUpperCase() || ''}
                 </span>
               </div>
             )}
-            <span className="text-md font-medium text-secondary-600">{ownerInfo?.name}</span>
+            <span className="text-md font-medium text-secondary-600 truncate">{ownerInfo?.name}</span>
           </div>
 
           {/* Center: Toggle (absolute center of header) */}
