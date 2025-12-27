@@ -1,6 +1,7 @@
 'use client';
 
-import { UserType, ShareType } from '@/types/api';
+import NextImage from 'next/image';
+import { ShareType } from '@/types/api';
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button, Input, PageHeading, SmallText } from '@/components/ui';
@@ -355,13 +356,23 @@ export default function SharingPage() {
                 >
                   <div className="flex items-center gap-4 min-w-0 flex-1">
                     {/* Avatar */}
-                    {/* UPDATE THIS */}
-                    {/* TODO: If user has accepted, use user profile picture */}
-                    <div className="w-12 h-12 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-semibold text-sm flex-shrink-0">
-                      {share.is_accepted && share.shared_with_user
-                          ? getInitials(getDisplayName(share.shared_with_user))
-                          : getInitials(share.shared_with_email)}
-                    </div>
+                    {share.is_accepted && share.shared_with_user?.avatar_url ? (
+                      <div className="w-12 h-12 rounded-full overflow-hidden bg-secondary-100 flex-shrink-0 border border-secondary-300">
+                        <NextImage
+                          src={share.shared_with_user.avatar_url}
+                          alt={getDisplayName(share.shared_with_user)}
+                          width={48}
+                          height={48}
+                          className="object-cover rounded-full"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-semibold text-sm flex-shrink-0 border border-secondary-300">
+                        {share.is_accepted && share.shared_with_user
+                            ? getInitials(getDisplayName(share.shared_with_user))
+                            : getInitials(share.shared_with_email)}
+                      </div>
+                    )}
 
                     {/* Info */}
                     <div className="min-w-0 flex-1">
@@ -408,10 +419,21 @@ export default function SharingPage() {
                 >
                   <div className="flex items-center gap-4 min-w-0 flex-1">
                     {/* Avatar */}
-                    {/* TODO: Return profile picture if invite accepted, otherwise use initials */}
-                    <div className="w-12 h-12 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-semibold text-sm flex-shrink-0">
-                      {getInitials(getDisplayName(share.user))}
-                    </div>
+                    {share.user?.avatar_url ? (
+                      <div className="w-12 h-12 rounded-full overflow-hidden bg-secondary-100 flex-shrink-0 border border-secondary-300">
+                        <NextImage
+                          src={share.user.avatar_url}
+                          alt={getDisplayName(share.user)}
+                          width={48}
+                          height={48}
+                          className="object-cover rounded-full"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-semibold text-sm flex-shrink-0 border border-secondary-300">
+                        {getInitials(getDisplayName(share.user))}
+                      </div>
+                    )}
 
                     {/* Info */}
                     <div className="min-w-0 flex-1">

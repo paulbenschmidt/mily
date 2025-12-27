@@ -1,6 +1,4 @@
 ## In Progress
-- ENHANCE: Allow users to change their profile picture/avatar
-    - Update demo timeline
 - BUG: Change left/right arrows of Story view to have margin instead of padding, so that clicking the far left/right also works
 - BUG: Make sure that it scrolls to the top of the page when switching from Timeline to Story, it doesn't work on my phone for some reason
 - BUG: App crashes when dragging across timeline on mobile and desktop
@@ -84,7 +82,6 @@
 - ENHANCE: Continually revise the landing page as you get a clearer sense of what users want through conversations
 - ENHANCE: Add S3 bucket rule to convert photos to S3 Standard-IA (infrequent access) or Glacier after 365 days
 - ENHANCE: Add S3 bucket logging to a separate bucket
-- ENHANCE: Allow profile pictures
 - ESSENTIAL: Have navigation bar along the bottom include: Timeline, Friends, Shop, Donate, Settings
     - This would help clear up space in the top part of the UI for things like "My Timeline" or "Friend Timeline"
 - ESSENTIAL:(needs polling) Create payment system for premium features

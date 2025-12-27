@@ -235,13 +235,15 @@ export function TimelineHeader({
           {/* Left: Avatar */}
           <div className="flex items-center gap-3">
             {ownerInfo?.profilePicture ? (
-              <NextImage
-                src={ownerInfo.profilePicture}
-                alt={ownerInfo.name}
-                width={32}
-                height={32}
-                className="w-8 h-8 rounded-full object-cover border border-secondary-300"
-              />
+              <div className="relative w-8 h-8 rounded-full overflow-hidden border border-secondary-300 flex-shrink-0">
+                <NextImage
+                  src={ownerInfo.profilePicture}
+                  alt={ownerInfo.name}
+                  fill
+                  className="object-cover"
+                  sizes="32px"
+                />
+              </div>
             ) : (
               <div className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center border border-secondary-300">
                 <span className="text-sm font-medium text-brand">

@@ -172,24 +172,10 @@ export default function SettingsPage() {
         const img = document.createElement('img');
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
 
-          // Calculate new dimensions
-          if (width > height) {
-            if (width > maxSize) {
-              height = (height * maxSize) / width;
-              width = maxSize;
-            }
-          } else {
-            if (height > maxSize) {
-              width = (width * maxSize) / height;
-              height = maxSize;
-            }
-          }
-
-          canvas.width = width;
-          canvas.height = height;
+          // Make canvas square
+          canvas.width = maxSize;
+          canvas.height = maxSize;
 
           const ctx = canvas.getContext('2d');
           if (!ctx) {
@@ -197,7 +183,17 @@ export default function SettingsPage() {
             return;
           }
 
-          ctx.drawImage(img, 0, 0, width, height);
+          // Calculate dimensions to crop to square (center crop)
+          const size = Math.min(img.width, img.height);
+          const x = (img.width - size) / 2;
+          const y = (img.height - size) / 2;
+
+          // Draw cropped square image scaled to canvas size
+          ctx.drawImage(
+            img,
+            x, y, size, size,  // Source rectangle (crop to square)
+            0, 0, maxSize, maxSize  // Destination rectangle (scale to canvas)
+          );
 
           canvas.toBlob(
             (blob) => {
@@ -236,9 +232,9 @@ export default function SettingsPage() {
       return;
     }
 
-    // Validate file size (2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      setAvatarError('Image must be under 2MB.');
+    // Validate file size (10MB - generous limit before client-side resize)
+    if (file.size > 10 * 1024 * 1024) {
+      setAvatarError('Image must be under 10MB.');
       return;
     }
 
