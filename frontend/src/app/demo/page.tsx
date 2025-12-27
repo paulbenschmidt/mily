@@ -36,7 +36,7 @@ function DemoPageContent() {
     <>
       <WelcomeModal isOpen={showWelcomeModal} onClose={handleCloseWelcomeModal} />
       {/* Demo Header */}
-      <header className="sticky top-0 z-20 border-b border-border bg-white" style={{ height: '69px' }}>
+      <header className="sticky top-0 z-20 bg-white" style={{ height: '69px' }}>
         <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2 text-foreground hover:text-brand transition-colors">
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

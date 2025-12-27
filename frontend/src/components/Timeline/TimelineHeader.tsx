@@ -213,8 +213,21 @@ export function TimelineHeader({
   const firstYear = hasEvents ? filteredEvents[filteredEvents.length - 1].event_date.split('-')[0] : '';
   const lastYear = hasEvents ? filteredEvents[0].event_date.split('-')[0] : '';
 
+  const getScrubberDotStyling = (category: string) => {
+    switch (category) {
+      case 'major':
+        return 'w-3 h-3 bg-primary-400 border border-primary-400';
+      case 'minor':
+        return 'w-2 h-2 bg-primary-350 border border-primary-350';
+      case 'memory':
+        return 'w-1.5 h-1.5 bg-primary-300 border border-primary-300';
+      default:
+        return 'w-1.5 h-1.5 bg-primary-300 border border-primary-300';
+    }
+  };
+
   return (
-    <div className="sticky bg-white border-b border-secondary-200/50 px-4 md:px-6 py-3 md:py-4" style={{ top: '68px', zIndex: 40 }}>
+    <div className="sticky bg-white border-b border-secondary-300 px-4 md:px-6 py-3 md:py-4" style={{ top: '68px', zIndex: 40 }}>
       <div className="max-w-4xl mx-auto">
         {/* Top row: Title, Toggle, Actions */}
         <div className="relative flex items-center justify-between gap-2 md:gap-4">
@@ -233,7 +246,7 @@ export function TimelineHeader({
                 </span>
               </div>
             )}
-            <span className="text-sm font-medium text-secondary-900">{ownerInfo?.name}</span>
+            <span className="text-md font-medium text-secondary-600">{ownerInfo?.name}</span>
           </div>
 
           {/* Center: Toggle (absolute center of header) */}
@@ -349,26 +362,10 @@ export function TimelineHeader({
                     .map((event) => {
                       const position = getEventPosition(event);
 
-                      // Category-based styling (matching original TimelineProgressIndicator)
-                      let dotClass = '';
-                      switch (event.category) {
-                        case 'major':
-                          dotClass = 'w-3 h-3 bg-primary-400';
-                          break;
-                        case 'minor':
-                          dotClass = 'w-2 h-2 bg-primary-300';
-                          break;
-                        case 'memory':
-                          dotClass = 'w-1 h-1 bg-primary-200';
-                          break;
-                        default:
-                          dotClass = 'w-1 h-1 bg-primary-200';
-                      }
-
                       return (
                         <div
                           key={event.id}
-                          className={`absolute top-1/2 ${dotClass} rounded-full`}
+                          className={`absolute top-1/2 ${getScrubberDotStyling(event.category)} rounded-full`}
                           style={{ left: `${100 - position}%`, transform: 'translate(-50%, -50%)' }}
                         />
                       );
