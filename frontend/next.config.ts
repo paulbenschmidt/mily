@@ -31,18 +31,30 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_FRONTEND_URL: process.env.FRONTEND_URL,
   },
   images: {
-    remotePatterns: s3BucketName ? [
+    remotePatterns: [
+      // Always allow your public assets domain
       {
-        protocol: 'https',
-        hostname: `${s3BucketName}.s3.amazonaws.com`,
-        pathname: '/**',
+        protocol: "https",
+        hostname: "assets.mily.bio",
+        pathname: "/**",
       },
-      {
-        protocol: 'https',
-        hostname: `${s3BucketName}.s3.*.amazonaws.com`,
-        pathname: '/**',
-      },
-    ] : [],
+
+      // Optionally allow your private/user-photo bucket hostnames
+      ...(s3BucketName
+        ? ([
+            {
+              protocol: "https",
+              hostname: `${s3BucketName}.s3.amazonaws.com`,
+              pathname: "/**",
+            },
+            {
+              protocol: "https",
+              hostname: `${s3BucketName}.s3.us-east-2.amazonaws.com`,
+              pathname: "/**",
+            },
+          ] as const)
+        : []),
+    ],
   },
   // Add CORS headers
   async headers() {

@@ -233,6 +233,7 @@ export function TimelineHeader({
                 </span>
               </div>
             )}
+            <span className="text-sm font-medium text-secondary-900">{ownerInfo?.name}</span>
           </div>
 
           {/* Center: Toggle (absolute center of header) */}

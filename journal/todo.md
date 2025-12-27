@@ -1,5 +1,7 @@
 ## In Progress
-- BUG: Change left/right arrows of Stpry view to have margin instead of padding, so that clicking the far left/right also works
+- ENHANCE: Allow users to change their profile picture/avatar
+    - Update demo timeline
+- BUG: Change left/right arrows of Story view to have margin instead of padding, so that clicking the far left/right also works
 - BUG: Make sure that it scrolls to the top of the page when switching from Timeline to Story, it doesn't work on my phone for some reason
 - BUG: App crashes when dragging across timeline on mobile and desktop
     - Throttling navigation to prevent the browser from hanging. See https://crbug.com/1038223. Command line switch --disable-ipc-flooding-protection can be used to bypass the protection
@@ -16,7 +18,6 @@
     - When tagged, send a notification to the user on whether they want to view/deny/add the event to their timeline, too
     - Reach out to Jonathon Roy/Rusty for feedback on this feature once it's implemented
 -----
-- ENHANCE: Allow users to change their profile picture/avatar
 - ENHANCE: Organize the top banner better
     - Move the "My Timeline" to the top banner for more space?
     - Include name and profile picture in the top banner?

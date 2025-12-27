@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { TimelineUnifiedView } from '@/components/Timeline';
 import { TimelineEventType } from '@/types/api';
-import demoData from '@/data/demo-timeline.json';
+import demoData from '@/data/demo/demo-timeline.json';
 import Link from 'next/link';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useTimelineFilters } from '@/hooks/useTimelineFilters';
@@ -70,7 +70,7 @@ function DemoPageContent() {
         hasActiveFilters={hasActiveFilters}
         currentFilters={filters}
         ownerInfo={{
-          name: "Sarah Johnson",
+          name: "Mike",
           profilePicture: undefined,
         }}
         isMobile={isMobile}
