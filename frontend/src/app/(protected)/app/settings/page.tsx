@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import NextImage from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import { authApiClient } from '@/utils/auth-api';
 import { PageHeading, SectionHeading, BodyText, Caption, Button, Alert, Input } from '@/components/ui';
@@ -31,6 +32,12 @@ export default function SettingsPage() {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [passwordSuccess, setPasswordSuccess] = useState(false);
   const [passwordError, setPasswordError] = useState('');
+
+  // Avatar upload state
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [avatarError, setAvatarError] = useState('');
+  const [avatarSuccess, setAvatarSuccess] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleExportEvents = async () => {
     setIsExporting(true);
@@ -158,6 +165,108 @@ export default function SettingsPage() {
     }
   };
 
+  const resizeImage = (file: File, maxSize: number = 256): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = document.createElement('img');
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          // Calculate new dimensions
+          if (width > height) {
+            if (width > maxSize) {
+              height = (height * maxSize) / width;
+              width = maxSize;
+            }
+          } else {
+            if (height > maxSize) {
+              width = (width * maxSize) / height;
+              height = maxSize;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('Failed to get canvas context'));
+            return;
+          }
+
+          ctx.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                reject(new Error('Failed to create blob'));
+                return;
+              }
+              const resizedFile = new File([blob], file.name, {
+                type: file.type,
+                lastModified: Date.now(),
+              });
+              resolve(resizedFile);
+            },
+            file.type,
+            0.9
+          );
+        };
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setAvatarError('');
+    setAvatarSuccess(false);
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      setAvatarError('Please upload a JPEG, PNG, or WebP image.');
+      return;
+    }
+
+    // Validate file size (2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      setAvatarError('Image must be under 2MB.');
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+
+    try {
+      // Resize image to 256x256
+      const resizedFile = await resizeImage(file, 256);
+
+      // Upload to S3 and update user record
+      await authApiClient.uploadAvatar(resizedFile);
+
+      // Refresh user data to get new avatar URL
+      await checkAuth();
+
+      setAvatarSuccess(true);
+      setTimeout(() => setAvatarSuccess(false), 5000);
+    } catch (err) {
+      setAvatarError('Failed to upload avatar. Please try again.');
+    } finally {
+      setIsUploadingAvatar(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   const handleDeleteAccount = async () => {
     if (deleteConfirmText !== 'DELETE') {
       setError('Please type DELETE to confirm account deletion.');
@@ -188,6 +297,63 @@ export default function SettingsPage() {
     <div className="min-h-screen bg-secondary-50 py-8 px-4">
       <div className="max-w-2xl mx-auto">
         <PageHeading className="mb-8">Settings</PageHeading>
+
+        {/* Avatar Section */}
+        <section className="bg-white rounded-lg border border-secondary-200 p-6 mb-6">
+          <SectionHeading className="mb-4">Profile Picture</SectionHeading>
+
+          {avatarSuccess && (
+            <Alert variant="success" className="mb-4">
+              Avatar updated successfully!
+            </Alert>
+          )}
+
+          {avatarError && (
+            <Alert variant="error" className="mb-4">
+              {avatarError}
+            </Alert>
+          )}
+
+          <div className="flex items-center gap-6">
+            <div className="relative w-24 h-24 rounded-full overflow-hidden bg-secondary-100 flex-shrink-0">
+              {user.avatar_url ? (
+                <NextImage
+                  src={user.avatar_url}
+                  alt="Profile"
+                  width={96}
+                  height={96}
+                  className="object-cover rounded-full border border-secondary-300"
+                  sizes="96px"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-secondary-400">
+                  <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+              )}
+            </div>
+
+            <div className="flex-1">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handleAvatarChange}
+                className="hidden"
+                id="avatar-upload"
+              />
+              <Button
+                onClick={() => fileInputRef.current?.click()}
+                variant="secondary"
+                size="sm"
+                disabled={isUploadingAvatar}
+              >
+                {isUploadingAvatar ? 'Uploading...' : 'Change Photo'}
+              </Button>
+            </div>
+          </div>
+        </section>
 
         {/* Account Information */}
         <section className="bg-white rounded-lg border border-secondary-200 p-6 mb-6">

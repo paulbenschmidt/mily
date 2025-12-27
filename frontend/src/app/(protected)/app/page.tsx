@@ -183,7 +183,7 @@ export default function Timeline() {
         isMobile={isMobile}
         ownerInfo={user ? {
           name: `${user.first_name}`.trim(),
-          profilePicture: user.profile_picture,
+          profilePicture: user.avatar_url,
         } : undefined}
         isPublic={isPublic}
         onTogglePublic={handleTogglePublic}

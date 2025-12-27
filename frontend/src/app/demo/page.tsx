@@ -71,7 +71,7 @@ function DemoPageContent() {
         currentFilters={filters}
         ownerInfo={{
           name: "Mike",
-          profilePicture: undefined,
+          profilePicture: undefined, // TODO: Add profile picture
         }}
         isMobile={isMobile}
       />

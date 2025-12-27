@@ -135,18 +135,6 @@ export function AppLayout({ children }: AppLayoutProps) {
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-secondary-200 py-1 z-[100]">
                   <button
                     onClick={() => {
-                      window.location.href = '/app/profile';
-                      setIsMenuOpen(false);
-                    }}
-                    className="w-full text-left px-4 py-2 text-sm text-secondary-700 hover:bg-secondary-100 flex items-center"
-                  >
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                    Profile
-                  </button>
-                  <button
-                    onClick={() => {
                       window.location.href = '/app/sharing';
                       setIsMenuOpen(false);
                     }}

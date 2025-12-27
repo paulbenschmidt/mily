@@ -47,7 +47,7 @@ export default function ViewTimeline() {
       setEvents(response.events);
       setOwnerInfo({
         name: `${response.user.first_name}`.trim(),
-        profilePicture: response.user.profile_picture,
+        profilePicture: response.user.avatar_url,
       });
     } catch (err) {
       setError('Timeline not found or not accessible');

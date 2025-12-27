@@ -355,6 +355,7 @@ export default function SharingPage() {
                 >
                   <div className="flex items-center gap-4 min-w-0 flex-1">
                     {/* Avatar */}
+                    {/* UPDATE THIS */}
                     {/* TODO: If user has accepted, use user profile picture */}
                     <div className="w-12 h-12 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-semibold text-sm flex-shrink-0">
                       {share.is_accepted && share.shared_with_user
