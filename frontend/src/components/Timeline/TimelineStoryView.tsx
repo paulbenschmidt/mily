@@ -89,7 +89,7 @@ export function TimelineStoryView({
       <button
         onClick={onNavigateOlder}
         disabled={!canNavigateOlder}
-        className={`fixed left-0 md:left-4 lg:left-8 top-0 bottom-0 w-12 md:w-16 flex items-center justify-center z-30
+        className={`fixed left-0 top-0 bottom-0 pl-0 pr-2 md:pl-4 md:pr-4 lg:pl-8 lg:pr-4 flex items-center justify-start z-30
           transition-opacity focus:outline-none
           ${canNavigateOlder ? 'opacity-60 hover:opacity-100' : 'opacity-0 cursor-default'}`}
         aria-label="Go to older event"
@@ -196,7 +196,7 @@ export function TimelineStoryView({
       <button
         onClick={onNavigateNewer}
         disabled={!canNavigateNewer}
-        className={`fixed right-0 md:right-4 lg:right-8 top-0 bottom-0 w-12 md:w-16 flex items-center justify-center z-30
+        className={`fixed right-0 top-0 bottom-0 pr-0 pl-2 md:pr-4 md:pl-4 lg:pr-8 lg:pl-4 flex items-center justify-end z-30
           transition-opacity focus:outline-none
           ${canNavigateNewer ? 'opacity-60 hover:opacity-100' : 'opacity-0 cursor-default'}`}
         aria-label="Go to newer event"

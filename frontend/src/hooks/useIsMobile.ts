@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 
 /**
- * Hook to detect if the viewport is mobile-sized (< 768px)
+ * Hook to detect if the viewport is mobile-sized (< 1024px)
+ * Includes phones and tablets like iPad Mini
  * Updates on window resize
  */
 export function useIsMobile(): boolean {
@@ -9,7 +10,7 @@ export function useIsMobile(): boolean {
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      setIsMobile(window.innerWidth < 1024);
     };
 
     checkMobile();

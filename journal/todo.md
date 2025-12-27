@@ -1,10 +1,6 @@
 ## In Progress
-- BUG: Change left/right arrows of Story view to have margin instead of padding, so that clicking the far left/right also works
-- BUG: Make sure that it scrolls to the top of the page when switching from Timeline to Story, it doesn't work on my phone for some reason
-- BUG: App crashes when dragging across timeline on mobile and desktop
-    - Throttling navigation to prevent the browser from hanging. See https://crbug.com/1038223. Command line switch --disable-ipc-flooding-protection can be used to bypass the protection
-    - https://issues.chromium.org/issues/40113103
-- BUG: On mobile, when dropping down sharing/filter, it covers the button; make it so that the dropdown is below the button
+- Bug: fix death refresh loop (make it limit to 3 attempts?)
+
 - Post-Merge: Notify Jonathon that photo reordering is fixed
 
 -----
@@ -14,13 +10,8 @@
     - When tagged, send a notification to the user on whether they want to view/deny/add the event to their timeline, too
     - Reach out to Jonathon Roy/Rusty for feedback on this feature once it's implemented
 -----
-- ENHANCE: Organize the top banner better
-    - Move the "My Timeline" to the top banner for more space?
-    - Include name and profile picture in the top banner?
 
 ## Sprint Backlog
-- FEATURE: Mily "Wrapped" to give a year-end summary of the year
-    - That would be an easy way for people to humble-brag about their year
 - FEATURE: Allow users to create multiple timelines (Joey would like this)
     - Brainstorm on how the backend will support this
     - What should the name of this be?
@@ -59,6 +50,9 @@
 
 
 ## Backlog
+- FEATURE: Create a profile page that shows: profile photo, first/last name, counts of events, major, minor, memory
+- FEATURE: Mily "Wrapped" to give a year-end summary of the year
+    - That would be an easy way for people to humble-brag about their year
 - FEATURE: Enable expand/collapse all cards on Timeline view?
 - ENHANCE: Allow ability for users to define their default event privacy (some folks might want it to default to friend)
 - ENHANCE: Photo-based event suggestions to reduce onboarding friction
