@@ -10,6 +10,19 @@ class AuthApiClient {
     this.baseUrl = baseUrl;
   }
 
+  private buildUrl(endpoint: string): string {
+    const url = `${this.baseUrl}${endpoint}`;
+
+    // Avoid Next.js trailingSlash redirects (308) for the local proxy route.
+    // We keep Django/DRF's trailing-slash convention on the backend by letting
+    // the Next.js rewrite append the slash.
+    if (url.startsWith('/api/') && url.endsWith('/')) {
+      return url.slice(0, -1);
+    }
+
+    return url;
+  }
+
   private getCookie(name: string): string | null {
     if (typeof document === 'undefined') return null;
     const value = `; ${document.cookie}`;
@@ -27,7 +40,7 @@ class AuthApiClient {
      * The backend will set the csrftoken cookie in the response.
      */
     try {
-      await fetch(`${this.baseUrl}/auth/csrf-token/`, {
+      await fetch(this.buildUrl('/auth/csrf-token/'), {
         credentials: 'include',
       });
     } catch (error) {
@@ -71,7 +84,7 @@ class AuthApiClient {
     skipAuth?: boolean;
   }): Promise<T> {
     const { endpoint, options = {}, skipAuth = false } = params;
-    const url = `${this.baseUrl}${endpoint}`;
+    const url = this.buildUrl(endpoint);
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -133,7 +146,7 @@ class AuthApiClient {
 
   private async refreshAccessToken(): Promise<boolean> {
     try {
-      const response = await fetch(`${this.baseUrl}/auth/token/refresh/`, {
+      const response = await fetch(this.buildUrl('/auth/token/refresh/'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
