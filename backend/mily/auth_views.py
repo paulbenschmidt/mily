@@ -58,6 +58,30 @@ def set_refresh_token_cookie(response: Response, refresh_token: str) -> Response
 @api_view(['POST'])
 @permission_classes([AllowAny])
 @throttle_classes([AuthRateThrottle])
+def clear_cookies_view(request):
+    response = Response({
+        'message': 'Cookies cleared'
+    })
+
+    response.delete_cookie(
+        'access_token',
+        path='/',
+        domain=settings.SIMPLE_JWT['COOKIE_DOMAIN'],
+        samesite=settings.SIMPLE_JWT['COOKIE_SAMESITE'],
+    )
+    response.delete_cookie(
+        'refresh_token',
+        path='/',
+        domain=settings.SIMPLE_JWT['COOKIE_DOMAIN'],
+        samesite=settings.SIMPLE_JWT['COOKIE_SAMESITE'],
+    )
+
+    return response
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+@throttle_classes([AuthRateThrottle])
 def register_view(request):
     """Create a new user account."""
     # TODO: Account for instances where user is already signed in? Basically, there is a weird behavior if I'm already

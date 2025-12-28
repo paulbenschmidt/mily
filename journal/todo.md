@@ -1,6 +1,4 @@
 ## In Progress
-- Bug: fix death refresh loop (make it limit to 3 attempts?)
-
 - Post-Merge: Notify Jonathon that photo reordering is fixed
 
 -----
