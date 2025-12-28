@@ -18,8 +18,8 @@ for (const path of envPaths) {
   }
 }
 
-// Get API URL with fallback for Vercel deployment
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+// Get API URL with fallback for Vercel deployment and remove any trailing slash if present
+const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');
 
 // Get S3 bucket name for image optimization
 const s3BucketName = process.env.AWS_S3_PHOTOS_BUCKET;
@@ -71,14 +71,39 @@ const nextConfig: NextConfig = {
     ];
   },
   async rewrites() {
+    // Why so many /api rewrites?
+    // - Django/DRF's default routing expects trailing slashes (e.g. /events/self/).
+    // - Next.js also applies its own trailing-slash canonicalization at the edge.
+    // If the incoming request and the backend expectation disagree about a trailing
+    // slash, you pay a redirect on every API call (301/308), and in some cases can
+    // even create redirect loops.
+    //
+    // These rules handle all variations we might generate:
+    // - /api and /api/ (root)
+    // - /api/<path> and /api/<path>/
+    //
+    // We always forward to the backend with exactly one trailing slash so the
+    // backend never needs to append one (and therefore never redirects).
     return [
+      {
+        source: '/api',
+        destination: `${apiUrl}`,
+      },
+      {
+        source: '/api/',
+        destination: `${apiUrl}/`,
+      },
+      {
+        source: '/api/:path*/',
+        destination: `${apiUrl}/:path*/`,
+      },
       {
         source: '/api/:path*',
         destination: `${apiUrl}/:path*/`,
       },
     ];
   },
-  trailingSlash: false,
+  trailingSlash: true,
 };
 
 export default nextConfig;
