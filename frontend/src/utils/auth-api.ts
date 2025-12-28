@@ -155,12 +155,7 @@ class AuthApiClient {
       console.error('Failed to refresh access token');
     }
 
-    // If cookies are present, clear them using the backend endpoint
-    const refreshToken = this.getCookie('refresh_token');
-    const accessToken = this.getCookie('access_token');
-    if (refreshToken || accessToken) {
       await this.clearServerAuthCookies();
-    }
 
     if (typeof window !== 'undefined' && window.location.pathname.startsWith('/timeline')) {
       // Timeline routes should not trigger auth checks or redirects
