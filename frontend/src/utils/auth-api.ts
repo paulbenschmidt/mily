@@ -380,7 +380,7 @@ class AuthApiClient {
 
   // Send timeline share invitation
   async sendShareInvitation(email: string): Promise<{ id: string; shared_with_email: string }> {
-    return await this.request<{ id: string; shared_with_email: string }>({
+    return this.request<{ id: string; shared_with_email: string }>({
       endpoint: '/shares/',
       options: {
         method: 'POST',
@@ -401,7 +401,7 @@ class AuthApiClient {
     accepted_at: string | null;
     invitation_sent_at: string;
   }>> {
-    return await this.request<Array<{
+    return this.request<Array<{
       id: string;
       user: UserType;
       shared_with_email: string;
@@ -427,7 +427,7 @@ class AuthApiClient {
     accepted_at: string | null;
     invitation_sent_at: string;
   }>> {
-    return await this.request<Array<{
+    return this.request<Array<{
       id: string;
       user: UserType;
       shared_with_email: string;
@@ -478,7 +478,7 @@ class AuthApiClient {
     events: TimelineEventType[];
     user: UserType;
   }> {
-    return await this.request<{
+    return this.request<{
       events: TimelineEventType[];
       user: UserType;
     }>({

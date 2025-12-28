@@ -26,18 +26,15 @@ export default function Timeline() {
 
   useEffect(() => {
     fetchEvents();
-    fetchUserProfile();
   }, []);
 
-  const fetchUserProfile = async () => {
-    try {
-      const user = await authApiClient.getCurrentUser();
+  // Set user profile data from AuthContext
+  useEffect(() => {
+    if (user) {
       setIsPublic(user.is_public);
       setUserHandle(user.handle);
-    } catch (err) {
-      setError('Failed to load profile. Please try again.');
     }
-  };
+  }, [user]);
 
   const fetchEvents = async () => {
     try {
