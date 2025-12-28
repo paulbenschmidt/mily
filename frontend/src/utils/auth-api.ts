@@ -103,7 +103,7 @@ class AuthApiClient {
           credentials: 'include',
         });
       } else {
-        // Redirect to login
+        // Redirect to login page
         if (typeof window !== 'undefined') {
           window.location.href = '/login';
         }
@@ -124,11 +124,18 @@ class AuthApiClient {
     return response.json();
   }
 
-
-  private clearAuthCookies(): void {
-    if (typeof document === 'undefined') return;
-    document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-    document.cookie = 'refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+  private async clearServerAuthCookies(): Promise<void> {
+    try {
+      await fetch(`${this.baseUrl}/auth/clear-cookies/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+    } catch {
+      console.error('Failed to clear server auth cookies');
+    }
   }
 
   private async refreshAccessToken(): Promise<boolean> {
@@ -144,20 +151,23 @@ class AuthApiClient {
       if (response.ok) {
         return true;
       }
-
-      // Clear cookies if refresh fails
-      this.clearAuthCookies();
-
-      if (typeof window !== 'undefined' && window.location.pathname.startsWith('/timeline')) {
-        // Timeline routes should not trigger auth checks or redirects
-        // Without this, unauthenticated users would be redirected to login
-        return true;
-      }
     } catch {
-      this.clearAuthCookies();
-    } finally {
-      return false;
+      console.error('Failed to refresh access token');
     }
+
+    // If cookies are present, clear them using the backend endpoint
+    const refreshToken = this.getCookie('refresh_token');
+    const accessToken = this.getCookie('access_token');
+    if (refreshToken || accessToken) {
+      await this.clearServerAuthCookies();
+    }
+
+    if (typeof window !== 'undefined' && window.location.pathname.startsWith('/timeline')) {
+      // Timeline routes should not trigger auth checks or redirects
+      // Without this, unauthenticated users would be redirected to login
+      return true;
+    }
+    return false;
   }
 
   // Authentication endpoints
