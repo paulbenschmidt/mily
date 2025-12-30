@@ -13,12 +13,13 @@ interface TimelineListEventProps {
   event: TimelineEventType;
   isLast?: boolean;
   onEditEvent?: (event: TimelineEventType) => void;
+  onShareEvent?: (event: TimelineEventType) => void;
   previousEvent?: TimelineEventType;
   nextEvent?: TimelineEventType;
   mode?: 'owner' | 'viewer';
 }
 
-export function TimelineListEvent({ event, onEditEvent, previousEvent, nextEvent, mode = 'owner' }: TimelineListEventProps) {
+export function TimelineListEvent({ event, onEditEvent, onShareEvent, previousEvent, nextEvent, mode = 'owner' }: TimelineListEventProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [photoModalOpen, setPhotoModalOpen] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
@@ -215,6 +216,7 @@ export function TimelineListEvent({ event, onEditEvent, previousEvent, nextEvent
                   <EventActionButtons
                     event={event}
                     onEditEvent={onEditEvent}
+                    onShareEvent={onShareEvent}
                     size="sm"
                     className="pb-4"
                   />

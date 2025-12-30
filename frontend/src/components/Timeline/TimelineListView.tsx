@@ -8,6 +8,7 @@ import { EmptyFilteredState } from './utils';
 interface TimelineListViewProps {
   events: TimelineEventType[];
   onEditEvent?: (event: TimelineEventType) => void;
+  onShareEvent?: (event: TimelineEventType) => void;
   onCurrentEventChange: (eventId: string) => void;
   onClearFilters?: () => void;
   hasActiveFilters: boolean;
@@ -22,6 +23,7 @@ interface TimelineListViewProps {
 export function TimelineListView({
   events,
   onEditEvent,
+  onShareEvent,
   onCurrentEventChange,
   onClearFilters,
   hasActiveFilters,
@@ -148,6 +150,7 @@ export function TimelineListView({
           <TimelineListEvent
             event={event}
             onEditEvent={mode === 'owner' ? onEditEvent : undefined}
+            onShareEvent={mode === 'owner' ? onShareEvent : undefined}
             previousEvent={events[index - 1]}
             nextEvent={events[index + 1]}
             mode={mode}

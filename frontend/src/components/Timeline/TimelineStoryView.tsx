@@ -17,6 +17,7 @@ interface TimelineStoryViewProps {
   canNavigateOlder: boolean;
   canNavigateNewer: boolean;
   onEditEvent?: (event: TimelineEventType) => void;
+  onShareEvent?: (event: TimelineEventType) => void;
   mode: 'owner' | 'viewer';
   hasActiveFilters?: boolean;
   onOpenFilters?: () => void;
@@ -35,6 +36,7 @@ export function TimelineStoryView({
   canNavigateOlder,
   canNavigateNewer,
   onEditEvent,
+  onShareEvent,
   mode,
   hasActiveFilters,
   onOpenFilters,
@@ -166,6 +168,7 @@ export function TimelineStoryView({
             <EventActionButtons
               event={currentEvent}
               onEditEvent={onEditEvent}
+              onShareEvent={onShareEvent}
               size="md"
               className="mt-6"
             />

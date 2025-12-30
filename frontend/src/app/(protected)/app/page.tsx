@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { authApiClient } from '@/utils/auth-api';
 import { TimelineEventType } from '@/types/api';
-import { AddEventModal, DeleteConfirmationModal, TimelineUnifiedView } from '@/components/Timeline';
+import { AddEventModal, DeleteConfirmationModal, ShareEventModal, TimelineUnifiedView } from '@/components/Timeline';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTimelineFilters } from '@/hooks/useTimelineFilters';
 
@@ -20,6 +20,8 @@ export default function Timeline() {
   const [isPublic, setIsPublic] = useState(false);
   const [isUpdatingPublic, setIsUpdatingPublic] = useState(false);
   const [userHandle, setUserHandle] = useState<string>();
+  const [isShareEventModalOpen, setIsShareEventModalOpen] = useState(false);
+  const [eventToShare, setEventToShare] = useState<TimelineEventType | undefined>(undefined);
 
   // Use timeline filters hook
   const { filters, filteredEvents, hasActiveFilters, handleFilter, handleClearFilters } = useTimelineFilters(events);
@@ -36,16 +38,30 @@ export default function Timeline() {
     }
   }, [user]);
 
+  // Helper function: If timeline is not public, override any "public" events to "friends"
+  const applyPrivacyOverride = (events: TimelineEventType[]) => {
+    if (isPublic) return events;
+
+    return events.map(event =>
+      event.privacy_level === 'public'
+        ? { ...event, privacy_level: 'friends' as const }
+        : event
+    );
+  };
+
   const fetchEvents = async () => {
     try {
+      setLoading(true);
+      setError(null);
       const response = await authApiClient.getEvents();
 
-      // Sort events by date (newest first for better UX)
+      // Sort events by date (newest first)
       const sortedEvents = response.sort((a, b) =>
         new Date(b.event_date).getTime() - new Date(a.event_date).getTime()
       );
 
-      setEvents(sortedEvents);
+      // Apply privacy override if timeline is not public
+      setEvents(applyPrivacyOverride(sortedEvents));
     } catch (err) {
       setError('Failed to load events');
     } finally {
@@ -58,13 +74,9 @@ export default function Timeline() {
   useEffect(() => {
     if (events.length === 0) return;
 
-    // If timeline is not public, override any "public" events to "friends"
     if (!isPublic) {
-      const updatedEvents = events.map(event =>
-        event.privacy_level === 'public'
-          ? { ...event, privacy_level: 'friends' as const }
-          : event
-      );
+      // If timeline is not public, override any "public" events to "friends"
+      const updatedEvents = applyPrivacyOverride(events);
 
       // Only update if there were changes
       const hasChanges = updatedEvents.some((event, index) =>
@@ -88,6 +100,11 @@ export default function Timeline() {
   const handleEditEvent = (event: TimelineEventType) => {
     setEventToEdit(event);
     setIsAddEventModalOpen(true);
+  };
+
+  const handleShareEvent = (event: TimelineEventType) => {
+    setEventToShare(event);
+    setIsShareEventModalOpen(true);
   };
 
   const handleDeleteEvent = (event: TimelineEventType) => {
@@ -173,6 +190,7 @@ export default function Timeline() {
         onAddEvent={handleAddEvent}
         onEventsAdded={handleEventsAdded}
         onEditEvent={handleEditEvent}
+        onShareEvent={handleShareEvent}
         onFilter={handleFilter}
         onClearFilters={handleClearFilters}
         hasActiveFilters={hasActiveFilters}
@@ -206,6 +224,14 @@ export default function Timeline() {
         onConfirm={handleDeleteConfirm}
         eventTitle={eventToDelete?.title || ''}
         isDeleting={isDeleting}
+      />
+
+      {/* Share Event Modal */}
+      <ShareEventModal
+        isOpen={isShareEventModalOpen}
+        onClose={() => setIsShareEventModalOpen(false)}
+        event={eventToShare}
+        userHandle={userHandle}
       />
     </>
   );
