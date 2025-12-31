@@ -3,7 +3,7 @@
  */
 export const MENTION_TOKEN_REGEX = /\{\{mention:([^|]+)\|name:([^}]+)\}\}/g;
 
-export type MentionPart = 
+export type MentionPart =
   | { type: 'text'; content: string }
   | { type: 'mention'; userId: string; displayName: string };
 
@@ -17,13 +17,17 @@ export function parseMentions(text: string): MentionPart[] {
   const result: MentionPart[] = [];
 
   for (let i = 0; i < parts.length; i++) {
-    // Even indices are text parts
+    // Indices 0, 3, 6... are always text parts (preceding/following text)
     if (i % 3 === 0) {
+      // If text starts with a mention, split() produces an empty string at index 0.
+      // We filter that out here so we don't render empty text nodes.
       if (parts[i]) {
         result.push({ type: 'text', content: parts[i] });
       }
-    } 
-    // Odd indices are captures (userId at i, displayName at i+1)
+    }
+    // Indices 1, 4, 7... are the first capture group (userId)
+    // Indices 2, 5, 8... are the second capture group (displayName)
+    // We handle both captures when we hit the userId index
     else if (i % 3 === 1) {
       result.push({
         type: 'mention',
