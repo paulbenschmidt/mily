@@ -6,6 +6,7 @@ from rest_framework import serializers
 from .aws_s3 import create_presigned_get_url, make_avatar_key
 from .models import (
     Event,
+    EventMention,
     EventPhoto,
     EventPrivacyLevel,
     Notification,
@@ -215,3 +216,20 @@ class NotificationSerializer(serializers.ModelSerializer):
             "action_url",
             "created_at",
         ]
+
+
+class EventMentionSerializer(serializers.ModelSerializer):
+    """Serializer for event mentions/tags."""
+    event = serializers.PrimaryKeyRelatedField(read_only=True)
+    mentioned_user = UserPublicSerializer(read_only=True)
+
+    class Meta:
+        model = EventMention
+        fields = [
+            "id",
+            "event",
+            "mentioned_user",
+            "source",
+            "created_at",
+        ]
+        read_only_fields = ["id", "event", "mentioned_user", "created_at"]

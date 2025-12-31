@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { TimelineEventType, EventCategory, EventPrivacyLevel, EVENT_CATEGORIES, EVENT_PRIVACY_LEVELS, EventPhotoType } from '@/types/api';
+import { TimelineEventType, EventCategory, EventPrivacyLevel, EVENT_CATEGORIES, EVENT_PRIVACY_LEVELS, EventPhotoType, ShareType, UserType } from '@/types/api';
 import { authApiClient } from '@/utils/auth-api';
 import { Input, Button, Subheading, Alert, Textarea } from '@/components/ui';
 import { DateInput } from './DateInput';
+import { DescriptionInput } from './DescriptionInput';
 import { ToggleButtonGroup } from '@/components/Timeline';
 import { PhotoUpload, uploadPendingPhotos } from './PhotoUpload';
 import { useAutoFocus } from '@/hooks/useAutoFocus';
@@ -41,7 +42,6 @@ const TITLE_PLACEHOLDERS = [
   'Learned a new language',
   'Got promoted',
 ];
-const INPUT_DESCRIPTION_MAX_HEIGHT = 120; // ~5 lines
 
 interface AddEventModalProps {
   isOpen: boolean;
@@ -78,6 +78,28 @@ export function AddEventModal({
   const [error, setError] = useState<string | null>(null);
   const [isSelectionsLoaded, setIsSelectionsLoaded] = useState(false);
   const [titlePlaceholder, setTitlePlaceholder] = useState('');
+  const [acceptedShares, setAcceptedShares] = useState<UserType[]>([]);
+
+  // Fetch accepted timeline shares when modal opens
+  useEffect(() => {
+    const fetchAcceptedShares = async () => {
+      try {
+        const shares = await authApiClient.getSharedByYou();
+        // Filter to only accepted shares with registered users
+        const acceptedUsers = shares
+          .filter(share => share.is_accepted && share.shared_with_user)
+          .map(share => share.shared_with_user as UserType);
+        setAcceptedShares(acceptedUsers);
+      } catch (error) {
+        console.error('Failed to fetch timeline shares:', error);
+        setAcceptedShares([]);
+      }
+    };
+
+    if (isOpen) {
+      fetchAcceptedShares();
+    }
+  }, [isOpen]);
 
   // Set random placeholder when modal opens
   useEffect(() => {
@@ -86,19 +108,6 @@ export function AddEventModal({
       setTitlePlaceholder(TITLE_PLACEHOLDERS[randomIndex]);
     }
   }, [isOpen, eventToEdit]);
-
-  // Auto-resize description textarea when modal opens (for edit mode with existing text)
-  useEffect(() => {
-    if (isOpen && description) {
-      const textarea = document.getElementById('description') as HTMLTextAreaElement;
-      if (textarea) {
-        textarea.style.height = 'auto';
-        const newHeight = Math.min(textarea.scrollHeight, INPUT_DESCRIPTION_MAX_HEIGHT);
-        textarea.style.height = newHeight + 'px';
-        textarea.style.overflow = textarea.scrollHeight > INPUT_DESCRIPTION_MAX_HEIGHT ? 'auto' : 'hidden';
-      }
-    }
-  }, [isOpen, description]);
 
   // Load event data when in edit mode
   useEffect(() => {
@@ -347,19 +356,11 @@ export function AddEventModal({
                 </div>
               </div>
             </div>
-            <Textarea
-              id="description"
+            <DescriptionInput
               value={description}
-              onChange={(e) => {
-                setDescription(e.target.value);
-                // Auto-resize textarea up to max height
-                e.target.style.height = 'auto';
-                const newHeight = Math.min(e.target.scrollHeight, INPUT_DESCRIPTION_MAX_HEIGHT);
-                e.target.style.height = newHeight + 'px';
-                e.target.style.overflow = e.target.scrollHeight > INPUT_DESCRIPTION_MAX_HEIGHT ? 'auto' : 'hidden';
-              }}
-              rows={1}
-              style={{ minHeight: '2.5rem', resize: 'none' }}
+              onChange={setDescription}
+              acceptedShares={acceptedShares}
+              hydrateKey={`${eventToEdit?.id || 'new'}-${isOpen}-${isSelectionsLoaded}`}
             />
           </div>
 

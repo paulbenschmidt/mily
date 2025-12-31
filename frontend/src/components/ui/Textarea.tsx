@@ -1,5 +1,10 @@
 import { TextareaHTMLAttributes, forwardRef } from 'react';
 
+// Exporting since they are used in other components like DescriptionInput
+export const baseInputStyles = 'w-full px-3 py-2 border rounded-md transition-colors focus:outline-none placeholder:text-secondary-400';
+export const normalInputStyles = 'border-secondary-300 focus:ring-primary-500 focus:border-primary-500';
+export const errorInputStyles = 'border-danger-300 focus:ring-danger-500 focus:border-danger-500';
+
 interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
   error?: string;
@@ -7,9 +12,6 @@ interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 
 const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ label, error, className = '', ...props }, ref) => {
-    const baseStyles = 'w-full px-3 py-2 border rounded-md transition-colors focus:outline-none placeholder:text-secondary-400';
-    const normalStyles = 'border-secondary-300 focus:ring-primary-500 focus:border-primary-500';
-    const errorStyles = 'border-danger-300 focus:ring-danger-500 focus:border-danger-500';
 
     return (
       <div className="w-full">
@@ -20,7 +22,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         )}
         <textarea
           ref={ref}
-          className={`${baseStyles} ${error ? errorStyles : normalStyles} ${className}`}
+          className={`${baseInputStyles} ${error ? errorInputStyles : normalInputStyles} ${className}`}
           {...props}
         />
         {error && (

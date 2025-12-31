@@ -5,7 +5,7 @@ import { TimelineEventType } from '@/types/api';
 import { formatEventDate } from '@/utils/date-validation';
 import { PhotoCarousel } from './PhotoCarousel';
 import { PhotoModal } from './PhotoModal';
-import { SmallText, BodyText, Caption } from '@/components/ui';
+import { SmallText, Caption, RichText } from '@/components/ui';
 import { EventActionButtons } from './EventActionButtons';
 import { PrivacyIcon, EmptyFilteredState } from './utils';
 
@@ -149,9 +149,10 @@ export function TimelineStoryView({
           {/* Description */}
           {currentEvent.description && (
             <div className="mt-6 mb-6">
-              <BodyText className="leading-relaxed whitespace-pre-wrap text-secondary-700">
-                {currentEvent.description}
-              </BodyText>
+              <RichText
+                content={currentEvent.description}
+                className="leading-relaxed whitespace-pre-wrap text-secondary-700"
+              />
             </div>
           )}
 

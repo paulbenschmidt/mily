@@ -6,7 +6,7 @@ from django.urls import path
 from django.utils import timezone
 from datetime import timedelta
 
-from .models import User, Event, EventPhoto, Share
+from .models import User, Event, EventPhoto, Share, EventMention
 
 
 @admin.register(User)
@@ -109,6 +109,26 @@ class ShareAdmin(admin.ModelAdmin):
         return obj.is_registered
     is_registered.boolean = True
     is_registered.short_description = 'Registered'
+
+
+@admin.register(EventMention)
+class EventMentionAdmin(admin.ModelAdmin):
+    """Admin interface for EventMention model"""
+    list_display = ('event', 'mentioned_user', 'source', 'created_at')
+    list_filter = ('source', 'created_at')
+    search_fields = ('event__title', 'mentioned_user__email', 'mentioned_user__username')
+    readonly_fields = ('id', 'created_at')
+    raw_id_fields = ('event', 'mentioned_user')
+
+    fieldsets = (
+        (None, {
+            'fields': ('event', 'mentioned_user', 'source')
+        }),
+        ('Metadata', {
+            'fields': ('id', 'created_at'),
+            'classes': ('collapse',)
+        }),
+    )
 
 
 def get_metrics_context():

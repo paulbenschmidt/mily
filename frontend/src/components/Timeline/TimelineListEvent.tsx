@@ -4,7 +4,7 @@ import { useState } from 'react';
 import NextImage from 'next/image';
 import { TimelineEventType } from '@/types/api';
 import { formatEventDate } from '@/utils/date-validation';
-import { SmallText, Caption, Card, BodyText } from '@/components/ui';
+import { Caption, Card, BodyText, RichText } from '@/components/ui';
 import { PhotoModal } from './PhotoModal';
 import { EventActionButtons } from './EventActionButtons';
 import { PrivacyIcon } from './utils';
@@ -152,11 +152,12 @@ export function TimelineListEvent({ event, onEditEvent, onShareEvent, previousEv
                 {/* Description - transitions from clamped to full */}
                 {event.description && (
                   <div className="mt-1 md:mt-1.5">
-                    <SmallText className={`leading-relaxed whitespace-pre-wrap transition-all duration-500 ${
-                      isExpanded ? '' : 'line-clamp-2 md:line-clamp-1'
-                    }`}>
-                      {event.description}
-                    </SmallText>
+                    <RichText
+                      content={event.description}
+                      className={`text-sm text-secondary-500 leading-relaxed transition-all duration-500 ${
+                        isExpanded ? '' : 'line-clamp-2 md:line-clamp-1'
+                      }`}
+                    />
                   </div>
                 )}
 

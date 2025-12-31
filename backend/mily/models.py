@@ -233,3 +233,50 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"{self.notification_type} for {self.recipient.email}: {self.title}"
+
+
+class EventMentionSource(models.TextChoices):
+    DESCRIPTION = "description", "Event Description"
+
+
+class EventMention(models.Model):
+    """
+    Tracks when users are mentioned/tagged in events.
+    Used for inviting friends to add a copy of an event to their timeline.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    event = models.ForeignKey(
+        Event,
+        on_delete=models.CASCADE,
+        related_name='mentions',
+        help_text="Event where the user was mentioned"
+    )
+    mentioned_user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='event_mentions',
+        help_text="User who was mentioned in the event"
+    )
+    source = models.CharField(
+        max_length=50,
+        choices=EventMentionSource.choices,
+        default=EventMentionSource.DESCRIPTION,
+        help_text="Where the user was mentioned (e.g., description)"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'event_mentions'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['event', 'mentioned_user', 'source'],
+                name='uniq_event_mention'
+            ),
+        ]
+        indexes = [
+            models.Index(fields=['event']),
+            models.Index(fields=['mentioned_user', '-created_at']),
+        ]
+
+    def __str__(self):
+        return f"{self.mentioned_user.email} mentioned in {self.event.title}"

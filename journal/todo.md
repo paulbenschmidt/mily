@@ -7,7 +7,23 @@
     - Add Share button underneath event to send to a person
     - When tagged, send a notification to the user on whether they want to view/deny/add the event to their timeline, too
     - Reach out to Jonathon Roy/Rusty for feedback on this feature once it's implemented
+
+Make it so that @ing someone in the description opens a chip selection for all friends who have accepted a timeline share.
+When a friend is selected, show a blurb under the description like this:
+> Invite tagged friends?  [On/Off] (only have this show for non-private events)
+> “When you save, tagged friends will receive an invite to add a copy to their timeline.”
+
+- @-ing someone adds the @-ed user ID to a `event_invites` table (regardless of whether or not it's a "send", for observability)
+- @-ing someone and opting to send it triggers a "send" event that follows the same path as the "Share event" modal (likely a separate backend table that keeps record of event sends)
+
+Copy is created and stored in the `event_invites` table for all tagged users. Photos are copied over to a separate bucket with a unique identifier, so a user could theoretically send the invite, remove user access, and the recipient could still add the event.
+
+While I don't like to have two paths for the same logic, I think that I'll allow the sending of events to be possible whenever someone @s someone and whenever someone chooses the Send option in the Share event modal.
+
+figure out why opening a new edit event doesn't load the old description
 -----
+
+- BUG: When pushing the "Create Your Timeline" button to log in with a valid refresh token, it logs you in but doesn't refresh the top banner (so it doesn't show that you're logged in). I noticed this specifically on the mobile browser, but it's probably true of the desktop as well.
 
 ## Sprint Backlog
 - FEATURE: Allow users to create multiple timelines (Joey would like this)
