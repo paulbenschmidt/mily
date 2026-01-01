@@ -52,6 +52,7 @@ interface AddEventModalProps {
   onDeleteEvent?: (event: TimelineEventType) => void;
   isPublic?: boolean;
   acceptedShares?: UserType[];
+  inviteId?: string;
 }
 
 export function AddEventModal({
@@ -62,9 +63,11 @@ export function AddEventModal({
   onEventUpdated,
   onDeleteEvent,
   isPublic = false,
-  acceptedShares = []
+  acceptedShares = [],
+  inviteId
 }: AddEventModalProps) {
-  const isEditMode = !!eventToEdit;
+  const isInviteMode = !!inviteId;
+  const isEditMode = !!eventToEdit && !isInviteMode;
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [year, setYear] = useState('');
@@ -91,7 +94,7 @@ export function AddEventModal({
     }
   }, [isOpen, eventToEdit]);
 
-  // Load event data when in edit mode
+  // Load event data when in edit mode or invite mode
   useEffect(() => {
     if (eventToEdit && isOpen) {
       setTitle(eventToEdit.title);
@@ -106,7 +109,34 @@ export function AddEventModal({
       setCategory(eventToEdit.category);
       setPrivacyLevel(eventToEdit.privacy_level);
       setNotes(eventToEdit.notes || '');
-      setPhotos(eventToEdit.photos || []);
+
+      // Handle photos differently for invite mode vs edit mode
+      if (isInviteMode) {
+        // In invite mode, download photos and set as pending files
+        const downloadPhotos = async () => {
+          if (eventToEdit.photos && eventToEdit.photos.length > 0) {
+            try {
+              const photoFiles = await Promise.all(
+                eventToEdit.photos.map(async (photo) => {
+                  const response = await fetch(photo.url);
+                  const blob = await response.blob();
+                  // Extract filename from URL or use a default
+                  const filename = photo.filename || `photo-${photo.id}.jpg`;
+                  return new File([blob], filename, { type: photo.content_type });
+                })
+              );
+              setPendingPhotoFiles(photoFiles);
+            } catch (error) {
+              console.error('Failed to download photos from invite:', error);
+            }
+          }
+        };
+        downloadPhotos();
+      } else {
+        // In edit mode, just set the photos normally
+        setPhotos(eventToEdit.photos || []);
+      }
+
       // Extract user IDs from mentions
       const userIds = eventToEdit.mentions?.map(m => m.mentioned_user.id) || [];
       setMentionedUsers(userIds);
@@ -118,7 +148,7 @@ export function AddEventModal({
       // Reset loaded state when modal closes
       setIsSelectionsLoaded(false);
     }
-  }, [eventToEdit, isOpen]);
+  }, [eventToEdit, isOpen, isInviteMode]);
 
   const handlePhotoOperationComplete = async () => {
     // Fetch the latest event data and update parent state (to update state when adding/deleting photos)
@@ -165,9 +195,37 @@ export function AddEventModal({
 
       let updatedEvent;
 
-      if (isEditMode && eventToEdit) {
+      if (isInviteMode && inviteId) {
+        // Create the event on user's timeline
+        updatedEvent = await authApiClient.createEvent(eventData);
+
+        // Upload photos from the original event
+        if (pendingPhotoFiles.length > 0) {
+          try {
+            await uploadPendingPhotos(updatedEvent.id, pendingPhotoFiles);
+            // Fetch the updated event with photos
+            updatedEvent = await authApiClient.getEvent(updatedEvent.id);
+          } catch (photoError) {
+            console.error('Failed to upload photos from invite');
+            // Event was created successfully, just photos failed
+          }
+        }
+
+        // Accept the invite (just updates status)
+        await authApiClient.acceptEventInvite(inviteId);
+
+        onEventAdded(updatedEvent);
+      } else if (isEditMode && eventToEdit) {
         // Update existing event
         updatedEvent = await authApiClient.updateEvent(eventToEdit.id, eventData);
+        if (inviteTaggedFriends && mentionedUsers.length > 0) {
+          try {
+            await authApiClient.sendEventInvites(eventToEdit.id, mentionedUsers);
+          } catch (inviteError) {
+            console.error('Failed to send event invites:', inviteError);
+            // Event was updated successfully, just invites failed
+          }
+        }
         if (onEventUpdated) {
           onEventUpdated(updatedEvent);
         }
@@ -185,6 +243,15 @@ export function AddEventModal({
             console.error('Failed to upload photos');
             // Event was created successfully, just photos failed
             // We'll still show the event, user can add photos later
+          }
+        }
+
+        if (inviteTaggedFriends && mentionedUsers.length > 0) {
+          try {
+            await authApiClient.sendEventInvites(updatedEvent.id, mentionedUsers);
+          } catch (inviteError) {
+            console.error('Failed to send event invites:', inviteError);
+            // Event was created successfully, just invites failed
           }
         }
 
@@ -213,6 +280,7 @@ export function AddEventModal({
     setPendingPhotoFiles([]);
     setIsSelectionsLoaded(false);
     setMentionedUsers([]);
+    setInviteTaggedFriends(false);
   };
 
   // Auto-focus the title input when the modal opens
@@ -250,7 +318,7 @@ export function AddEventModal({
       {/* max-h makes it so that modal doesn't overflow the screen */}
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md my-2 sm:my-0 max-h-[calc(100vh-2rem)] flex flex-col">
         <div className="flex justify-between items-center border-b border-secondary-200 px-6 py-3 flex-shrink-0">
-          <Subheading>{isEditMode ? 'Edit Event' : 'Add New Event'}</Subheading>
+          <Subheading>{isInviteMode ? 'Add Shared Event' : isEditMode ? 'Edit Event' : 'Add New Event'}</Subheading>
           <Button
             variant="text"
             onClick={onModalClose}
@@ -447,11 +515,8 @@ export function AddEventModal({
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                loading={isSubmitting}
-              >
-                {isSubmitting ? (isEditMode ? 'Saving...' : 'Adding...') : (isEditMode ? 'Save' : 'Add')}
+              <Button type="submit" disabled={isSubmitting} loading={isSubmitting}>
+                {isSubmitting ? 'Saving...' : isInviteMode ? 'Add to Timeline' : isEditMode ? 'Update Event' : 'Add Event'}
               </Button>
             </div>
           </div>

@@ -5,6 +5,7 @@ import { TimelineEventType, UserType } from '@/types/api';
 import { Button, Subheading, BodyText, SmallText, Caption } from '@/components/ui';
 import { useDisableBodyScroll } from '@/hooks/disableBodyScroll';
 import { useModalKeyboardShortcuts } from '@/hooks/useModalKeyboardShortcuts';
+import { authApiClient } from '@/utils/auth-api';
 
 interface ShareEventModalProps {
   isOpen: boolean;
@@ -121,13 +122,12 @@ export function ShareEventModal({
   };
 
   const handleSendInvites = async () => {
-    if (selectedRecipients.length === 0) return;
+    if (selectedRecipients.length === 0 || !event) return;
 
     setIsSending(true);
     try {
-      // TODO: Implement API call to send event invites
-      console.log('Sending event to:', selectedRecipients);
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
+      const recipientIds = selectedRecipients.map(recipient => recipient.id);
+      await authApiClient.sendEventInvites(event.id, recipientIds, true);
 
       // Reset and close on success
       setSelectedRecipients([]);

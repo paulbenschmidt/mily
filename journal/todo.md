@@ -21,19 +21,17 @@
         - [x] On event update, delete all associated `EventMention` records and re-add all `EventMention` records
         - [x] On event delete, delete all associated `EventMention` records (auto-handled with CASCADE)
         - [x] On GET events, return all associated `EventMention` user IDs as an array
-    - BACKEND: EventShare management, when user opts into share
-        - [ ] On event create, create `EventShare` records for invited users AND notify users
-        - [ ] On event update, check if `EventShare` records exist--if so, ignore; otherwise, add AND notify
-        - [ ] On event delete, delete all associated `EventShare` records (auto-handled with CASCADE)
+    - BACKEND: EventInvite management, when user opts into share
+        - [x] On event create, create `EventInvite` records for invited users AND notify users
+        - [x] On event update, check if `EventInvite` records exist--if so, ignore; otherwise, add AND notify
+        - [x] On event delete, delete all associated `EventInvite` records (auto-handled with CASCADE)
         - I will not create a copy of the event; it will copy it over on Accept
         - Notification: whether they want to view/deny/add the event to their timeline, too
-
-
-    - [ ] @-ing someone adds the @-ed user ID to a `event_invites` table (regardless of whether or not it's a "send", for observability)
-        - @-ing someone and opting into sending creates a "send" event that follows the same path as the "Share event" modal (likely a separate backend table that keeps record of event sends)
-        - While I don't like to have two paths for the same logic, I think that it's sufficiently intuitive
+    - When user clicks on notification, open AddEventModal with event data.
     - [ ] Reach out to Jonathon Roy/Rusty for feedback on this feature once it's implemented
         - Also, notify Jonathon that photo reordering is fixed
+
+- TODO: Rename "Share" to "TimelineInvite"
 
 ## Sprint Backlog
 - ENHANCE: Create simple Notifications page so that users can view/deny/add-to-timeline event shares

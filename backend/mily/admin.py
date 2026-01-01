@@ -6,7 +6,7 @@ from django.urls import path
 from django.utils import timezone
 from datetime import timedelta
 
-from .models import User, Event, EventPhoto, Share, EventMention
+from .models import User, Event, EventPhoto, Share, EventMention, EventInvite
 
 
 @admin.register(User)
@@ -126,6 +126,26 @@ class EventMentionAdmin(admin.ModelAdmin):
         }),
         ('Metadata', {
             'fields': ('id', 'created_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+
+@admin.register(EventInvite)
+class EventInviteAdmin(admin.ModelAdmin):
+    """Admin interface for EventInvite model"""
+    list_display = ('event', 'recipient', 'status', 'created_at', 'updated_at')
+    list_filter = ('status', 'created_at', 'updated_at')
+    search_fields = ('event__title', 'recipient__email', 'recipient__username')
+    readonly_fields = ('id', 'created_at', 'updated_at')
+    raw_id_fields = ('event', 'recipient')
+
+    fieldsets = (
+        (None, {
+            'fields': ('event', 'recipient', 'status')
+        }),
+        ('Metadata', {
+            'fields': ('id', 'created_at', 'updated_at'),
             'classes': ('collapse',)
         }),
     )

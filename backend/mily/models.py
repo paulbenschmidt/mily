@@ -191,6 +191,55 @@ class EventPhoto(models.Model):
         super().save(*args, **kwargs)
 
 
+class EventInviteStatus(models.TextChoices):
+    PENDING = "pending", "Pending"
+    ACCEPTED = "accepted", "Accepted"
+
+
+class EventInvite(models.Model):
+    """
+    Tracks invitations for users to add a copy of an event to their timeline.
+    Created when a user mentions/tags another user in an event and opts to send an invite.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    event = models.ForeignKey(
+        Event,
+        on_delete=models.CASCADE,
+        related_name='invites',
+        help_text="Event that is being shared"
+    )
+    recipient = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='event_invites_received',
+        help_text="User who received the invite"
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=EventInviteStatus.choices,
+        default=EventInviteStatus.PENDING,
+        help_text="Status of the invite"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'event_invites'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['event', 'recipient'],
+                name='uniq_event_invite'
+            ),
+        ]
+        indexes = [
+            models.Index(fields=['recipient', 'status', '-created_at']),
+            models.Index(fields=['event']),
+        ]
+
+    def __str__(self):
+        return f"Invite to {self.recipient.email} for {self.event.title} ({self.status})"
+
+
 class Share(models.Model):
     """
     Tracks timeline shares with friends/family via email.

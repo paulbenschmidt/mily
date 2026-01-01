@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { authApiClient } from '@/utils/auth-api';
 import { TimelineEventType, UserType } from '@/types/api';
 import { AddEventModal, DeleteConfirmationModal, ShareEventModal, TimelineUnifiedView } from '@/components/Timeline';
@@ -9,6 +10,7 @@ import { useTimelineFilters } from '@/hooks/useTimelineFilters';
 
 export default function Timeline() {
   const { isMobile, user } = useAuth();
+  const searchParams = useSearchParams();
   const [events, setEvents] = useState<TimelineEventType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -23,8 +25,8 @@ export default function Timeline() {
   const [isShareEventModalOpen, setIsShareEventModalOpen] = useState(false);
   const [eventToShare, setEventToShare] = useState<TimelineEventType | undefined>(undefined);
   const [acceptedShares, setAcceptedShares] = useState<UserType[]>([]);
-
-  console.log("Events:", events);
+  const [inviteId, setInviteId] = useState<string | null>(null);
+  const [inviteEvent, setInviteEvent] = useState<TimelineEventType | null>(null);
 
   // Use timeline filters hook
   const { filters, filteredEvents, hasActiveFilters, handleFilter, handleClearFilters } = useTimelineFilters(events);
@@ -32,6 +34,31 @@ export default function Timeline() {
   useEffect(() => {
     fetchEvents();
   }, []);
+
+  // Handle invite query parameter
+  useEffect(() => {
+    const inviteParam = searchParams.get('invite');
+    if (inviteParam) {
+      authApiClient.getEventInvite(inviteParam)
+        .then(invite => {
+          // Only open modal if invite is still pending
+          if (invite.status === 'pending') {
+            setInviteId(inviteParam);
+            setInviteEvent(invite.event);
+            setIsAddEventModalOpen(true);
+          } else {
+            // Invite already accepted
+            alert(`This invite has already been ${invite.status}.`);
+            window.location.href = '/app';
+          }
+        })
+        .catch(err => {
+          console.error('Failed to load invite:', err);
+          // Redirect to /app on error
+          window.location.href = '/app';
+        });
+    }
+  }, [searchParams]);
 
   // Set user profile data from AuthContext
   useEffect(() => {
@@ -231,13 +258,18 @@ export default function Timeline() {
       {/* Add/Edit Event Modal */}
       <AddEventModal
         isOpen={isAddEventModalOpen}
-        onClose={() => setIsAddEventModalOpen(false)}
+        onClose={() => {
+          setIsAddEventModalOpen(false);
+          setInviteId(null);
+          setInviteEvent(null);
+        }}
         onEventAdded={handleEventAdded}
-        eventToEdit={eventToEdit}
+        eventToEdit={inviteEvent || eventToEdit}
         onEventUpdated={handleEventUpdated}
         onDeleteEvent={handleDeleteEvent}
         isPublic={isPublic}
         acceptedShares={acceptedShares}
+        inviteId={inviteId || undefined}
       />
 
       {/* Delete Confirmation Modal */}
