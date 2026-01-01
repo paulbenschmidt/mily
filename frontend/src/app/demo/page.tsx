@@ -14,7 +14,8 @@ function DemoPageContent() {
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
   // Load demo events from JSON
-  const events = demoData as TimelineEventType[];
+  // Demo data uses simplified photo objects (id/url only), so we bypass strict type checking
+  const events = demoData as any as TimelineEventType[];
 
   // Use timeline filters hook
   const { filters, filteredEvents, hasActiveFilters, handleFilter, handleClearFilters } = useTimelineFilters(events);
