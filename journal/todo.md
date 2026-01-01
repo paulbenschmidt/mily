@@ -1,31 +1,43 @@
 ## In Progress
-- Post-Merge: Notify Jonathon that photo reordering is fixed
-
------
-- ENHANCE: Create simple Notifications page so that users can view/deny/add-to-timeline event shares
 - ENHANCE: Allow users to share individual events/tagging people in events/sharing events
-    - Add Share button underneath event to send to a person
-    - When tagged, send a notification to the user on whether they want to view/deny/add the event to their timeline, too
-    - Reach out to Jonathon Roy/Rusty for feedback on this feature once it's implemented
+    - [x] Add Share button underneath event to send to a person
+    - [x] Make it so that @ing someone in the description opens a chip selection for all friends who have accepted a timeline share
+    - [x] Make it so that you can't @ someone multiple times in the same event
+    - [x] When a friend is selected, show a toggle below the description like this (only make this visible for non-private events):
+        > Invite tagged friends?  [On/Off] (only have this show for non-private events)
+        > “When you save, tagged friends will receive an invite to add a copy to their timeline.”
+    - [x] Revise "Event Share" modal to have a multi-select picker with recipient chips
+    - [ ] Think about how you want creates/updates/deletes to behave
+        - I was initially thinking that I'd bulk delete and auto-add on every event save, but I realize that this would spam the recipient with notifications.
+        - I think the recommended path is to:
+            1. For new or updated events in `EventMentions`, bulk-delete any pre-existing mentions and add the new ones. For deleted events, bulk-delete all mentions.
+            2. If sharing, for `EventShare`:
+                - When creating a new event, create a new `EventShare` record for each invited user.
+                - When updating an event, check if the user has been invited already. If not, create a new `EventShare` record; if so, do nothing.
+                - When deleting an event, delete all `EventShare` records for that event.
+                - If using the dedicated "Share" event, then always create a new `EventShare` record for each invited user.
+    - BACKEND: EventMention management
+        - [x] On event create, create `EventMention` records
+        - [x] On event update, delete all associated `EventMention` records and re-add all `EventMention` records
+        - [x] On event delete, delete all associated `EventMention` records (auto-handled with CASCADE)
+        - [x] On GET events, return all associated `EventMention` user IDs as an array
+    - BACKEND: EventShare management, when user opts into share
+        - [ ] On event create, create `EventShare` records for invited users AND notify users
+        - [ ] On event update, check if `EventShare` records exist--if so, ignore; otherwise, add AND notify
+        - [ ] On event delete, delete all associated `EventShare` records (auto-handled with CASCADE)
+        - I will not create a copy of the event; it will copy it over on Accept
+        - Notification: whether they want to view/deny/add the event to their timeline, too
 
-Make it so that @ing someone in the description opens a chip selection for all friends who have accepted a timeline share.
-When a friend is selected, show a blurb under the description like this:
-> Invite tagged friends?  [On/Off] (only have this show for non-private events)
-> “When you save, tagged friends will receive an invite to add a copy to their timeline.”
 
-- @-ing someone adds the @-ed user ID to a `event_invites` table (regardless of whether or not it's a "send", for observability)
-- @-ing someone and opting to send it triggers a "send" event that follows the same path as the "Share event" modal (likely a separate backend table that keeps record of event sends)
-
-Copy is created and stored in the `event_invites` table for all tagged users. Photos are copied over to a separate bucket with a unique identifier, so a user could theoretically send the invite, remove user access, and the recipient could still add the event.
-
-While I don't like to have two paths for the same logic, I think that I'll allow the sending of events to be possible whenever someone @s someone and whenever someone chooses the Send option in the Share event modal.
-
-figure out why opening a new edit event doesn't load the old description
------
-
-- BUG: When pushing the "Create Your Timeline" button to log in with a valid refresh token, it logs you in but doesn't refresh the top banner (so it doesn't show that you're logged in). I noticed this specifically on the mobile browser, but it's probably true of the desktop as well.
+    - [ ] @-ing someone adds the @-ed user ID to a `event_invites` table (regardless of whether or not it's a "send", for observability)
+        - @-ing someone and opting into sending creates a "send" event that follows the same path as the "Share event" modal (likely a separate backend table that keeps record of event sends)
+        - While I don't like to have two paths for the same logic, I think that it's sufficiently intuitive
+    - [ ] Reach out to Jonathon Roy/Rusty for feedback on this feature once it's implemented
+        - Also, notify Jonathon that photo reordering is fixed
 
 ## Sprint Backlog
+- ENHANCE: Create simple Notifications page so that users can view/deny/add-to-timeline event shares
+- BUG: When pushing the "Create Your Timeline" button to log in with a valid refresh token, it logs you in but doesn't refresh the top banner (so it doesn't show that you're logged in). I noticed this specifically on the mobile browser, but it's probably true of the desktop as well.
 - FEATURE: Allow users to create multiple timelines (Joey would like this)
     - Brainstorm on how the backend will support this
     - What should the name of this be?

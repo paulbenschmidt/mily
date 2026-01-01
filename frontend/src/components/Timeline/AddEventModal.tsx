@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { TimelineEventType, EventCategory, EventPrivacyLevel, EVENT_CATEGORIES, EVENT_PRIVACY_LEVELS, EventPhotoType, ShareType, UserType } from '@/types/api';
 import { authApiClient } from '@/utils/auth-api';
-import { Input, Button, Subheading, Alert, Textarea } from '@/components/ui';
+import { Input, Button, Subheading, Alert, Textarea, InfoTooltip } from '@/components/ui';
 import { DateInput } from './DateInput';
 import { DescriptionInput } from './DescriptionInput';
 import { ToggleButtonGroup } from '@/components/Timeline';
@@ -51,6 +51,7 @@ interface AddEventModalProps {
   onEventUpdated?: (event: TimelineEventType) => void;
   onDeleteEvent?: (event: TimelineEventType) => void;
   isPublic?: boolean;
+  acceptedShares?: UserType[];
 }
 
 export function AddEventModal({
@@ -60,7 +61,8 @@ export function AddEventModal({
   eventToEdit,
   onEventUpdated,
   onDeleteEvent,
-  isPublic = false
+  isPublic = false,
+  acceptedShares = []
 }: AddEventModalProps) {
   const isEditMode = !!eventToEdit;
   const [title, setTitle] = useState('');
@@ -78,28 +80,8 @@ export function AddEventModal({
   const [error, setError] = useState<string | null>(null);
   const [isSelectionsLoaded, setIsSelectionsLoaded] = useState(false);
   const [titlePlaceholder, setTitlePlaceholder] = useState('');
-  const [acceptedShares, setAcceptedShares] = useState<UserType[]>([]);
-
-  // Fetch accepted timeline shares when modal opens
-  useEffect(() => {
-    const fetchAcceptedShares = async () => {
-      try {
-        const shares = await authApiClient.getSharedByYou();
-        // Filter to only accepted shares with registered users
-        const acceptedUsers = shares
-          .filter(share => share.is_accepted && share.shared_with_user)
-          .map(share => share.shared_with_user as UserType);
-        setAcceptedShares(acceptedUsers);
-      } catch (error) {
-        console.error('Failed to fetch timeline shares:', error);
-        setAcceptedShares([]);
-      }
-    };
-
-    if (isOpen) {
-      fetchAcceptedShares();
-    }
-  }, [isOpen]);
+  const [inviteTaggedFriends, setInviteTaggedFriends] = useState(false);
+  const [mentionedUsers, setMentionedUsers] = useState<string[]>([]);
 
   // Set random placeholder when modal opens
   useEffect(() => {
@@ -124,7 +106,10 @@ export function AddEventModal({
       setCategory(eventToEdit.category);
       setPrivacyLevel(eventToEdit.privacy_level);
       setNotes(eventToEdit.notes || '');
-      setPhotos(eventToEdit.event_photos || []);
+      setPhotos(eventToEdit.photos || []);
+      // Extract user IDs from mentions
+      const userIds = eventToEdit.mentions?.map(m => m.mentioned_user.id) || [];
+      setMentionedUsers(userIds);
       // Delay to show smooth transition from gray to selected
       setTimeout(() => setIsSelectionsLoaded(true), 50);
     } else if (!eventToEdit && isOpen) {
@@ -141,7 +126,7 @@ export function AddEventModal({
       try {
         const updatedEvent = await authApiClient.getEvent(eventToEdit.id);
         onEventUpdated(updatedEvent);
-        setPhotos(updatedEvent.event_photos || []);
+        setPhotos(updatedEvent.photos || []);
       } catch (error) {
         console.error('Failed to fetch updated event');
       }
@@ -175,6 +160,7 @@ export function AddEventModal({
         category,
         privacy_level: privacyLevel,
         notes: notes || undefined,
+        mentioned_users: mentionedUsers,
       };
 
       let updatedEvent;
@@ -226,6 +212,7 @@ export function AddEventModal({
     setPhotos([]);
     setPendingPhotoFiles([]);
     setIsSelectionsLoaded(false);
+    setMentionedUsers([]);
   };
 
   // Auto-focus the title input when the modal opens
@@ -314,19 +301,16 @@ export function AddEventModal({
               <span className="block text-sm font-medium text-secondary-700">
                 Category
               </span>
-              <div className="group relative">
-                <svg className="w-4 h-4 text-secondary-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-10">
-                  <p className="mb-1">Major: Life-changing moments</p>
-                  <p className="mb-1">Minor: Meaningful milestones</p>
-                  <p className="mb-1">Memory: Personal reflections</p>
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                    <div className="border-4 border-transparent border-t-gray-800"></div>
-                  </div>
-                </div>
-              </div>
+              <InfoTooltip
+                className='w-47'
+                content={
+                  <>
+                    <p className="mb-1">Major: Life-changing moments</p>
+                    <p className="mb-1">Minor: Meaningful milestones</p>
+                    <p className="mb-1">Memory: Personal reflections</p>
+                  </>
+                }
+              />
             </div>
             <ToggleButtonGroup
               label=""
@@ -344,23 +328,18 @@ export function AddEventModal({
               <label htmlFor="description" className="block text-sm font-medium text-secondary-700">
                 Description
               </label>
-              <div className="group relative">
-                <svg className="w-4 h-4 text-secondary-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-10">
-                  Shareable details about this event
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                    <div className="border-4 border-transparent border-t-gray-800"></div>
-                  </div>
-                </div>
-              </div>
+              <InfoTooltip className='w-32' content="Shareable details about this event" />
             </div>
             <DescriptionInput
               value={description}
               onChange={setDescription}
               acceptedShares={acceptedShares}
               hydrateKey={`${eventToEdit?.id || 'new'}-${isOpen}-${isSelectionsLoaded}`}
+              privacyLevel={privacyLevel}
+              inviteTaggedFriends={inviteTaggedFriends}
+              onInviteTaggedFriendsChange={setInviteTaggedFriends}
+              mentionedUsers={mentionedUsers}
+              onMentionedUsersChange={setMentionedUsers}
             />
           </div>
 
@@ -383,23 +362,19 @@ export function AddEventModal({
               <span className="block text-sm font-medium text-secondary-700">
                 Privacy
               </span>
-              <div className="group relative">
-                <svg className="w-4 h-4 text-secondary-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-64">
-                  <p className="mb-1">Controls who sees event details. Personal notes are always private.</p>
-
+              <InfoTooltip
+                className="w-64"
+                content={
+                  <>
+                    <p className="mb-1">Controls who sees event details. Personal notes are always private.</p>
                     {!isPublic && (
                       <p className="mb-1">
                         To make individual events public, you must first make your entire timeline public.
                       </p>
                     )}
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                    <div className="border-4 border-transparent border-t-gray-800"></div>
-                  </div>
-                </div>
-              </div>
+                  </>
+                }
+              />
             </div>
             <ToggleButtonGroup
               label=""
@@ -428,17 +403,7 @@ export function AddEventModal({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
               Personal Notes
-              <div className="group relative">
-                <svg className="w-4 h-4 text-secondary-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-10">
-                  Personal notes are always private and never shared with anyone
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                    <div className="border-4 border-transparent border-t-gray-800"></div>
-                  </div>
-                </div>
-              </div>
+              <InfoTooltip className="w-50" content="Personal notes are always private and never shared with anyone" />
             </button>
 
             {showNotes && (
@@ -457,6 +422,7 @@ export function AddEventModal({
             {/* Delete button - only shown in edit mode */}
             {isEditMode && onDeleteEvent && eventToEdit && (
               <Button
+                type="button"
                 variant="secondary"
                 onClick={() => onDeleteEvent(eventToEdit)}
                 disabled={isSubmitting}
@@ -474,6 +440,7 @@ export function AddEventModal({
 
             <div className="flex gap-3">
               <Button
+                type="button"
                 variant="secondary"
                 onClick={onModalClose}
                 disabled={isSubmitting}

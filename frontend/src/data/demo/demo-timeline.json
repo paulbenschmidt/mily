@@ -10,7 +10,7 @@
     "is_month_approximate": false,
     "category": "minor",
     "privacy_level": "private",
-    "event_photos": [{"id": "1", "url": "https://assets.mily.bio/demo/10_sarah_coffee_date.png"}],
+    "photos": [{"id": "1", "url": "https://assets.mily.bio/demo/10_sarah_coffee_date.png"}],
     "tags": [],
     "created_at": "2025-12-21T09:40:24.465843Z",
     "updated_at": "2025-12-21T09:40:24.465843Z"
@@ -26,7 +26,7 @@
     "is_month_approximate": false,
     "category": "memory",
     "privacy_level": "friends",
-    "event_photos": [{"id": "1", "url": "https://assets.mily.bio/demo/09_volunteer_coaching.png"}],
+    "photos": [{"id": "1", "url": "https://assets.mily.bio/demo/09_volunteer_coaching.png"}],
     "tags": [],
     "created_at": "2025-12-21T09:40:24.465895Z",
     "updated_at": "2025-12-21T09:40:24.465895Z"
@@ -58,7 +58,7 @@
     "is_month_approximate": false,
     "category": "minor",
     "privacy_level": "friends",
-    "event_photos": [{"id": "1", "url": "https://assets.mily.bio/demo/08_pandemic.png"}, {"id": "2", "url": "https://assets.mily.bio/demo/08_pandemic_2.png"}],
+    "photos": [{"id": "1", "url": "https://assets.mily.bio/demo/08_pandemic.png"}, {"id": "2", "url": "https://assets.mily.bio/demo/08_pandemic_2.png"}],
     "tags": [],
     "created_at": "2025-12-21T09:40:24.465907Z",
     "updated_at": "2025-12-21T09:40:24.465907Z"
@@ -74,7 +74,7 @@
     "is_month_approximate": false,
     "category": "minor",
     "privacy_level": "friends",
-    "event_photos": [{"id": "1", "url": "https://assets.mily.bio/demo/07_home_purchase.png"}],
+    "photos": [{"id": "1", "url": "https://assets.mily.bio/demo/07_home_purchase.png"}],
     "tags": [],
     "created_at": "2025-12-21T09:40:24.465911Z",
     "updated_at": "2025-12-21T09:40:24.465911Z"
@@ -90,7 +90,7 @@
     "is_month_approximate": false,
     "category": "major",
     "privacy_level": "friends",
-    "event_photos": [{"id": "1", "url": "https://assets.mily.bio/demo/06_fp_a_lead.png"}],
+    "photos": [{"id": "1", "url": "https://assets.mily.bio/demo/06_fp_a_lead.png"}],
     "tags": [],
     "created_at": "2025-12-21T09:40:24.465916Z",
     "updated_at": "2025-12-21T09:40:24.465916Z"
@@ -154,7 +154,7 @@
     "is_month_approximate": false,
     "category": "major",
     "privacy_level": "friends",
-    "event_photos": [{"id": "1", "url": "https://assets.mily.bio/demo/05_susie_birth.png"}],
+    "photos": [{"id": "1", "url": "https://assets.mily.bio/demo/05_susie_birth.png"}],
     "tags": [],
     "created_at": "2025-12-21T09:40:24.465941Z",
     "updated_at": "2025-12-21T09:40:24.465941Z"
@@ -170,7 +170,7 @@
     "is_month_approximate": false,
     "category": "minor",
     "privacy_level": "friends",
-    "event_photos": [{"id": "1", "url": "https://assets.mily.bio/demo/04_chicago.png"}],
+    "photos": [{"id": "1", "url": "https://assets.mily.bio/demo/04_chicago.png"}],
     "tags": [],
     "created_at": "2025-12-21T09:40:24.465946Z",
     "updated_at": "2025-12-21T09:40:24.465946Z"
@@ -186,7 +186,7 @@
     "is_month_approximate": false,
     "category": "major",
     "privacy_level": "friends",
-    "event_photos": [{"id": "1", "url": "https://assets.mily.bio/demo/03_wedding.png"}],
+    "photos": [{"id": "1", "url": "https://assets.mily.bio/demo/03_wedding.png"}],
     "tags": [],
     "created_at": "2025-12-21T09:40:24.465953Z",
     "updated_at": "2025-12-21T09:40:24.465953Z"
@@ -218,7 +218,7 @@
     "is_month_approximate": false,
     "category": "minor",
     "privacy_level": "private",
-    "event_photos": [{"id": "1", "url": "https://assets.mily.bio/demo/02_first_job.png"}, {"id": "2", "url": "https://assets.mily.bio/demo/02_first_job_cones.png"}],
+    "photos": [{"id": "1", "url": "https://assets.mily.bio/demo/02_first_job.png"}, {"id": "2", "url": "https://assets.mily.bio/demo/02_first_job_cones.png"}],
     "tags": [],
     "created_at": "2025-12-21T09:40:24.465963Z",
     "updated_at": "2025-12-21T09:40:24.465963Z"
@@ -250,7 +250,7 @@
     "is_month_approximate": false,
     "category": "major",
     "privacy_level": "private",
-    "event_photos": [{"id": "1", "url": "https://assets.mily.bio/demo/01_birth.png"}],
+    "photos": [{"id": "1", "url": "https://assets.mily.bio/demo/01_birth.png"}],
     "tags": [],
     "created_at": "2025-12-21T09:40:24.465977Z",
     "updated_at": "2025-12-21T09:40:24.465977Z"

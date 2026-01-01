@@ -3,6 +3,18 @@
  */
 export const MENTION_TOKEN_REGEX = /\{\{mention:([^|]+)\|name:([^}]+)\}\}/g;
 
+/**
+ * Shared styling for mention chips to ensure consistency between input and display
+ */
+export const MENTION_CHIP_STYLES = 'inline-flex items-center gap-1 px-2 py-0.5 mx-0.5 bg-primary-100 text-primary-700 rounded-md text-sm font-medium';
+
+/**
+ * Creates a mention token string from user ID and display name
+ */
+export function createMentionToken(userId: string, displayName: string): string {
+  return `{{mention:${userId}|name:${displayName}}}`;
+}
+
 export type MentionPart =
   | { type: 'text'; content: string }
   | { type: 'mention'; userId: string; displayName: string };

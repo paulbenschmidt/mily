@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useEffect, useCallback, useState } from 'react';
-import { TimelineEventType } from '@/types/api';
+import { TimelineEventType, UserType } from '@/types/api';
 import { TimelineListEvent } from './TimelineListEvent';
 import { EmptyFilteredState } from './utils';
 
@@ -14,6 +14,7 @@ interface TimelineListViewProps {
   hasActiveFilters: boolean;
   mode: 'owner' | 'viewer';
   initialEventIdToScrollTo?: string | null;
+  acceptedShares?: UserType[];
 }
 
 /**
@@ -29,6 +30,7 @@ export function TimelineListView({
   hasActiveFilters,
   mode,
   initialEventIdToScrollTo,
+  acceptedShares = [],
 }: TimelineListViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const eventRefs = useRef<Map<string, HTMLDivElement>>(new Map());

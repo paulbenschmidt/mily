@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { TimelineEventType } from '@/types/api';
+import { useState, useEffect, useRef } from 'react';
+import { TimelineEventType, UserType } from '@/types/api';
 import { Button, Subheading, BodyText, SmallText, Caption } from '@/components/ui';
 import { useDisableBodyScroll } from '@/hooks/disableBodyScroll';
 import { useModalKeyboardShortcuts } from '@/hooks/useModalKeyboardShortcuts';
@@ -11,6 +11,7 @@ interface ShareEventModalProps {
   onClose: () => void;
   event?: TimelineEventType;
   userHandle?: string;
+  acceptedShares?: UserType[];
 }
 
 export function ShareEventModal({
@@ -18,18 +19,127 @@ export function ShareEventModal({
   onClose,
   event,
   userHandle,
+  acceptedShares = [],
 }: ShareEventModalProps) {
   const [copied, setCopied] = useState(false);
+  const [selectedRecipients, setSelectedRecipients] = useState<UserType[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isSending, setIsSending] = useState(false);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Disable body scroll when modal is open
   useDisableBodyScroll(isOpen);
 
-  // Reset copied state when modal closes
+  // Reset state when modal closes
   useEffect(() => {
     if (!isOpen) {
       setCopied(false);
+      setSelectedRecipients([]);
+      setSearchQuery('');
+      setShowDropdown(false);
+      setSelectedIndex(0);
     }
   }, [isOpen]);
+
+  // Filter friends based on search query and exclude already selected
+  const filteredFriends = acceptedShares.filter((friend) => {
+    const isAlreadySelected = selectedRecipients.some((r) => r.id === friend.id);
+    if (isAlreadySelected) return false;
+
+    if (!searchQuery.trim()) return true;
+
+    const query = searchQuery.toLowerCase();
+    const fullName = `${friend.first_name} ${friend.last_name}`.toLowerCase();
+    const handle = (friend.handle || '').toLowerCase();
+    return fullName.includes(query) || handle.includes(query);
+  });
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!showDropdown) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as Node;
+      const inInput = inputRef.current?.contains(target);
+      const inDropdown = dropdownRef.current?.contains(target);
+      if (!inInput && !inDropdown) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showDropdown]);
+
+  const addRecipient = (friend: UserType) => {
+    setSelectedRecipients([...selectedRecipients, friend]);
+    setSearchQuery('');
+    setShowDropdown(false);
+    setSelectedIndex(0);
+    inputRef.current?.focus();
+  };
+
+  const removeRecipient = (friendId: string) => {
+    setSelectedRecipients(selectedRecipients.filter((r) => r.id !== friendId));
+    inputRef.current?.focus();
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    setShowDropdown(true);
+    setSelectedIndex(0);
+  };
+
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' && searchQuery === '' && selectedRecipients.length > 0) {
+      e.preventDefault();
+      removeRecipient(selectedRecipients[selectedRecipients.length - 1].id);
+      return;
+    }
+
+    if (!showDropdown || filteredFriends.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev + 1) % filteredFriends.length);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev - 1 + filteredFriends.length) % filteredFriends.length);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (filteredFriends[selectedIndex]) {
+        addRecipient(filteredFriends[selectedIndex]);
+      }
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      setShowDropdown(false);
+    }
+  };
+
+  const handleSendInvites = async () => {
+    if (selectedRecipients.length === 0) return;
+
+    setIsSending(true);
+    try {
+      // TODO: Implement API call to send event invites
+      console.log('Sending event to:', selectedRecipients);
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
+
+      // Reset and close on success
+      setSelectedRecipients([]);
+      setSearchQuery('');
+      onClose();
+    } catch (error) {
+      console.error('Failed to send invites:', error);
+      alert('Failed to send invites. Please try again.');
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   const eventLink = userHandle && event
     ? `${process.env.NEXT_PUBLIC_FRONTEND_URL}/timeline/${userHandle}?view=story&event=${event.id}`
@@ -97,9 +207,9 @@ export function ShareEventModal({
             <div className="mb-4">
               {event.privacy_level === 'private' ? (
                 <div className="p-4 bg-secondary-50 border border-secondary-200 rounded-md">
-                  <SmallText className="text-secondary-600">
+                  <Caption className="text-secondary-600">
                     This event is private. To create a shareable link, change event privacy to Friends or Public.
-                  </SmallText>
+                  </Caption>
                 </div>
               ) : (
                 <>
@@ -146,37 +256,98 @@ export function ShareEventModal({
             </div>
           )}
 
-          {/* Send to User - Placeholder */}
+          {/* Send to Friends */}
           <div className="mb-4 p-4 bg-secondary-50 border border-secondary-200 rounded-md">
-            <div className="flex items-start gap-2 mb-2">
+            <div className="flex items-start gap-2 mb-3">
               <svg className="w-5 h-5 text-secondary-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M22 2L15 22l-4-9-9-4 20-7z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M22 2L11 13" />
               </svg>
               <div className="flex-1">
                 <p className="text-sm font-medium text-secondary-900 mb-1">Send to Friends</p>
-                <SmallText className="text-secondary-600">
-                  {/* Send this event directly to people you&apos;ve shared your timeline with. They can choose to add it to their own timeline. */}
+                <Caption className="text-xs text-secondary-600">
                   Send this event directly to people you&apos;ve shared your timeline with. They can choose to add a copy of the event to their own timeline.
-                </SmallText>
+                </Caption>
               </div>
             </div>
-            <Button
-              variant="secondary"
-              className="w-full mt-2"
-              disabled
-            >
-              Coming Soon
-            </Button>
-          </div>
 
-          {/* Close Button */}
-          <div className="flex justify-end">
+            {/* Multi-select Input with Chips */}
+            <div className="relative">
+              <div className="min-h-[42px] px-3 py-2 border border-secondary-300 rounded-md bg-white focus-within:ring-1 focus-within:ring-primary-500 focus-within:border-primary-500">
+                <div className="flex flex-wrap gap-1.5 items-center">
+                  {selectedRecipients.map((recipient) => (
+                    <div
+                      key={recipient.id}
+                      className="inline-flex items-center gap-1 bg-primary-100 text-primary-800 rounded px-2 py-1 text-sm font-medium"
+                    >
+                      <span>{recipient.first_name} {recipient.last_name}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeRecipient(recipient.id)}
+                        className="hover:text-primary-900 focus:outline-none"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={handleInputChange}
+                    onKeyDown={handleInputKeyDown}
+                    onFocus={() => setShowDropdown(true)}
+                    placeholder={selectedRecipients.length === 0 ? 'Search friends…' : ''}
+                    className="flex-1 min-w-[120px] outline-none text-sm bg-transparent"
+                  />
+                </div>
+              </div>
+
+              {/* Dropdown */}
+              {showDropdown && (
+                <div
+                  ref={dropdownRef}
+                  className="absolute z-50 bg-white border border-secondary-300 rounded-md shadow-lg max-h-48 overflow-y-auto mt-1 w-full"
+                >
+                  {filteredFriends.length > 0 ? (
+                    filteredFriends.map((friend, idx) => (
+                      <button
+                        key={friend.id}
+                        type="button"
+                        onClick={() => addRecipient(friend)}
+                        className={`w-full text-left px-3 py-2 hover:bg-secondary-50 transition-colors ${
+                          idx === selectedIndex ? 'bg-secondary-100' : ''
+                        }`}
+                      >
+                        <div className="font-medium text-sm text-secondary-900">
+                          {friend.first_name} {friend.last_name}
+                        </div>
+                        <div className="text-xs text-secondary-500">@{friend.handle}</div>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="px-3 py-2 text-sm text-secondary-500 text-center">
+                      {acceptedShares.length === 0
+                        ? 'No friends found. Share your timeline with others first.'
+                        : selectedRecipients.length === acceptedShares.length
+                        ? 'All friends selected.'
+                        : 'No matching friends.'}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Send Button */}
             <Button
-              variant="primary"
-              onClick={onClose}
+              onClick={handleSendInvites}
+              disabled={selectedRecipients.length === 0 || isSending}
+              loading={isSending}
+              className="w-full mt-3"
             >
-              Done
+              {isSending ? 'Sending...' : `Send Invite${selectedRecipients.length !== 1 ? 's' : ''}`}
             </Button>
           </div>
         </div>

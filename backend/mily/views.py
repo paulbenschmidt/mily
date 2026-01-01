@@ -15,6 +15,8 @@ from rest_framework.response import Response
 from .aws_s3 import make_event_photo_key, make_avatar_key, create_presigned_put_url, delete_photo_from_s3
 from .models import (
     Event,
+    EventMention,
+    EventMentionSource,
     EventPhoto,
     Notification,
     NotificationType,
@@ -232,6 +234,9 @@ class EventViewSet(viewsets.ModelViewSet):
         """Create a new event with enhanced validation and error handling."""
         logger.info("Event creation request received from user: %s", request.user)
 
+        # Extract mentioned_users from request (not part of serializer)
+        mentioned_users = request.data.get('mentioned_users', [])
+
         serializer = self.get_serializer(data=request.data)
 
         if not serializer.is_valid():
@@ -243,6 +248,31 @@ class EventViewSet(viewsets.ModelViewSet):
 
         try:
             event = self.perform_create(serializer)
+
+            # Create EventMention records if mentioned_users is provided and not empty
+            if mentioned_users:
+                # Validate that all mentioned users exist, are active, and have an accepted TimelineShare
+                User = get_user_model()
+                valid_user_ids = User.objects.filter(
+                    id__in=mentioned_users,
+                    is_active=True,
+                    shared_timelines__user=request.user,
+                    shared_timelines__is_accepted=True
+                ).values_list('id', flat=True)
+
+                if valid_user_ids:
+                    # Create EventMention records using bulk_create
+                    mentions_to_create = [
+                        EventMention(
+                            event=event,
+                            mentioned_user_id=user_id,
+                            source=EventMentionSource.DESCRIPTION
+                        )
+                        for user_id in valid_user_ids
+                    ]
+                    EventMention.objects.bulk_create(mentions_to_create, ignore_conflicts=True)
+                    logger.info("Created %d event mentions for event %s", len(mentions_to_create), event.id)
+
             headers = self.get_success_headers(serializer.data)
             return Response(
                 serializer.data,
@@ -256,6 +286,64 @@ class EventViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+    def update(self, request, *args, **kwargs):
+        """Update an event and sync EventMention records."""
+        logger.info("Event update request received from user: %s", request.user)
+
+        # Extract mentioned_users from request (not part of serializer)
+        mentioned_users = request.data.get('mentioned_users', [])
+
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+
+        if not serializer.is_valid():
+            logger.warning("Invalid event data: %s", serializer.errors)
+            return Response(
+                {"error": "Invalid event data", "details": serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            self.perform_update(serializer)
+
+            # Sync EventMention records: delete all existing mentions and re-create
+            # Delete all existing mentions for this event
+            deleted_count = instance.mentions.all().delete()[0]
+            logger.info("Deleted %d existing event mentions for event %s", deleted_count, instance.id)
+
+            # Create new EventMention records if mentioned_users is provided and not empty
+            if mentioned_users:
+                # Validate that all mentioned users exist, are active, and have an accepted TimelineShare
+                User = get_user_model()
+                valid_user_ids = User.objects.filter(
+                    id__in=mentioned_users,
+                    is_active=True,
+                    shared_timelines__user=request.user,
+                    shared_timelines__is_accepted=True
+                ).values_list('id', flat=True)
+
+                if valid_user_ids:
+                    # Create EventMention records using bulk_create
+                    mentions_to_create = [
+                        EventMention(
+                            event=instance,
+                            mentioned_user_id=user_id,
+                            source=EventMentionSource.DESCRIPTION
+                        )
+                        for user_id in valid_user_ids
+                    ]
+                    EventMention.objects.bulk_create(mentions_to_create, ignore_conflicts=True)
+                    logger.info("Created %d event mentions for event %s", len(mentions_to_create), instance.id)
+
+            return Response(serializer.data)
+        except Exception as e:
+            logger.error("Error during event update: %s", str(e))
+            return Response(
+                {"error": "Failed to update event", "details": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
     def destroy(self, request, *args, **kwargs):
         """Delete an event with proper logging and response handling."""
         instance = self.get_object()
@@ -266,7 +354,7 @@ class EventViewSet(viewsets.ModelViewSet):
 
         try:
             # Delete associated photos from S3 before deleting the event
-            for photo in instance.event_photos.all():
+            for photo in instance.photos.all():
                 try:
                     delete_photo_from_s3(photo.s3_key)
                     logger.info("Deleted photo from S3: %s", photo.s3_key)
@@ -338,7 +426,7 @@ class EventViewSet(viewsets.ModelViewSet):
             )
 
         # Validate photo count limit (max 3 photos per event)
-        current_photo_count = event.event_photos.count()
+        current_photo_count = event.photos.count()
         if current_photo_count >= settings.MAX_PHOTOS_PER_EVENT:
             return Response(
                 {"error": f"Maximum of {settings.MAX_PHOTOS_PER_EVENT} photos per event. Please delete a photo before adding a new one."},
@@ -360,7 +448,7 @@ class EventViewSet(viewsets.ModelViewSet):
                 filename=filename,
                 content_type=content_type,
                 file_size=file_size,
-                display_order=event.event_photos.count(),
+                display_order=event.photos.count(),
                 width=width,
                 height=height
             )

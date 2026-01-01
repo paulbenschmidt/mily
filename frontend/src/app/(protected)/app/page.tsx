@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { authApiClient } from '@/utils/auth-api';
-import { TimelineEventType } from '@/types/api';
+import { TimelineEventType, UserType } from '@/types/api';
 import { AddEventModal, DeleteConfirmationModal, ShareEventModal, TimelineUnifiedView } from '@/components/Timeline';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTimelineFilters } from '@/hooks/useTimelineFilters';
@@ -22,6 +22,9 @@ export default function Timeline() {
   const [userHandle, setUserHandle] = useState<string>();
   const [isShareEventModalOpen, setIsShareEventModalOpen] = useState(false);
   const [eventToShare, setEventToShare] = useState<TimelineEventType | undefined>(undefined);
+  const [acceptedShares, setAcceptedShares] = useState<UserType[]>([]);
+
+  console.log("Events:", events);
 
   // Use timeline filters hook
   const { filters, filteredEvents, hasActiveFilters, handleFilter, handleClearFilters } = useTimelineFilters(events);
@@ -37,6 +40,25 @@ export default function Timeline() {
       setUserHandle(user.handle);
     }
   }, [user]);
+
+  // Fetch accepted timeline shares when component mounts
+  useEffect(() => {
+    const fetchAcceptedShares = async () => {
+      try {
+        const shares = await authApiClient.getSharedByYou();
+        // Filter to only accepted shares with registered users
+        const acceptedUsers = shares
+          .filter(share => share.is_accepted && share.shared_with_user)
+          .map(share => share.shared_with_user as UserType);
+        setAcceptedShares(acceptedUsers);
+      } catch (error) {
+        console.error('Failed to fetch timeline shares:', error);
+        setAcceptedShares([]);
+      }
+    };
+
+    fetchAcceptedShares();
+  }, []);
 
   // Helper function: If timeline is not public, override any "public" events to "friends"
   const applyPrivacyOverride = (events: TimelineEventType[]) => {
@@ -215,6 +237,7 @@ export default function Timeline() {
         onEventUpdated={handleEventUpdated}
         onDeleteEvent={handleDeleteEvent}
         isPublic={isPublic}
+        acceptedShares={acceptedShares}
       />
 
       {/* Delete Confirmation Modal */}
@@ -232,6 +255,7 @@ export default function Timeline() {
         onClose={() => setIsShareEventModalOpen(false)}
         event={eventToShare}
         userHandle={userHandle}
+        acceptedShares={acceptedShares}
       />
     </>
   );

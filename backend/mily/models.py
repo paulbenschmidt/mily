@@ -106,13 +106,60 @@ class Event(models.Model):
         return False
 
 
+class EventMentionSource(models.TextChoices):
+    DESCRIPTION = "description", "Event Description"
+
+
+class EventMention(models.Model):
+    """
+    Tracks when users are mentioned/tagged in events.
+    Used for inviting friends to add a copy of an event to their timeline.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    event = models.ForeignKey(
+        Event,
+        on_delete=models.CASCADE,
+        related_name='mentions',
+        help_text="Event where the user was mentioned"
+    )
+    mentioned_user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='event_mentions',
+        help_text="User who was mentioned in the event"
+    )
+    source = models.CharField(
+        max_length=50,
+        choices=EventMentionSource.choices,
+        default=EventMentionSource.DESCRIPTION,
+        help_text="Where the user was mentioned (e.g., description)"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'mentions'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['event', 'mentioned_user', 'source'],
+                name='uniq_mention'
+            ),
+        ]
+        indexes = [
+            models.Index(fields=['event']),
+            models.Index(fields=['mentioned_user', '-created_at']),
+        ]
+
+    def __str__(self):
+        return f"{self.mentioned_user.email} mentioned in {self.event.title}"
+
+
 class EventPhoto(models.Model):
     """
     Photos attached to timeline events.
     Stores metadata and S3 keys for photos stored in AWS S3.
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='event_photos')
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='photos')
     s3_key = models.CharField(max_length=500, help_text="S3 object key (path) for the photo")
     filename = models.CharField(max_length=255, help_text="Original filename")
     content_type = models.CharField(max_length=100, help_text="MIME type (e.g., image/jpeg)")
@@ -126,7 +173,7 @@ class EventPhoto(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = 'event_photos'
+        db_table = 'photos'
         ordering = ['display_order', 'created_at']
         indexes = [
             models.Index(fields=['event', 'display_order']),
@@ -233,50 +280,3 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"{self.notification_type} for {self.recipient.email}: {self.title}"
-
-
-class EventMentionSource(models.TextChoices):
-    DESCRIPTION = "description", "Event Description"
-
-
-class EventMention(models.Model):
-    """
-    Tracks when users are mentioned/tagged in events.
-    Used for inviting friends to add a copy of an event to their timeline.
-    """
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    event = models.ForeignKey(
-        Event,
-        on_delete=models.CASCADE,
-        related_name='mentions',
-        help_text="Event where the user was mentioned"
-    )
-    mentioned_user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='event_mentions',
-        help_text="User who was mentioned in the event"
-    )
-    source = models.CharField(
-        max_length=50,
-        choices=EventMentionSource.choices,
-        default=EventMentionSource.DESCRIPTION,
-        help_text="Where the user was mentioned (e.g., description)"
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        db_table = 'event_mentions'
-        constraints = [
-            models.UniqueConstraint(
-                fields=['event', 'mentioned_user', 'source'],
-                name='uniq_event_mention'
-            ),
-        ]
-        indexes = [
-            models.Index(fields=['event']),
-            models.Index(fields=['mentioned_user', '-created_at']),
-        ]
-
-    def __str__(self):
-        return f"{self.mentioned_user.email} mentioned in {self.event.title}"

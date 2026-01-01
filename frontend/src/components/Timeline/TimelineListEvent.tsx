@@ -59,7 +59,7 @@ export function TimelineListEvent({ event, onEditEvent, onShareEvent, previousEv
   };
 
   // Check if there's expandable content (description, photos, or notes)
-  const hasExpandableContent = event.description || (event.event_photos && event.event_photos.length > 0) || event.notes;
+  const hasExpandableContent = event.description || (event.photos && event.photos.length > 0) || event.notes;
 
   const getEventSpacerHeight = () => {
     // Exit early if there is no next event
@@ -162,14 +162,14 @@ export function TimelineListEvent({ event, onEditEvent, onShareEvent, previousEv
                 )}
 
                 {/* Photo chip when collapsed */}
-                {!isExpanded && event.event_photos && event.event_photos.length > 0 && (
+                {!isExpanded && event.photos && event.photos.length > 0 && (
                   <div className="mt-2 flex">
                     <div className="inline-flex items-center gap-1 rounded-full bg-secondary-100 border border-secondary-200 px-2 py-0.5 text-secondary-500">
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                       <Caption className="text-secondary-500">
-                        {event.event_photos.length} {event.event_photos.length === 1 ? 'photo' : 'photos'}
+                        {event.photos.length} {event.photos.length === 1 ? 'photo' : 'photos'}
                       </Caption>
                     </div>
                   </div>
@@ -181,10 +181,10 @@ export function TimelineListEvent({ event, onEditEvent, onShareEvent, previousEv
                     isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
                   }`}
                 >
-                  {event.event_photos && event.event_photos.length > 0 && (
+                  {event.photos && event.photos.length > 0 && (
                     <div className="mt-4 mb-4">
                       <div className="grid grid-cols-3 gap-2">
-                        {event.event_photos.map((photo, index) => (
+                        {event.photos.map((photo, index) => (
                           <button
                             key={photo.id}
                             onClick={(e) => {
@@ -233,9 +233,9 @@ export function TimelineListEvent({ event, onEditEvent, onShareEvent, previousEv
       <div className={`flex items-center justify-center ${getEventSpacerHeight()}`} />
 
       {/* Photo Modal */}
-      {photoModalOpen && event.event_photos && event.event_photos.length > 0 && (
+      {photoModalOpen && event.photos && event.photos.length > 0 && (
         <PhotoModal
-          photos={event.event_photos}
+          photos={event.photos}
           currentIndex={selectedPhotoIndex}
           onClose={() => setPhotoModalOpen(false)}
           onNavigate={setSelectedPhotoIndex}

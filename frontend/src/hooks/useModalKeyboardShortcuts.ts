@@ -12,7 +12,7 @@ interface UseModalKeyboardShortcutsProps {
 
 /**
  * Handles keyboard shortcuts in modals
- * - Enter or CMD+Enter (or Ctrl+Enter): submits the form or confirms deletion
+ * - CMD+Enter (or Ctrl+Enter): submits the form or confirms deletion
  * - Escape: closes the modal
  */
 export function useModalKeyboardShortcuts({
@@ -33,8 +33,8 @@ export function useModalKeyboardShortcuts({
         return;
       }
 
-      // Enter, CMD+Enter (Mac), or Ctrl+Enter (Windows/Linux)
-      if (e.key === 'Enter') {
+      // CMD+Enter (Mac) or Ctrl+Enter (Windows/Linux)
+      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
         // Don't trigger if user is typing in a textarea
         const target = e.target as HTMLElement;
         if (target.tagName === 'TEXTAREA') {

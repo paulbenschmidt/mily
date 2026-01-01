@@ -1,4 +1,4 @@
-import { parseMentions } from '@/utils/mentions';
+import { parseMentions, MENTION_CHIP_STYLES } from '@/utils/mentions';
 
 interface RichTextProps {
   content: string;
@@ -15,7 +15,7 @@ export function RichText({ content, className = '' }: RichTextProps) {
           return (
             <span
               key={index}
-              className="inline-flex items-center gap-1 px-2 py-0.5 mx-0.5 bg-primary-100 text-primary-700 rounded-md text-sm font-medium"
+              className={MENTION_CHIP_STYLES}
             >
               @{part.displayName}
             </span>

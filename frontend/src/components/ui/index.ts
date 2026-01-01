@@ -9,3 +9,4 @@ export { default as Link } from './Link';
 export { default as Spinner } from './Spinner';
 export { default as Badge } from './Badge';
 export { RichText } from './RichText';
+export { InfoTooltip } from './InfoTooltip';

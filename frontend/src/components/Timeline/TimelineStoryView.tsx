@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useCallback, useState } from 'react';
-import { TimelineEventType } from '@/types/api';
+import { TimelineEventType, UserType } from '@/types/api';
 import { formatEventDate } from '@/utils/date-validation';
 import { PhotoCarousel } from './PhotoCarousel';
 import { PhotoModal } from './PhotoModal';
@@ -22,6 +22,7 @@ interface TimelineStoryViewProps {
   hasActiveFilters?: boolean;
   onOpenFilters?: () => void;
   onClearFilters?: () => void;
+  acceptedShares?: UserType[];
 }
 
 /**
@@ -41,6 +42,7 @@ export function TimelineStoryView({
   hasActiveFilters,
   onOpenFilters,
   onClearFilters,
+  acceptedShares = [],
 }: TimelineStoryViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [photoModalOpen, setPhotoModalOpen] = useState(false);
@@ -135,10 +137,10 @@ export function TimelineStoryView({
           </div>
 
           {/* Photo carousel */}
-          {currentEvent.event_photos && currentEvent.event_photos.length > 0 && (
+          {currentEvent.photos && currentEvent.photos.length > 0 && (
             <div className="mt-6 mb-6 group">
               <PhotoCarousel
-                photos={currentEvent.event_photos}
+                photos={currentEvent.photos}
                 onPhotoClick={handlePhotoClick}
                 currentIndex={selectedPhotoIndex}
                 onIndexChange={setSelectedPhotoIndex}
@@ -213,9 +215,9 @@ export function TimelineStoryView({
       </button>
 
       {/* Photo Modal */}
-      {photoModalOpen && currentEvent.event_photos && currentEvent.event_photos.length > 0 && (
+      {photoModalOpen && currentEvent.photos && currentEvent.photos.length > 0 && (
         <PhotoModal
-          photos={currentEvent.event_photos}
+          photos={currentEvent.photos}
           currentIndex={selectedPhotoIndex}
           onClose={() => setPhotoModalOpen(false)}
           onNavigate={setSelectedPhotoIndex}

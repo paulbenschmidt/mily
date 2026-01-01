@@ -188,7 +188,7 @@ def get_metrics_context():
 
     # Photo distribution: % of users with ≥1, ≥5, ≥10 photos
     users_with_photo_counts = regular_users.annotate(
-        photo_count=Count('events__event_photos')
+        photo_count=Count('events__photos')
     )
     users_with_1_plus_photos = users_with_photo_counts.filter(photo_count__gte=1).count()
     users_with_5_plus_photos = users_with_photo_counts.filter(photo_count__gte=5).count()
