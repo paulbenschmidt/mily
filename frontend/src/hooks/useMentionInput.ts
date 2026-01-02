@@ -273,6 +273,20 @@ export function useMentionInput({ value, onChange, acceptedShares, hydrateKey, o
   };
 
   const handleInput = () => {
+    // Check if @ was just typed (for Android compatibility)
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount > 0 && !mentionActiveRef.current) {
+      const range = sel.getRangeAt(0);
+      if (range.startContainer.nodeType === Node.TEXT_NODE) {
+        const textNode = range.startContainer as Text;
+        const offset = range.startOffset;
+        // Check if the character before the cursor is @
+        if (offset > 0 && textNode.data[offset - 1] === '@') {
+          startMentionAtCaret();
+        }
+      }
+    }
+
     finalizeMentionStartIfNeeded();
     if (showDropdown) {
       updateMentionQueryFromSelection();
@@ -281,11 +295,6 @@ export function useMentionInput({ value, onChange, acceptedShares, hydrateKey, o
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === '@') {
-      startMentionAtCaret();
-      return;
-    }
-
     if (showDropdown && filteredUsers.length > 0) {
       if (e.key === 'ArrowDown') {
         e.preventDefault();
