@@ -23,7 +23,7 @@ function makeChipEl(userId: string, displayName: string) {
 
 function extractTokenizedValue(root: HTMLElement) {
   let out = '';
-  root.childNodes.forEach((node) => {
+  root.childNodes.forEach((node, index) => {
     if (node.nodeType === Node.TEXT_NODE) {
       out += node.textContent ?? '';
       return;
@@ -34,6 +34,17 @@ function extractTokenizedValue(root: HTMLElement) {
       const displayName = el.getAttribute('data-display-name');
       if (userId && displayName) {
         out += createMentionToken(userId, displayName);
+      } else if (el.tagName === 'BR') {
+        // Convert BR to newline
+        out += '\n';
+      } else if (el.tagName === 'DIV') {
+        // DIV elements represent line breaks in contentEditable
+        // Add newline before the div content (except for the first div)
+        if (index > 0) {
+          out += '\n';
+        }
+        // Recursively extract content from the div
+        out += extractTokenizedValue(el);
       } else {
         out += el.textContent ?? '';
       }
@@ -48,7 +59,16 @@ function hydrateFromTokenizedValue(root: HTMLElement, value: string) {
 
   parts.forEach((part) => {
     if (part.type === 'text') {
-      root.appendChild(document.createTextNode(part.content));
+      // Split text by newlines and insert BR elements
+      const lines = part.content.split('\n');
+      lines.forEach((line, index) => {
+        if (index > 0) {
+          root.appendChild(document.createElement('br'));
+        }
+        if (line) {
+          root.appendChild(document.createTextNode(line));
+        }
+      });
     } else if (part.type === 'mention') {
       root.appendChild(makeChipEl(part.userId, part.displayName));
     }

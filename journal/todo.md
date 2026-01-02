@@ -1,3 +1,5 @@
+- [ ] Make sure newlines are preserved in the event description
+
 ## In Progress
 - FEATURE: Allow filtering by mentioned users
 - TECHDEBT: Rename "Share" to "TimelineInvite"

@@ -1,5 +1,8 @@
 # Development Journey
 
+- 2026-01-01:
+    - After completing the user event tagging and event sharing, it's the first time that I'm really feeling like I'm not working on the high-impact features. I think it's pretty feature complete, and I just need to focus on getting more users and improving the existing user experience even more.
+    - I think that the next steps are (1) enabling users to create additional sub timelines and (2) setting up some type of payment system for premium features.
 - 2025-11-29:
     - Having photos makes me glad that I didn't include additional colors throughout the UI. Adding photos with their own colors makes the timeline pop a lot more than I was expecting. :)
     - I learned that you can have two URL paths that both define different methods for the same path; otherwise, it'll match on the first one it encounters and return an error of "Method Not Allowed".
