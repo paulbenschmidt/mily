@@ -6,6 +6,7 @@ export { ViewModeToggle } from './ViewModeToggle';
 export { PhotoCarousel } from './PhotoCarousel';
 export { EventActionButtons } from './EventActionButtons';
 export { AddEventModal } from './AddEventModal';
+export { ShareEventModal } from './ShareEventModal';
 export { FilterDropdown } from './FilterDropdown';
 export type { FilterOptions } from './FilterDropdown';
 export { ShareDropdown } from './ShareDropdown';

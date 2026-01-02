@@ -6,7 +6,7 @@ from django.urls import path
 from django.utils import timezone
 from datetime import timedelta
 
-from .models import User, Event, EventPhoto, Share
+from .models import User, Event, EventPhoto, Share, EventMention, EventInvite
 
 
 @admin.register(User)
@@ -111,6 +111,46 @@ class ShareAdmin(admin.ModelAdmin):
     is_registered.short_description = 'Registered'
 
 
+@admin.register(EventMention)
+class EventMentionAdmin(admin.ModelAdmin):
+    """Admin interface for EventMention model"""
+    list_display = ('event', 'mentioned_user', 'source', 'created_at')
+    list_filter = ('source', 'created_at')
+    search_fields = ('event__title', 'mentioned_user__email', 'mentioned_user__username')
+    readonly_fields = ('id', 'created_at')
+    raw_id_fields = ('event', 'mentioned_user')
+
+    fieldsets = (
+        (None, {
+            'fields': ('event', 'mentioned_user', 'source')
+        }),
+        ('Metadata', {
+            'fields': ('id', 'created_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+
+@admin.register(EventInvite)
+class EventInviteAdmin(admin.ModelAdmin):
+    """Admin interface for EventInvite model"""
+    list_display = ('event', 'recipient', 'status', 'created_at', 'updated_at')
+    list_filter = ('status', 'created_at', 'updated_at')
+    search_fields = ('event__title', 'recipient__email', 'recipient__username')
+    readonly_fields = ('id', 'created_at', 'updated_at')
+    raw_id_fields = ('event', 'recipient')
+
+    fieldsets = (
+        (None, {
+            'fields': ('event', 'recipient', 'status')
+        }),
+        ('Metadata', {
+            'fields': ('id', 'created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+
 def get_metrics_context():
     """Calculate all metrics for the dashboard."""
     now = timezone.now()
@@ -168,7 +208,7 @@ def get_metrics_context():
 
     # Photo distribution: % of users with ≥1, ≥5, ≥10 photos
     users_with_photo_counts = regular_users.annotate(
-        photo_count=Count('events__event_photos')
+        photo_count=Count('events__photos')
     )
     users_with_1_plus_photos = users_with_photo_counts.filter(photo_count__gte=1).count()
     users_with_5_plus_photos = users_with_photo_counts.filter(photo_count__gte=5).count()

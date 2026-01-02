@@ -1,15 +1,13 @@
-## In Progress
-- Post-Merge: Notify Jonathon that photo reordering is fixed
+- [ ] Make sure newlines are preserved in the event description
 
------
-- ENHANCE: Create simple Notifications page so that users can view/deny/add-to-timeline event shares
-- ENHANCE: Allow users to share individual events/tagging people in events/sharing events
-    - Add Share button underneath event to send to a person
-    - When tagged, send a notification to the user on whether they want to view/deny/add the event to their timeline, too
-    - Reach out to Jonathon Roy/Rusty for feedback on this feature once it's implemented
------
+## In Progress
+- FEATURE: Allow filtering by mentioned users
+- TECHDEBT: Rename "Share" to "TimelineInvite"
+- TECHDEBT: Review the code in `useMentionInput` to see if it can be simplified, but also just to understand it better
 
 ## Sprint Backlog
+- ENHANCE: Create simple Notifications page so that users can view/deny/add-to-timeline event shares
+- BUG: When pushing the "Create Your Timeline" button to log in with a valid refresh token, it logs you in but doesn't refresh the top banner (so it doesn't show that you're logged in). I noticed this specifically on the mobile browser, but it's probably true of the desktop as well.
 - FEATURE: Allow users to create multiple timelines (Joey would like this)
     - Brainstorm on how the backend will support this
     - What should the name of this be?

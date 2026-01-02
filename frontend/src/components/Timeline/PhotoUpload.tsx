@@ -67,7 +67,7 @@ export async function uploadPendingPhotos(eventId: string, files: File[]): Promi
 
   // Fetch the updated event to get all photos with presigned URLs
   const updatedEvent = await authApiClient.getEvent(eventId);
-  return updatedEvent.event_photos || [];
+  return updatedEvent.photos || [];
 }
 
 interface PhotoUploadProps {
@@ -194,7 +194,7 @@ export function PhotoUpload({
 
       // Remove from uploading and add to existing
       setUploadingPhotos(prev => prev.filter(p => p.id !== uploadId));
-      onPhotosChange(updatedEvent.event_photos || []);
+      onPhotosChange(updatedEvent.photos || []);
 
       // Notify parent that photo operation completed
       if (onPhotoOperationComplete) {

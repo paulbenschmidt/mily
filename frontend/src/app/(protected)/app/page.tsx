@@ -1,14 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { authApiClient } from '@/utils/auth-api';
-import { TimelineEventType } from '@/types/api';
-import { AddEventModal, DeleteConfirmationModal, TimelineUnifiedView } from '@/components/Timeline';
+import { TimelineEventType, UserType } from '@/types/api';
+import { AddEventModal, DeleteConfirmationModal, ShareEventModal, TimelineUnifiedView } from '@/components/Timeline';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTimelineFilters } from '@/hooks/useTimelineFilters';
 
 export default function Timeline() {
   const { isMobile, user } = useAuth();
+  const searchParams = useSearchParams();
   const [events, setEvents] = useState<TimelineEventType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,6 +22,11 @@ export default function Timeline() {
   const [isPublic, setIsPublic] = useState(false);
   const [isUpdatingPublic, setIsUpdatingPublic] = useState(false);
   const [userHandle, setUserHandle] = useState<string>();
+  const [isShareEventModalOpen, setIsShareEventModalOpen] = useState(false);
+  const [eventToShare, setEventToShare] = useState<TimelineEventType | undefined>(undefined);
+  const [acceptedShares, setAcceptedShares] = useState<UserType[]>([]);
+  const [inviteId, setInviteId] = useState<string | null>(null);
+  const [inviteEvent, setInviteEvent] = useState<TimelineEventType | null>(null);
 
   // Use timeline filters hook
   const { filters, filteredEvents, hasActiveFilters, handleFilter, handleClearFilters } = useTimelineFilters(events);
@@ -27,6 +34,31 @@ export default function Timeline() {
   useEffect(() => {
     fetchEvents();
   }, []);
+
+  // Handle invite query parameter (when user clicks on event invite notification)
+  useEffect(() => {
+    const inviteParam = searchParams.get('invite');
+    if (inviteParam) {
+      authApiClient.getEventInvite(inviteParam)
+        .then(invite => {
+          // Only open modal if invite is still pending
+          if (invite.status === 'pending') {
+            setInviteId(inviteParam);
+            setInviteEvent(invite.event);
+            setIsAddEventModalOpen(true);
+          } else {
+            // Invite already accepted
+            alert(`This invite has already been ${invite.status}.`);
+            window.location.href = '/app';
+          }
+        })
+        .catch(err => {
+          console.error('Failed to load invite:', err);
+          // Redirect to /app on error
+          window.location.href = '/app';
+        });
+    }
+  }, [searchParams]);
 
   // Set user profile data from AuthContext
   useEffect(() => {
@@ -36,16 +68,49 @@ export default function Timeline() {
     }
   }, [user]);
 
+  // Fetch accepted timeline shares when component mounts
+  useEffect(() => {
+    const fetchAcceptedShares = async () => {
+      try {
+        const shares = await authApiClient.getSharedByYou();
+        // Filter to only accepted shares with registered users
+        const acceptedUsers = shares
+          .filter(share => share.is_accepted && share.shared_with_user)
+          .map(share => share.shared_with_user as UserType);
+        setAcceptedShares(acceptedUsers);
+      } catch (error) {
+        console.error('Failed to fetch timeline shares:', error);
+        setAcceptedShares([]);
+      }
+    };
+
+    fetchAcceptedShares();
+  }, []);
+
+  // Helper function: If timeline is not public, override any "public" events to "friends"
+  const applyPrivacyOverride = (events: TimelineEventType[]) => {
+    if (isPublic) return events;
+
+    return events.map(event =>
+      event.privacy_level === 'public'
+        ? { ...event, privacy_level: 'friends' as const }
+        : event
+    );
+  };
+
   const fetchEvents = async () => {
     try {
+      setLoading(true);
+      setError(null);
       const response = await authApiClient.getEvents();
 
-      // Sort events by date (newest first for better UX)
+      // Sort events by date (newest first)
       const sortedEvents = response.sort((a, b) =>
         new Date(b.event_date).getTime() - new Date(a.event_date).getTime()
       );
 
-      setEvents(sortedEvents);
+      // Apply privacy override if timeline is not public
+      setEvents(applyPrivacyOverride(sortedEvents));
     } catch (err) {
       setError('Failed to load events');
     } finally {
@@ -58,13 +123,9 @@ export default function Timeline() {
   useEffect(() => {
     if (events.length === 0) return;
 
-    // If timeline is not public, override any "public" events to "friends"
     if (!isPublic) {
-      const updatedEvents = events.map(event =>
-        event.privacy_level === 'public'
-          ? { ...event, privacy_level: 'friends' as const }
-          : event
-      );
+      // If timeline is not public, override any "public" events to "friends"
+      const updatedEvents = applyPrivacyOverride(events);
 
       // Only update if there were changes
       const hasChanges = updatedEvents.some((event, index) =>
@@ -88,6 +149,11 @@ export default function Timeline() {
   const handleEditEvent = (event: TimelineEventType) => {
     setEventToEdit(event);
     setIsAddEventModalOpen(true);
+  };
+
+  const handleShareEvent = (event: TimelineEventType) => {
+    setEventToShare(event);
+    setIsShareEventModalOpen(true);
   };
 
   const handleDeleteEvent = (event: TimelineEventType) => {
@@ -173,6 +239,7 @@ export default function Timeline() {
         onAddEvent={handleAddEvent}
         onEventsAdded={handleEventsAdded}
         onEditEvent={handleEditEvent}
+        onShareEvent={handleShareEvent}
         onFilter={handleFilter}
         onClearFilters={handleClearFilters}
         hasActiveFilters={hasActiveFilters}
@@ -191,12 +258,18 @@ export default function Timeline() {
       {/* Add/Edit Event Modal */}
       <AddEventModal
         isOpen={isAddEventModalOpen}
-        onClose={() => setIsAddEventModalOpen(false)}
+        onClose={() => {
+          setIsAddEventModalOpen(false);
+          setInviteId(null);
+          setInviteEvent(null);
+        }}
         onEventAdded={handleEventAdded}
-        eventToEdit={eventToEdit}
+        eventToEdit={inviteEvent || eventToEdit}
         onEventUpdated={handleEventUpdated}
         onDeleteEvent={handleDeleteEvent}
         isPublic={isPublic}
+        acceptedShares={acceptedShares}
+        inviteId={inviteId || undefined}
       />
 
       {/* Delete Confirmation Modal */}
@@ -206,6 +279,15 @@ export default function Timeline() {
         onConfirm={handleDeleteConfirm}
         eventTitle={eventToDelete?.title || ''}
         isDeleting={isDeleting}
+      />
+
+      {/* Share Event Modal */}
+      <ShareEventModal
+        isOpen={isShareEventModalOpen}
+        onClose={() => setIsShareEventModalOpen(false)}
+        event={eventToShare}
+        userHandle={userHandle}
+        acceptedShares={acceptedShares}
       />
     </>
   );

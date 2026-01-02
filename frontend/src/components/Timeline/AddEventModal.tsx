@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { TimelineEventType, EventCategory, EventPrivacyLevel, EVENT_CATEGORIES, EVENT_PRIVACY_LEVELS, EventPhotoType } from '@/types/api';
+import { TimelineEventType, EventCategory, EventPrivacyLevel, EVENT_CATEGORIES, EVENT_PRIVACY_LEVELS, EventPhotoType, ShareType, UserType } from '@/types/api';
 import { authApiClient } from '@/utils/auth-api';
-import { Input, Button, Subheading, Alert, Textarea } from '@/components/ui';
+import { Input, Button, Subheading, Alert, Textarea, InfoTooltip } from '@/components/ui';
 import { DateInput } from './DateInput';
+import { DescriptionInput } from './DescriptionInput';
 import { ToggleButtonGroup } from '@/components/Timeline';
 import { PhotoUpload, uploadPendingPhotos } from './PhotoUpload';
 import { useAutoFocus } from '@/hooks/useAutoFocus';
@@ -41,7 +42,6 @@ const TITLE_PLACEHOLDERS = [
   'Learned a new language',
   'Got promoted',
 ];
-const INPUT_DESCRIPTION_MAX_HEIGHT = 120; // ~5 lines
 
 interface AddEventModalProps {
   isOpen: boolean;
@@ -51,6 +51,8 @@ interface AddEventModalProps {
   onEventUpdated?: (event: TimelineEventType) => void;
   onDeleteEvent?: (event: TimelineEventType) => void;
   isPublic?: boolean;
+  acceptedShares?: UserType[];
+  inviteId?: string;
 }
 
 export function AddEventModal({
@@ -60,9 +62,12 @@ export function AddEventModal({
   eventToEdit,
   onEventUpdated,
   onDeleteEvent,
-  isPublic = false
+  isPublic = false,
+  acceptedShares = [],
+  inviteId
 }: AddEventModalProps) {
-  const isEditMode = !!eventToEdit;
+  const isInviteMode = !!inviteId;
+  const isEditMode = !!eventToEdit && !isInviteMode;
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [year, setYear] = useState('');
@@ -78,6 +83,8 @@ export function AddEventModal({
   const [error, setError] = useState<string | null>(null);
   const [isSelectionsLoaded, setIsSelectionsLoaded] = useState(false);
   const [titlePlaceholder, setTitlePlaceholder] = useState('');
+  const [inviteTaggedFriends, setInviteTaggedFriends] = useState(false);
+  const [mentionedUsers, setMentionedUsers] = useState<string[]>([]);
 
   // Set random placeholder when modal opens
   useEffect(() => {
@@ -87,20 +94,7 @@ export function AddEventModal({
     }
   }, [isOpen, eventToEdit]);
 
-  // Auto-resize description textarea when modal opens (for edit mode with existing text)
-  useEffect(() => {
-    if (isOpen && description) {
-      const textarea = document.getElementById('description') as HTMLTextAreaElement;
-      if (textarea) {
-        textarea.style.height = 'auto';
-        const newHeight = Math.min(textarea.scrollHeight, INPUT_DESCRIPTION_MAX_HEIGHT);
-        textarea.style.height = newHeight + 'px';
-        textarea.style.overflow = textarea.scrollHeight > INPUT_DESCRIPTION_MAX_HEIGHT ? 'auto' : 'hidden';
-      }
-    }
-  }, [isOpen, description]);
-
-  // Load event data when in edit mode
+  // Load event data when in edit mode or invite mode
   useEffect(() => {
     if (eventToEdit && isOpen) {
       setTitle(eventToEdit.title);
@@ -115,7 +109,37 @@ export function AddEventModal({
       setCategory(eventToEdit.category);
       setPrivacyLevel(eventToEdit.privacy_level);
       setNotes(eventToEdit.notes || '');
-      setPhotos(eventToEdit.event_photos || []);
+
+      // Handle photos differently for invite mode vs edit mode
+      if (isInviteMode) {
+        // In invite mode, download photos and set as pending files
+        const downloadPhotos = async () => {
+          if (eventToEdit.photos && eventToEdit.photos.length > 0) {
+            try {
+              const photoFiles = await Promise.all(
+                eventToEdit.photos.map(async (photo) => {
+                  const response = await fetch(photo.url);
+                  const blob = await response.blob();
+                  // Extract filename from URL or use a default
+                  const filename = photo.filename || `photo-${photo.id}.jpg`;
+                  return new File([blob], filename, { type: photo.content_type });
+                })
+              );
+              setPendingPhotoFiles(photoFiles);
+            } catch (error) {
+              console.error('Failed to download photos from invite:', error);
+            }
+          }
+        };
+        downloadPhotos();
+      } else {
+        // In edit mode, just set the photos normally
+        setPhotos(eventToEdit.photos || []);
+      }
+
+      // Extract user IDs from mentions
+      const userIds = eventToEdit.mentions?.map(m => m.mentioned_user.id) || [];
+      setMentionedUsers(userIds);
       // Delay to show smooth transition from gray to selected
       setTimeout(() => setIsSelectionsLoaded(true), 50);
     } else if (!eventToEdit && isOpen) {
@@ -124,7 +148,7 @@ export function AddEventModal({
       // Reset loaded state when modal closes
       setIsSelectionsLoaded(false);
     }
-  }, [eventToEdit, isOpen]);
+  }, [eventToEdit, isOpen, isInviteMode]);
 
   const handlePhotoOperationComplete = async () => {
     // Fetch the latest event data and update parent state (to update state when adding/deleting photos)
@@ -132,7 +156,7 @@ export function AddEventModal({
       try {
         const updatedEvent = await authApiClient.getEvent(eventToEdit.id);
         onEventUpdated(updatedEvent);
-        setPhotos(updatedEvent.event_photos || []);
+        setPhotos(updatedEvent.photos || []);
       } catch (error) {
         console.error('Failed to fetch updated event');
       }
@@ -166,13 +190,42 @@ export function AddEventModal({
         category,
         privacy_level: privacyLevel,
         notes: notes || undefined,
+        mentioned_users: mentionedUsers,
       };
 
       let updatedEvent;
 
-      if (isEditMode && eventToEdit) {
+      if (isInviteMode && inviteId) {
+        // Create the event on user's timeline
+        updatedEvent = await authApiClient.createEvent(eventData);
+
+        // Upload photos from the original event
+        if (pendingPhotoFiles.length > 0) {
+          try {
+            await uploadPendingPhotos(updatedEvent.id, pendingPhotoFiles);
+            // Fetch the updated event with photos
+            updatedEvent = await authApiClient.getEvent(updatedEvent.id);
+          } catch (photoError) {
+            console.error('Failed to upload photos from invite');
+            // Event was created successfully, just photos failed
+          }
+        }
+
+        // Accept the invite (just updates status)
+        await authApiClient.acceptEventInvite(inviteId);
+
+        onEventAdded(updatedEvent);
+      } else if (isEditMode && eventToEdit) {
         // Update existing event
         updatedEvent = await authApiClient.updateEvent(eventToEdit.id, eventData);
+        if (inviteTaggedFriends && mentionedUsers.length > 0) {
+          try {
+            await authApiClient.sendEventInvites(eventToEdit.id, mentionedUsers);
+          } catch (inviteError) {
+            console.error('Failed to send event invites:', inviteError);
+            // Event was updated successfully, just invites failed
+          }
+        }
         if (onEventUpdated) {
           onEventUpdated(updatedEvent);
         }
@@ -190,6 +243,15 @@ export function AddEventModal({
             console.error('Failed to upload photos');
             // Event was created successfully, just photos failed
             // We'll still show the event, user can add photos later
+          }
+        }
+
+        if (inviteTaggedFriends && mentionedUsers.length > 0) {
+          try {
+            await authApiClient.sendEventInvites(updatedEvent.id, mentionedUsers);
+          } catch (inviteError) {
+            console.error('Failed to send event invites:', inviteError);
+            // Event was created successfully, just invites failed
           }
         }
 
@@ -217,6 +279,8 @@ export function AddEventModal({
     setPhotos([]);
     setPendingPhotoFiles([]);
     setIsSelectionsLoaded(false);
+    setMentionedUsers([]);
+    setInviteTaggedFriends(false);
   };
 
   // Auto-focus the title input when the modal opens
@@ -254,7 +318,7 @@ export function AddEventModal({
       {/* max-h makes it so that modal doesn't overflow the screen */}
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md my-2 sm:my-0 max-h-[calc(100vh-2rem)] flex flex-col">
         <div className="flex justify-between items-center border-b border-secondary-200 px-6 py-3 flex-shrink-0">
-          <Subheading>{isEditMode ? 'Edit Event' : 'Add New Event'}</Subheading>
+          <Subheading>{isInviteMode ? 'Add Shared Event' : isEditMode ? 'Edit Event' : 'Add New Event'}</Subheading>
           <Button
             variant="text"
             onClick={onModalClose}
@@ -305,19 +369,16 @@ export function AddEventModal({
               <span className="block text-sm font-medium text-secondary-700">
                 Category
               </span>
-              <div className="group relative">
-                <svg className="w-4 h-4 text-secondary-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-10">
-                  <p className="mb-1">Major: Life-changing moments</p>
-                  <p className="mb-1">Minor: Meaningful milestones</p>
-                  <p className="mb-1">Memory: Personal reflections</p>
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                    <div className="border-4 border-transparent border-t-gray-800"></div>
-                  </div>
-                </div>
-              </div>
+              <InfoTooltip
+                className='w-47'
+                content={
+                  <>
+                    <p className="mb-1">Major: Life-changing moments</p>
+                    <p className="mb-1">Minor: Meaningful milestones</p>
+                    <p className="mb-1">Memory: Personal reflections</p>
+                  </>
+                }
+              />
             </div>
             <ToggleButtonGroup
               label=""
@@ -335,31 +396,18 @@ export function AddEventModal({
               <label htmlFor="description" className="block text-sm font-medium text-secondary-700">
                 Description
               </label>
-              <div className="group relative">
-                <svg className="w-4 h-4 text-secondary-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-10">
-                  Shareable details about this event
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                    <div className="border-4 border-transparent border-t-gray-800"></div>
-                  </div>
-                </div>
-              </div>
+              <InfoTooltip className='w-32' content="Shareable details about this event" />
             </div>
-            <Textarea
-              id="description"
+            <DescriptionInput
               value={description}
-              onChange={(e) => {
-                setDescription(e.target.value);
-                // Auto-resize textarea up to max height
-                e.target.style.height = 'auto';
-                const newHeight = Math.min(e.target.scrollHeight, INPUT_DESCRIPTION_MAX_HEIGHT);
-                e.target.style.height = newHeight + 'px';
-                e.target.style.overflow = e.target.scrollHeight > INPUT_DESCRIPTION_MAX_HEIGHT ? 'auto' : 'hidden';
-              }}
-              rows={1}
-              style={{ minHeight: '2.5rem', resize: 'none' }}
+              onChange={setDescription}
+              acceptedShares={acceptedShares}
+              hydrateKey={`${eventToEdit?.id || 'new'}-${isOpen}-${isSelectionsLoaded}`}
+              privacyLevel={privacyLevel}
+              inviteTaggedFriends={inviteTaggedFriends}
+              onInviteTaggedFriendsChange={setInviteTaggedFriends}
+              mentionedUsers={mentionedUsers}
+              onMentionedUsersChange={setMentionedUsers}
             />
           </div>
 
@@ -382,23 +430,19 @@ export function AddEventModal({
               <span className="block text-sm font-medium text-secondary-700">
                 Privacy
               </span>
-              <div className="group relative">
-                <svg className="w-4 h-4 text-secondary-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-64">
-                  <p className="mb-1">Controls who sees event details. Personal notes are always private.</p>
-
+              <InfoTooltip
+                className="w-64"
+                content={
+                  <>
+                    <p className="mb-1">Controls who sees event details. Personal notes are always private.</p>
                     {!isPublic && (
                       <p className="mb-1">
                         To make individual events public, you must first make your entire timeline public.
                       </p>
                     )}
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                    <div className="border-4 border-transparent border-t-gray-800"></div>
-                  </div>
-                </div>
-              </div>
+                  </>
+                }
+              />
             </div>
             <ToggleButtonGroup
               label=""
@@ -427,17 +471,7 @@ export function AddEventModal({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
               Personal Notes
-              <div className="group relative">
-                <svg className="w-4 h-4 text-secondary-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-10">
-                  Personal notes are always private and never shared with anyone
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                    <div className="border-4 border-transparent border-t-gray-800"></div>
-                  </div>
-                </div>
-              </div>
+              <InfoTooltip className="w-50" content="Personal notes are always private and never shared with anyone" />
             </button>
 
             {showNotes && (
@@ -456,6 +490,7 @@ export function AddEventModal({
             {/* Delete button - only shown in edit mode */}
             {isEditMode && onDeleteEvent && eventToEdit && (
               <Button
+                type="button"
                 variant="secondary"
                 onClick={() => onDeleteEvent(eventToEdit)}
                 disabled={isSubmitting}
@@ -473,17 +508,15 @@ export function AddEventModal({
 
             <div className="flex gap-3">
               <Button
+                type="button"
                 variant="secondary"
                 onClick={onModalClose}
                 disabled={isSubmitting}
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                loading={isSubmitting}
-              >
-                {isSubmitting ? (isEditMode ? 'Saving...' : 'Adding...') : (isEditMode ? 'Save' : 'Add')}
+              <Button type="submit" disabled={isSubmitting} loading={isSubmitting}>
+                {isSubmitting ? 'Saving...' : isInviteMode ? 'Add to Timeline' : isEditMode ? 'Update Event' : 'Add Event'}
               </Button>
             </div>
           </div>

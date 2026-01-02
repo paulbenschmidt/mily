@@ -4,7 +4,7 @@ import { useState } from 'react';
 import NextImage from 'next/image';
 import { TimelineEventType } from '@/types/api';
 import { formatEventDate } from '@/utils/date-validation';
-import { SmallText, Caption, Card, BodyText } from '@/components/ui';
+import { Caption, Card, BodyText, RichText } from '@/components/ui';
 import { PhotoModal } from './PhotoModal';
 import { EventActionButtons } from './EventActionButtons';
 import { PrivacyIcon } from './utils';
@@ -13,12 +13,13 @@ interface TimelineListEventProps {
   event: TimelineEventType;
   isLast?: boolean;
   onEditEvent?: (event: TimelineEventType) => void;
+  onShareEvent?: (event: TimelineEventType) => void;
   previousEvent?: TimelineEventType;
   nextEvent?: TimelineEventType;
   mode?: 'owner' | 'viewer';
 }
 
-export function TimelineListEvent({ event, onEditEvent, previousEvent, nextEvent, mode = 'owner' }: TimelineListEventProps) {
+export function TimelineListEvent({ event, onEditEvent, onShareEvent, previousEvent, nextEvent, mode = 'owner' }: TimelineListEventProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [photoModalOpen, setPhotoModalOpen] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
@@ -58,7 +59,7 @@ export function TimelineListEvent({ event, onEditEvent, previousEvent, nextEvent
   };
 
   // Check if there's expandable content (description, photos, or notes)
-  const hasExpandableContent = event.description || (event.event_photos && event.event_photos.length > 0) || event.notes;
+  const hasExpandableContent = event.description || (event.photos && event.photos.length > 0) || event.notes;
 
   const getEventSpacerHeight = () => {
     // Exit early if there is no next event
@@ -151,23 +152,24 @@ export function TimelineListEvent({ event, onEditEvent, previousEvent, nextEvent
                 {/* Description - transitions from clamped to full */}
                 {event.description && (
                   <div className="mt-1 md:mt-1.5">
-                    <SmallText className={`leading-relaxed whitespace-pre-wrap transition-all duration-500 ${
-                      isExpanded ? '' : 'line-clamp-2 md:line-clamp-1'
-                    }`}>
-                      {event.description}
-                    </SmallText>
+                    <RichText
+                      content={event.description}
+                      className={`text-sm text-secondary-500 leading-relaxed transition-all duration-500 ${
+                        isExpanded ? '' : 'line-clamp-2 md:line-clamp-1'
+                      }`}
+                    />
                   </div>
                 )}
 
                 {/* Photo chip when collapsed */}
-                {!isExpanded && event.event_photos && event.event_photos.length > 0 && (
+                {!isExpanded && event.photos && event.photos.length > 0 && (
                   <div className="mt-2 flex">
                     <div className="inline-flex items-center gap-1 rounded-full bg-secondary-100 border border-secondary-200 px-2 py-0.5 text-secondary-500">
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                       <Caption className="text-secondary-500">
-                        {event.event_photos.length} {event.event_photos.length === 1 ? 'photo' : 'photos'}
+                        {event.photos.length} {event.photos.length === 1 ? 'photo' : 'photos'}
                       </Caption>
                     </div>
                   </div>
@@ -179,10 +181,10 @@ export function TimelineListEvent({ event, onEditEvent, previousEvent, nextEvent
                     isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
                   }`}
                 >
-                  {event.event_photos && event.event_photos.length > 0 && (
+                  {event.photos && event.photos.length > 0 && (
                     <div className="mt-4 mb-4">
                       <div className="grid grid-cols-3 gap-2">
-                        {event.event_photos.map((photo, index) => (
+                        {event.photos.map((photo, index) => (
                           <button
                             key={photo.id}
                             onClick={(e) => {
@@ -215,6 +217,7 @@ export function TimelineListEvent({ event, onEditEvent, previousEvent, nextEvent
                   <EventActionButtons
                     event={event}
                     onEditEvent={onEditEvent}
+                    onShareEvent={onShareEvent}
                     size="sm"
                     className="pb-4"
                   />
@@ -230,9 +233,9 @@ export function TimelineListEvent({ event, onEditEvent, previousEvent, nextEvent
       <div className={`flex items-center justify-center ${getEventSpacerHeight()}`} />
 
       {/* Photo Modal */}
-      {photoModalOpen && event.event_photos && event.event_photos.length > 0 && (
+      {photoModalOpen && event.photos && event.photos.length > 0 && (
         <PhotoModal
-          photos={event.event_photos}
+          photos={event.photos}
           currentIndex={selectedPhotoIndex}
           onClose={() => setPhotoModalOpen(false)}
           onNavigate={setSelectedPhotoIndex}

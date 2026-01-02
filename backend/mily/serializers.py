@@ -6,6 +6,8 @@ from rest_framework import serializers
 from .aws_s3 import create_presigned_get_url, make_avatar_key
 from .models import (
     Event,
+    EventInvite,
+    EventMention,
     EventPhoto,
     EventPrivacyLevel,
     Notification,
@@ -103,9 +105,27 @@ class EventPhotoSerializer(serializers.ModelSerializer):
             return ""
 
 
+class EventMentionSerializer(serializers.ModelSerializer):
+    """Serializer for event mentions/tags."""
+    event = serializers.PrimaryKeyRelatedField(read_only=True)
+    mentioned_user = UserPublicSerializer(read_only=True)
+
+    class Meta:
+        model = EventMention
+        fields = [
+            "id",
+            "event",
+            "mentioned_user",
+            "source",
+            "created_at",
+        ]
+        read_only_fields = ["id", "event", "mentioned_user", "created_at"]
+
+
 class EventSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(read_only=True)
-    event_photos = EventPhotoSerializer(many=True, read_only=True)
+    photos = EventPhotoSerializer(many=True, read_only=True)
+    mentions = EventMentionSerializer(many=True, read_only=True)
 
     class Meta:
         model = Event
@@ -121,12 +141,13 @@ class EventSerializer(serializers.ModelSerializer):
             "is_month_approximate",
             "location",
             "privacy_level",
-            "event_photos",
+            "photos",
+            "mentions",
             "tags",
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "created_at", "updated_at", "event_photos"]
+        read_only_fields = ["id", "created_at", "updated_at", "photos", "mentions"]
 
     def validate_privacy_level(self, value: str) -> str:
         if value not in EventPrivacyLevel.values:
@@ -135,9 +156,9 @@ class EventSerializer(serializers.ModelSerializer):
 
 
 class EventPublicSerializer(serializers.ModelSerializer):
-    """Serializer for public event data (excludes personal notes)."""
+    """Serializer for public event data (excludes personal notes and mentions)."""
     user = serializers.PrimaryKeyRelatedField(read_only=True)
-    event_photos = EventPhotoSerializer(many=True, read_only=True)
+    photos = EventPhotoSerializer(many=True, read_only=True)
 
     class Meta:
         model = Event
@@ -152,17 +173,35 @@ class EventPublicSerializer(serializers.ModelSerializer):
             "is_month_approximate",
             "location",
             "privacy_level",
-            "event_photos",
+            "photos",
             "tags",
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "created_at", "updated_at", "event_photos"]
+        read_only_fields = ["id", "created_at", "updated_at", "photos"]
 
     def validate_privacy_level(self, value: str) -> str:
         if value not in EventPrivacyLevel.values:
             raise serializers.ValidationError("Invalid privacy level.")
         return value
+
+
+class EventInviteSerializer(serializers.ModelSerializer):
+    """Serializer for event invitations."""
+    event = EventPublicSerializer(read_only=True)
+    recipient = UserPublicSerializer(read_only=True)
+
+    class Meta:
+        model = EventInvite
+        fields = [
+            "id",
+            "event",
+            "recipient",
+            "status",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "event", "recipient", "created_at", "updated_at"]
 
 
 class ShareSerializer(serializers.ModelSerializer):

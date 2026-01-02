@@ -384,6 +384,70 @@ class AuthApiClient {
     });
   }
 
+  // Send event invites to mentioned users
+  async sendEventInvites(
+    eventId: string,
+    recipientIds: string[],
+    force: boolean = false
+  ): Promise<{
+    message: string;
+    invited_count: number;
+    already_invited_count: number;
+  }> {
+    return this.request<{
+      message: string;
+      invited_count: number;
+      already_invited_count: number;
+    }>({
+      endpoint: '/event-invites/',
+      options: {
+        method: 'POST',
+        body: JSON.stringify({
+          event_id: eventId,
+          recipient_ids: recipientIds,
+          force,
+        }),
+      },
+    });
+  }
+
+  // Get event invite details
+  async getEventInvite(inviteId: string): Promise<{
+    id: string;
+    event: TimelineEventType;
+    recipient: UserType;
+    status: string;
+    created_at: string;
+    updated_at: string;
+  }> {
+    return this.request<{
+      id: string;
+      event: TimelineEventType;
+      recipient: UserType;
+      status: string;
+      created_at: string;
+      updated_at: string;
+    }>({
+      endpoint: `/event-invites/${inviteId}/`,
+    });
+  }
+
+  // Accept event invite
+  async acceptEventInvite(inviteId: string): Promise<{
+    message: string;
+    event_id: string;
+  }> {
+    return this.request<{
+      message: string;
+      event_id: string;
+    }>({
+      endpoint: `/event-invites/${inviteId}/accept/`,
+      options: {
+        method: 'PATCH',
+      },
+    });
+  }
+
   // Send timeline share invitation
   async sendShareInvitation(email: string): Promise<{ id: string; shared_with_email: string }> {
     return this.request<{ id: string; shared_with_email: string }>({

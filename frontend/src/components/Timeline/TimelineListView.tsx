@@ -1,18 +1,20 @@
 'use client';
 
 import { useRef, useEffect, useCallback, useState } from 'react';
-import { TimelineEventType } from '@/types/api';
+import { TimelineEventType, UserType } from '@/types/api';
 import { TimelineListEvent } from './TimelineListEvent';
 import { EmptyFilteredState } from './utils';
 
 interface TimelineListViewProps {
   events: TimelineEventType[];
   onEditEvent?: (event: TimelineEventType) => void;
+  onShareEvent?: (event: TimelineEventType) => void;
   onCurrentEventChange: (eventId: string) => void;
   onClearFilters?: () => void;
   hasActiveFilters: boolean;
   mode: 'owner' | 'viewer';
   initialEventIdToScrollTo?: string | null;
+  acceptedShares?: UserType[];
 }
 
 /**
@@ -22,11 +24,13 @@ interface TimelineListViewProps {
 export function TimelineListView({
   events,
   onEditEvent,
+  onShareEvent,
   onCurrentEventChange,
   onClearFilters,
   hasActiveFilters,
   mode,
   initialEventIdToScrollTo,
+  acceptedShares = [],
 }: TimelineListViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const eventRefs = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -148,6 +152,7 @@ export function TimelineListView({
           <TimelineListEvent
             event={event}
             onEditEvent={mode === 'owner' ? onEditEvent : undefined}
+            onShareEvent={mode === 'owner' ? onShareEvent : undefined}
             previousEvent={events[index - 1]}
             nextEvent={events[index + 1]}
             mode={mode}

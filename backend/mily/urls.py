@@ -4,6 +4,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     UserViewSet,
     EventViewSet,
+    EventInviteViewSet,
     NotificationViewSet,
     ShareViewSet,
     get_other_timeline,
@@ -27,6 +28,7 @@ from .throttling import TokenRefreshRateThrottle
 router = DefaultRouter()
 router.register(r"users", UserViewSet, basename="user")
 router.register(r"events", EventViewSet, basename="event")
+router.register(r"event-invites", EventInviteViewSet, basename="event-invite")
 router.register(r"notifications", NotificationViewSet, basename="notification")
 router.register(r"shares", ShareViewSet, basename="share")
 

@@ -37,6 +37,14 @@ export interface EventPhotoType {
   updated_at: string;
 }
 
+export interface EventMention {
+  id: string;
+  event: string;
+  mentioned_user: UserType;
+  source: string;
+  created_at: string;
+}
+
 export interface TimelineEventType {
   id: string;
   user: string;
@@ -48,8 +56,9 @@ export interface TimelineEventType {
   is_month_approximate: boolean;
   category: EventCategory;
   privacy_level: EventPrivacyLevel;
-  event_photos?: EventPhotoType[];
   tags?: string[];
+  photos?: EventPhotoType[];
+  mentions?: EventMention[];
   created_at: string;
   updated_at: string;
 }

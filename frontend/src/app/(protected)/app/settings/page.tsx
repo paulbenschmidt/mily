@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import NextImage from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import { authApiClient } from '@/utils/auth-api';
-import { PageHeading, SectionHeading, BodyText, Caption, Button, Alert, Input } from '@/components/ui';
+import { PageHeading, SectionHeading, BodyText, Caption, Button, Alert, Input, InfoTooltip } from '@/components/ui';
 
 export default function SettingsPage() {
   const { user, logout, checkAuth } = useAuth();
@@ -422,14 +422,10 @@ export default function SettingsPage() {
                   <label htmlFor="handle" className="block text-sm font-medium text-secondary-700">
                     Handle
                   </label>
-                  <div className="group relative">
-                    <svg className="w-4 h-4 text-secondary-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block w-64 p-2 bg-secondary-900 text-white text-xs rounded shadow-lg z-20">
-                      Your handle defines your timeline&apos;s unique URL when sharing (e.g., {process.env.NEXT_PUBLIC_FRONTEND_URL}/timeline/{handle})
-                    </div>
-                  </div>
+                  <InfoTooltip
+                    className="w-64"
+                    content={`Your handle defines your timeline's unique URL when sharing (e.g., ${process.env.NEXT_PUBLIC_FRONTEND_URL}/timeline/${handle})`}
+                  />
                 </div>
                 <Input
                   id="handle"

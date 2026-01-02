@@ -15,6 +15,10 @@ from rest_framework.response import Response
 from .aws_s3 import make_event_photo_key, make_avatar_key, create_presigned_put_url, delete_photo_from_s3
 from .models import (
     Event,
+    EventInvite,
+    EventInviteStatus,
+    EventMention,
+    EventMentionSource,
     EventPhoto,
     Notification,
     NotificationType,
@@ -24,6 +28,7 @@ from .serializers import (
     EventSerializer,
     EventPhotoSerializer,
     EventPublicSerializer,
+    EventInviteSerializer,
     NotificationSerializer,
     UserPublicSerializer,
     UserPrivateSerializer,
@@ -232,6 +237,9 @@ class EventViewSet(viewsets.ModelViewSet):
         """Create a new event with enhanced validation and error handling."""
         logger.info("Event creation request received from user: %s", request.user)
 
+        # Extract mentioned_users from request (not part of serializer)
+        mentioned_users = request.data.get('mentioned_users', [])
+
         serializer = self.get_serializer(data=request.data)
 
         if not serializer.is_valid():
@@ -243,6 +251,31 @@ class EventViewSet(viewsets.ModelViewSet):
 
         try:
             event = self.perform_create(serializer)
+
+            # Create EventMention records if mentioned_users is provided and not empty
+            if mentioned_users:
+                # Validate that all mentioned users exist, are active, and have an accepted TimelineShare
+                User = get_user_model()
+                valid_user_ids = User.objects.filter(
+                    id__in=mentioned_users,
+                    is_active=True,
+                    shared_timelines__user=request.user,
+                    shared_timelines__is_accepted=True
+                ).values_list('id', flat=True)
+
+                if valid_user_ids:
+                    # Create EventMention records using bulk_create
+                    mentions_to_create = [
+                        EventMention(
+                            event=event,
+                            mentioned_user_id=user_id,
+                            source=EventMentionSource.DESCRIPTION
+                        )
+                        for user_id in valid_user_ids
+                    ]
+                    EventMention.objects.bulk_create(mentions_to_create, ignore_conflicts=True)
+                    logger.info("Created %d event mentions for event %s", len(mentions_to_create), event.id)
+
             headers = self.get_success_headers(serializer.data)
             return Response(
                 serializer.data,
@@ -256,6 +289,64 @@ class EventViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+    def update(self, request, *args, **kwargs):
+        """Update an event and sync EventMention records."""
+        logger.info("Event update request received from user: %s", request.user)
+
+        # Extract mentioned_users from request (not part of serializer)
+        mentioned_users = request.data.get('mentioned_users', [])
+
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+
+        if not serializer.is_valid():
+            logger.warning("Invalid event data: %s", serializer.errors)
+            return Response(
+                {"error": "Invalid event data", "details": serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            self.perform_update(serializer)
+
+            # Sync EventMention records: delete all existing mentions and re-create
+            # Delete all existing mentions for this event
+            deleted_count = instance.mentions.all().delete()[0]
+            logger.info("Deleted %d existing event mentions for event %s", deleted_count, instance.id)
+
+            # Create new EventMention records if mentioned_users is provided and not empty
+            if mentioned_users:
+                # Validate that all mentioned users exist, are active, and have an accepted TimelineShare
+                User = get_user_model()
+                valid_user_ids = User.objects.filter(
+                    id__in=mentioned_users,
+                    is_active=True,
+                    shared_timelines__user=request.user,
+                    shared_timelines__is_accepted=True
+                ).values_list('id', flat=True)
+
+                if valid_user_ids:
+                    # Create EventMention records using bulk_create
+                    mentions_to_create = [
+                        EventMention(
+                            event=instance,
+                            mentioned_user_id=user_id,
+                            source=EventMentionSource.DESCRIPTION
+                        )
+                        for user_id in valid_user_ids
+                    ]
+                    EventMention.objects.bulk_create(mentions_to_create, ignore_conflicts=True)
+                    logger.info("Created %d event mentions for event %s", len(mentions_to_create), instance.id)
+
+            return Response(serializer.data)
+        except Exception as e:
+            logger.error("Error during event update: %s", str(e))
+            return Response(
+                {"error": "Failed to update event", "details": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
     def destroy(self, request, *args, **kwargs):
         """Delete an event with proper logging and response handling."""
         instance = self.get_object()
@@ -266,7 +357,7 @@ class EventViewSet(viewsets.ModelViewSet):
 
         try:
             # Delete associated photos from S3 before deleting the event
-            for photo in instance.event_photos.all():
+            for photo in instance.photos.all():
                 try:
                     delete_photo_from_s3(photo.s3_key)
                     logger.info("Deleted photo from S3: %s", photo.s3_key)
@@ -338,7 +429,7 @@ class EventViewSet(viewsets.ModelViewSet):
             )
 
         # Validate photo count limit (max 3 photos per event)
-        current_photo_count = event.event_photos.count()
+        current_photo_count = event.photos.count()
         if current_photo_count >= settings.MAX_PHOTOS_PER_EVENT:
             return Response(
                 {"error": f"Maximum of {settings.MAX_PHOTOS_PER_EVENT} photos per event. Please delete a photo before adding a new one."},
@@ -360,7 +451,7 @@ class EventViewSet(viewsets.ModelViewSet):
                 filename=filename,
                 content_type=content_type,
                 file_size=file_size,
-                display_order=event.event_photos.count(),
+                display_order=event.photos.count(),
                 width=width,
                 height=height
             )
@@ -842,3 +933,190 @@ class NotificationViewSet(viewsets.ModelViewSet):
         """Delete all notifications for the current user."""
         deleted, _ = Notification.objects.filter(recipient=request.user).delete()
         return Response({'deleted': deleted})
+
+
+class EventInviteViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing event invitations.
+
+    Endpoints:
+    - POST /event-invites/ - Send invites to mentioned users for an event
+    - GET /event-invites/ - List invites received by the current user
+    - PATCH /event-invites/{id}/accept/ - Accept an invite
+    """
+    serializer_class = EventInviteSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        """Users can only see invites they've received."""
+        return EventInvite.objects.filter(
+            recipient=self.request.user
+        ).select_related('event', 'recipient').order_by('-created_at')
+
+    def create(self, request, *args, **kwargs):
+        """
+        Send event invites to mentioned users.
+
+        Request body:
+        {
+            "event_id": "uuid",
+            "recipient_ids": ["uuid1", "uuid2", ...],
+            "force": false  // Optional: if true, deletes existing invites before creating new ones
+        }
+        """
+        event_id = request.data.get('event_id')
+        recipient_ids = request.data.get('recipient_ids', [])
+        force = request.data.get('force', False)
+
+        if not event_id:
+            return Response(
+                {"error": "event_id is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not recipient_ids:
+            return Response(
+                {"error": "recipient_ids is required and must not be empty"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Verify event exists and user owns it
+        try:
+            event = Event.objects.get(id=event_id, user=request.user)
+        except Event.DoesNotExist:
+            return Response(
+                {"error": "Event not found or you don't have permission to invite users to this event"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Validate recipient users exist, are active, and have accepted timeline share
+        valid_user_ids = User.objects.filter(
+            id__in=recipient_ids,
+            is_active=True,
+            shared_timelines__user=request.user,
+            shared_timelines__is_accepted=True
+        ).values_list('id', flat=True)
+
+        if not valid_user_ids:
+            return Response(
+                {"error": "No valid recipients found. Recipients must be active users with accepted timeline shares."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Handle force parameter - delete existing invites if force=true
+        if force:
+            # Delete all existing invites for this event and these recipients
+            deleted_count = EventInvite.objects.filter(
+                event=event,
+                recipient_id__in=valid_user_ids
+            ).delete()[0]
+            logger.info("Deleted %d existing invites for event %s (force=true)", deleted_count, event.id)
+            new_invite_user_ids = list(valid_user_ids)
+            existing_invite_user_ids = set()
+        else:
+            # Check for existing invites to avoid duplicates
+            existing_invite_user_ids = set(
+                EventInvite.objects.filter(
+                    event=event,
+                    recipient_id__in=valid_user_ids
+                ).values_list('recipient_id', flat=True)
+            )
+
+            # Only create invites for NEW users (not previously invited)
+            new_invite_user_ids = [uid for uid in valid_user_ids if uid not in existing_invite_user_ids]
+
+            if not new_invite_user_ids:
+                return Response(
+                    {"message": "All specified users have already been invited to this event"},
+                    status=status.HTTP_200_OK
+                )
+
+        # Create EventInvite records and notifications
+        # Note: We create individually (not bulk) so we can get invite IDs for notification URLs
+        sender_name = f"{request.user.first_name} {request.user.last_name}".strip() or request.user.email
+        created_invites = []
+
+        for user_id in new_invite_user_ids:
+            # Create invite
+            invite = EventInvite.objects.create(
+                event=event,
+                recipient_id=user_id,
+                status=EventInviteStatus.PENDING
+            )
+            created_invites.append(invite)
+
+            # Create notification with link to the invite
+            Notification.objects.create(
+                recipient_id=user_id,
+                notification_type=NotificationType.SHARE_INVITATION,
+                title="A memory was shared with you",
+                message=f"{sender_name} invited you to add '{event.title}' to your timeline",
+                action_url=f"/app?invite={invite.id}"
+            )
+
+        logger.info("Created %d event invites and notifications for event %s", len(created_invites), event.id)
+
+        return Response(
+            {
+                "message": f"Successfully sent {len(created_invites)} invite(s)",
+                "invited_count": len(created_invites),
+                "already_invited_count": len(existing_invite_user_ids)
+            },
+            status=status.HTTP_201_CREATED
+        )
+
+    def retrieve(self, request, pk=None, *args, **kwargs):
+        """Get details of a specific invite."""
+        invite = self.get_object()
+        serializer = self.get_serializer(invite)
+        data = serializer.data
+        # Blank out the description for privacy
+        if 'event' in data and 'description' in data['event']:
+            data['event']['description'] = ''
+        return Response(data)
+
+    def list(self, request, *args, **kwargs):
+        """List all invites received by the current user."""
+        queryset = self.get_queryset()
+
+        # Optional filter by status
+        status_filter = request.query_params.get('status')
+        if status_filter:
+            queryset = queryset.filter(status=status_filter)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['patch'], url_path='accept')
+    def accept_invite(self, request, pk=None):
+        """
+        Accept an event invite by updating its status to ACCEPTED.
+        The actual event creation should be handled by the frontend via POST to /events/.
+        """
+        invite = self.get_object()
+
+        if invite.status != EventInviteStatus.PENDING:
+            return Response(
+                {"error": f"Invite has already been {invite.status}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            # Update invite status
+            invite.status = EventInviteStatus.ACCEPTED
+            invite.save(update_fields=['status', 'updated_at'])
+            logger.info("Invite %s accepted by user %s", invite.id, request.user.id)
+
+            return Response(
+                {
+                    "message": "Invite accepted",
+                    "invite_id": str(invite.id)
+                },
+                status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            logger.error("Error accepting invite %s: %s", invite.id, str(e))
+            return Response(
+                {"error": "Failed to accept invite", "details": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

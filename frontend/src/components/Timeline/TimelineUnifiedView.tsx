@@ -20,6 +20,7 @@ interface TimelineUnifiedViewProps {
   loading: boolean;
   error: string | null;
   onEditEvent?: (event: TimelineEventType) => void;
+  onShareEvent?: (event: TimelineEventType) => void;
   onAddEvent?: () => void;
   onEventsAdded?: (events: TimelineEventType[]) => void;
   onFilter?: (filters: FilterOptions) => void;
@@ -50,6 +51,7 @@ export function TimelineUnifiedView({
   onAddEvent,
   onEventsAdded,
   onEditEvent,
+  onShareEvent,
   onFilter,
   onClearFilters,
   hasActiveFilters,
@@ -218,6 +220,7 @@ export function TimelineUnifiedView({
           <TimelineListView
             events={filteredEvents}
             onEditEvent={onEditEvent}
+            onShareEvent={onShareEvent}
             onCurrentEventChange={handleCurrentEventChange}
             onClearFilters={onClearFilters}
             hasActiveFilters={hasActiveFilters}
@@ -237,6 +240,7 @@ export function TimelineUnifiedView({
           canNavigateOlder={canNavigateOlder}
           canNavigateNewer={canNavigateNewer}
           onEditEvent={onEditEvent}
+          onShareEvent={onShareEvent}
           mode={mode}
           hasActiveFilters={hasActiveFilters}
           onOpenFilters={() => setIsFilterOpen(true)}
