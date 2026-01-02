@@ -113,7 +113,6 @@ class EventMentionSource(models.TextChoices):
 class EventMention(models.Model):
     """
     Tracks when users are mentioned/tagged in events.
-    Used for inviting friends to add a copy of an event to their timeline.
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     event = models.ForeignKey(
@@ -199,7 +198,8 @@ class EventInviteStatus(models.TextChoices):
 class EventInvite(models.Model):
     """
     Tracks invitations for users to add a copy of an event to their timeline.
-    Created when a user mentions/tags another user in an event and opts to send an invite.
+    Created when a user mentions another user in an event and opts to send an invite, or when a user specifically
+    shares an event.
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     event = models.ForeignKey(

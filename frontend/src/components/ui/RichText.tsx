@@ -6,6 +6,7 @@ interface RichTextProps {
 }
 
 export function RichText({ content, className = '' }: RichTextProps) {
+  // This component is used to render rich text content with mentions (user chips)
   const parts = parseMentions(content);
 
   return (

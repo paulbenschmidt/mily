@@ -1,5 +1,8 @@
 # Mily
 
+- `git ls-files -z | xargs -0 wc -l | tail -n 1`
+    - 2026-01-01: 28819 total lines
+
 ## Environments
 
 Since Paul is the only one currently developing Mily, I tried to keep environment segregation as simple as possible, with one semi-local environment and two hosted environments: one for staging and one for production. If other developers begin contributing to the project, this will need to be expanded.

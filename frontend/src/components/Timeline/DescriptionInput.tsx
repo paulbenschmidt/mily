@@ -5,24 +5,15 @@ import { baseInputStyles, normalInputStyles } from '@/components/ui/Textarea';
 import { useMentionInput } from '@/hooks/useMentionInput';
 
 type Props = {
-  /** Tokenized string: supports {{mention:<uuid>|name:<Display Name>}} */
-  value: string;
-  /** Called with tokenized string extracted from the editor DOM */
+  value: string; /** Tokenized string: supports {{mention:<uuid>|name:<Display Name>}} */
   onChange: (nextValue: string) => void;
-  /** People eligible for mentions (ideally accepted connections only) */
-  acceptedShares: UserType[];
-  /** Change this when switching to a different event to re-hydrate the DOM */
-  hydrateKey?: string | number;
-  maxHeight?: number;
-  /** Privacy level of the event */
+  acceptedShares: UserType[]; /** People eligible for mentions (accepted connections only) */
+  hydrateKey?: string | number; /** Change this when switching to a different event to re-hydrate the DOM */
+  maxHeight?: number; /** Maximum height of the input */
   privacyLevel?: EventPrivacyLevel;
-  /** Whether to invite tagged friends */
-  inviteTaggedFriends?: boolean;
-  /** Callback when invite toggle changes */
+  inviteTaggedFriends?: boolean; /** Whether to invite tagged friends */
   onInviteTaggedFriendsChange?: (value: boolean) => void;
-  /** Mentioned user IDs (controlled from parent) */
-  mentionedUsers?: string[];
-  /** Callback when mentioned users change */
+  mentionedUsers?: string[]; /** Mentioned user IDs (controlled from parent) */
   onMentionedUsersChange?: (userIds: string[]) => void;
 };
 
@@ -51,7 +42,7 @@ export function DescriptionInput({
     handleInput,
     handleKeyDown,
     insertMentionChip,
-  } = useMentionInput({ value, onChange, acceptedShares, hydrateKey, mentionedUsers, onMentionedUsersChange });
+  } = useMentionInput({ value, onChange, acceptedShares, hydrateKey, onMentionedUsersChange });
 
   // Determine if all eligible users have been mentioned
   const allUsersMentioned =

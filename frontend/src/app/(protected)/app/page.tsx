@@ -35,7 +35,7 @@ export default function Timeline() {
     fetchEvents();
   }, []);
 
-  // Handle invite query parameter
+  // Handle invite query parameter (when user clicks on event invite notification)
   useEffect(() => {
     const inviteParam = searchParams.get('invite');
     if (inviteParam) {

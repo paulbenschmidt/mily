@@ -90,8 +90,10 @@ export function ShareEventModal({
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-    setShowDropdown(true);
+    const value = e.target.value;
+    setSearchQuery(value);
+    // Only show dropdown if user has typed something
+    setShowDropdown(value.length > 0);
     setSelectedIndex(0);
   };
 
@@ -127,6 +129,7 @@ export function ShareEventModal({
     setIsSending(true);
     try {
       const recipientIds = selectedRecipients.map(recipient => recipient.id);
+      // Force send invite even if the user has already been invited (deletes existing invites and creates new ones)
       await authApiClient.sendEventInvites(event.id, recipientIds, true);
 
       // Reset and close on success
@@ -298,7 +301,6 @@ export function ShareEventModal({
                     value={searchQuery}
                     onChange={handleInputChange}
                     onKeyDown={handleInputKeyDown}
-                    onFocus={() => setShowDropdown(true)}
                     placeholder={selectedRecipients.length === 0 ? 'Search friends…' : ''}
                     className="flex-1 min-w-[120px] outline-none text-sm bg-transparent"
                   />

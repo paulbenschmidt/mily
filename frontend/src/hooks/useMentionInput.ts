@@ -60,14 +60,11 @@ function hydrateFromTokenizedValue(root: HTMLElement, value: string) {
   }
 }
 
-export function useMentionInput({ value, onChange, acceptedShares, hydrateKey, mentionedUsers, onMentionedUsersChange }: UseMentionInputProps) {
+export function useMentionInput({ value, onChange, acceptedShares, hydrateKey, onMentionedUsersChange }: UseMentionInputProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Mention state
   const mentionRangeRef = useRef<Range | null>(null);
   const mentionActiveRef = useRef(false);
-
   const [showDropdown, setShowDropdown] = useState(false);
   const [mentionQuery, setMentionQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);

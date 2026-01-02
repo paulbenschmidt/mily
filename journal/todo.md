@@ -1,37 +1,7 @@
 ## In Progress
-- ENHANCE: Allow users to share individual events/tagging people in events/sharing events
-    - [x] Add Share button underneath event to send to a person
-    - [x] Make it so that @ing someone in the description opens a chip selection for all friends who have accepted a timeline share
-    - [x] Make it so that you can't @ someone multiple times in the same event
-    - [x] When a friend is selected, show a toggle below the description like this (only make this visible for non-private events):
-        > Invite tagged friends?  [On/Off] (only have this show for non-private events)
-        > “When you save, tagged friends will receive an invite to add a copy to their timeline.”
-    - [x] Revise "Event Share" modal to have a multi-select picker with recipient chips
-    - [ ] Think about how you want creates/updates/deletes to behave
-        - I was initially thinking that I'd bulk delete and auto-add on every event save, but I realize that this would spam the recipient with notifications.
-        - I think the recommended path is to:
-            1. For new or updated events in `EventMentions`, bulk-delete any pre-existing mentions and add the new ones. For deleted events, bulk-delete all mentions.
-            2. If sharing, for `EventShare`:
-                - When creating a new event, create a new `EventShare` record for each invited user.
-                - When updating an event, check if the user has been invited already. If not, create a new `EventShare` record; if so, do nothing.
-                - When deleting an event, delete all `EventShare` records for that event.
-                - If using the dedicated "Share" event, then always create a new `EventShare` record for each invited user.
-    - BACKEND: EventMention management
-        - [x] On event create, create `EventMention` records
-        - [x] On event update, delete all associated `EventMention` records and re-add all `EventMention` records
-        - [x] On event delete, delete all associated `EventMention` records (auto-handled with CASCADE)
-        - [x] On GET events, return all associated `EventMention` user IDs as an array
-    - BACKEND: EventInvite management, when user opts into share
-        - [x] On event create, create `EventInvite` records for invited users AND notify users
-        - [x] On event update, check if `EventInvite` records exist--if so, ignore; otherwise, add AND notify
-        - [x] On event delete, delete all associated `EventInvite` records (auto-handled with CASCADE)
-        - I will not create a copy of the event; it will copy it over on Accept
-        - Notification: whether they want to view/deny/add the event to their timeline, too
-    - When user clicks on notification, open AddEventModal with event data.
-    - [ ] Reach out to Jonathon Roy/Rusty for feedback on this feature once it's implemented
-        - Also, notify Jonathon that photo reordering is fixed
-
-- TODO: Rename "Share" to "TimelineInvite"
+- FEATURE: Allow filtering by mentioned users
+- TECHDEBT: Rename "Share" to "TimelineInvite"
+- TECHDEBT: Review the code in `useMentionInput` to see if it can be simplified, but also just to understand it better
 
 ## Sprint Backlog
 - ENHANCE: Create simple Notifications page so that users can view/deny/add-to-timeline event shares
