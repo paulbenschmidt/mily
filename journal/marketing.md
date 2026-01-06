@@ -1,6 +1,12 @@
 #
 Mily runs on "fame"—people want their stories to be heard.
 
+## Experiment
+Target people who want to share their stories with others. This could be:
+- Parents sharing stories with their children
+- Memoir writers
+- Journalists
+
 ## Conversation with Joey 12/15/2025
 - Find podcasts that interview people; have the podcaster recommend the tool to the interviewer
 - Look for someone who has appeared on multiple podcasts and aren't that famous and recommend Mily to them so that the interviewer can ask questions

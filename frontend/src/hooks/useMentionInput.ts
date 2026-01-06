@@ -2,6 +2,13 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { UserType } from '@/types/api';
 import { MENTION_CHIP_STYLES, createMentionToken, parseMentions } from '@/utils/mentions';
 
+/*
+2026-01-06: I reviewed this code since I hadn't yet taken the time to fully understand it. I now understand it a bit
+better, but I still think it could be simplified. I won't prioritize this since this works, but--future me--if you
+want to make it better, feel free. The only consideration here is to be sensitive about the behavior on both Apple and
+Android devices since they trigger off of different events. (The original code didn't work on Rusty's Google Pixel.)
+*/
+
 interface UseMentionInputProps {
   value: string;
   onChange: (value: string) => void;
@@ -11,6 +18,8 @@ interface UseMentionInputProps {
   onMentionedUsersChange?: (userIds: string[]) => void;
 }
 
+// Creates a non-editable mention chip element that displays as @displayName
+// and stores userId and displayName as data attributes for later tokenization
 function makeChipEl(userId: string, displayName: string) {
   const chip = document.createElement('span');
   chip.contentEditable = 'false';
@@ -21,6 +30,8 @@ function makeChipEl(userId: string, displayName: string) {
   return chip;
 }
 
+// Recursively extracts text from a contentEditable element, converting visual mention chips
+// (displayed as @Test U.) to tokenized format (@[userId:Test U.]) for storage, and preserving line breaks
 function extractTokenizedValue(root: HTMLElement) {
   let out = '';
   root.childNodes.forEach((node, index) => {
@@ -53,6 +64,8 @@ function extractTokenizedValue(root: HTMLElement) {
   return out;
 }
 
+// Rebuilds the entire contentEditable DOM from tokenized text, converting mention tokens
+// (@[userId:Test U.]) into visual chips and regular text into text nodes, preserving line breaks
 function hydrateFromTokenizedValue(root: HTMLElement, value: string) {
   root.innerHTML = '';
   const parts = parseMentions(value);
@@ -117,6 +130,7 @@ export function useMentionInput({ value, onChange, acceptedShares, hydrateKey, o
     mentionActiveRef.current = false;
   }, [hydrateKey]);
 
+  // Filter users in dropdown based on text typed so far and whether they are already mentioned
   const filteredUsers = useMemo(() => {
     const q = mentionQuery.trim().toLowerCase();
     const list = acceptedShares.filter((u) => {
@@ -131,6 +145,7 @@ export function useMentionInput({ value, onChange, acceptedShares, hydrateKey, o
     return list.slice(0, 8);
   }, [acceptedShares, mentionQuery, mentionedIds]);
 
+  // Commit changes to parent component
   const commitChange = () => {
     if (!editorRef.current) return;
     const next = extractTokenizedValue(editorRef.current);
@@ -146,6 +161,8 @@ export function useMentionInput({ value, onChange, acceptedShares, hydrateKey, o
     onChange(next);
   };
 
+  // Updates the mention autocomplete dropdown as user types after @, determining whether to show dropdown
+  // Extracts text between @ and cursor, filters user list, and cancels if invalid
   const updateMentionQueryFromSelection = () => {
     const r = mentionRangeRef.current;
     const sel = window.getSelection();
@@ -189,6 +206,8 @@ export function useMentionInput({ value, onChange, acceptedShares, hydrateKey, o
     setSelectedIndex(0);
   };
 
+  // Called externally to initiate mention mode, capturing cursor position as the anchor point
+  // for tracking the mention range as user continues typing
   const startMentionAtCaret = () => {
     const sel = window.getSelection();
     if (!sel || sel.rangeCount === 0) return;
@@ -198,6 +217,8 @@ export function useMentionInput({ value, onChange, acceptedShares, hydrateKey, o
     mentionRangeRef.current = caret;
   };
 
+  // Validates that @ character exists after startMentionAtCaret was called,
+  // sets precise range boundaries, and triggers the autocomplete dropdown
   const finalizeMentionStartIfNeeded = () => {
     if (!mentionActiveRef.current) return;
     const sel = window.getSelection();
@@ -237,6 +258,8 @@ export function useMentionInput({ value, onChange, acceptedShares, hydrateKey, o
     }
   };
 
+  // Completes the mention flow by replacing typed text (@joh) with a visual mention chip (@John D.),
+  // positioning cursor, cleaning up state, and syncing changes to parent
   const insertMentionChip = (user: UserType) => {
     const root = editorRef.current;
     const sel = window.getSelection();
@@ -339,6 +362,7 @@ export function useMentionInput({ value, onChange, acceptedShares, hydrateKey, o
         prev = el.childNodes[range.startOffset - 1] ?? null;
       }
 
+      // Delete mention chip if backspace is pressed on a chip
       if (prev instanceof HTMLElement && prev.hasAttribute('data-user-id')) {
         e.preventDefault();
         const chip = prev;

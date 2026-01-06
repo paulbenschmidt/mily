@@ -1,5 +1,7 @@
 # Development Journey
 
+- 2026-01-06:
+    - I reviewed the code in `useMentionInput` since I hadn't yet taken the time to fully understand it. I now understand it a bit better, but I still think it could be simplified. I won't prioritize this if this still works, but I'll leave a comment for my future self.
 - 2026-01-01:
     - After completing the user event tagging and event sharing, it's the first time that I'm really feeling like I'm not working on the high-impact features. I think it's pretty feature complete, and I just need to focus on getting more users and improving the existing user experience even more.
     - I think that the next steps are (1) enabling users to create additional sub timelines and (2) setting up some type of payment system for premium features.

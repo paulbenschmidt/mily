@@ -1,13 +1,14 @@
-- [ ] Make sure newlines are preserved in the event description
-
 ## In Progress
 - FEATURE: Allow filtering by mentioned users
-- TECHDEBT: Rename "Share" to "TimelineInvite"
-- TECHDEBT: Review the code in `useMentionInput` to see if it can be simplified, but also just to understand it better
+- BUG: When pushing the "Create Your Timeline" button to log in with a valid refresh token, it logs you in but doesn't refresh the top banner (so it doesn't show that you're logged in). I noticed this specifically on the mobile browser, but it's probably true of the desktop as well.
+- FEATURE: Enable signup with Google
+- FEATURE: Enable signup with Facebook
+- FEATURE: Enable signup with Apple
+- ENHANCE: Improve landing page
 
 ## Sprint Backlog
+- TECHDEBT: Rename model "Share" to "TimelineInvite"
 - ENHANCE: Create simple Notifications page so that users can view/deny/add-to-timeline event shares
-- BUG: When pushing the "Create Your Timeline" button to log in with a valid refresh token, it logs you in but doesn't refresh the top banner (so it doesn't show that you're logged in). I noticed this specifically on the mobile browser, but it's probably true of the desktop as well.
 - FEATURE: Allow users to create multiple timelines (Joey would like this)
     - Brainstorm on how the backend will support this
     - What should the name of this be?
