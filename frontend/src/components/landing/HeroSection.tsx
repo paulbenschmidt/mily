@@ -10,9 +10,8 @@ export function HeroSection() {
           <div className="space-y-8">
             <div className="space-y-6">
               <h1 className="text-4xl sm:text-5xl lg:text-[3.5rem] font-semibold leading-[1.1] tracking-tight text-foreground text-balance">
-                See the story you&apos;ve been living
-                <br />
-                {/* <span className="text-muted-foreground text-3xl md:text-5xl">Your Life Timeline</span> */}
+                Life is a Story.
+                See it with Mily.
               </h1>
               <p className="text-lg text-muted-foreground leading-relaxed max-w-lg text-pretty">
                 Mily is your personal visual timeline, helping you see the bigger picture of your life and share it with the people who matter most.

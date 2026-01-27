@@ -21,6 +21,7 @@ class AuthApiClient {
   }
 
   async initializeCsrf(): Promise<void> {
+    // TODO: Refactor to only fetch if the csrftoken cookie is not already set or expired
     /**
      * Initialize CSRF token by fetching from backend.
      * This should be called once on app initialization.

@@ -5,6 +5,8 @@
 - FEATURE: Enable signup with Facebook
 - FEATURE: Enable signup with Apple
 - ENHANCE: Improve landing page
+    - Update copy
+    - Make it so that hovering to close the tab or go back creates a popup that says are you sure you want to leave?
 
 ## Sprint Backlog
 - TECHDEBT: Rename model "Share" to "TimelineInvite"
