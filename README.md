@@ -38,11 +38,6 @@ Each subdirectory has its own README with setup instructions. Start there if you
 
 Mily is actively developed by a single maintainer (Paul). It's live in production but still evolving — features, schemas, and conventions may change without notice.
 
-## Repo Size
-
-- `git ls-files -z | xargs -0 wc -l | tail -n 1`
-    - 2026-01-01: 28819 total lines
-
 ## Environments
 
 Since Paul is the only one currently developing Mily, I tried to keep environment segregation as simple as possible, with one semi-local environment and two hosted environments: one for staging and one for production. If other developers begin contributing to the project, this will need to be expanded.
